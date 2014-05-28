@@ -9,9 +9,9 @@ except Exception:
 	params = {
         'dbn': 'postgres',
         'db': 'pin',
-        'user': os.environ['DB_USER'],
-        'pw': os.environ['DB_PASSWORD'],
-        'host': os.environ['DB_HOST'],
+        'user': os.environ.get('DB_USER'),
+        'pw': os.environ.get('DB_PASSWORD'),
+        'host': os.environ.get('DB_HOST'),
         }
 
 FACEBOOK = {'application_id': '1540569082835261',
