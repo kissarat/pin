@@ -184,10 +184,10 @@ jQuery(function() {
     var form_has_errors;
     clear_repin_form_notifications();
     form_has_errors = false;
-    if ($(this).find('#description').val() === '') {
-      form_has_errors = true;
-      show_error($(this).find('#description_error'), 'Please add a description');
-    }
+    // if ($(this).find('#description').val() === '') {
+    //   form_has_errors = true;
+    //   show_error($(this).find('#description_error'), 'Please add a description');
+    // }
     if ($(this).find('#board_name').val() === '' && $(this).find('#board').val() === '') {
       form_has_errors = true;
       show_error($(this).find('#board_creation_layer'), 'Please select or add a list');
