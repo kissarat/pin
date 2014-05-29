@@ -193,4 +193,4 @@ class dotdict(dict):
     Special dict used for templates compatability
     '''
     def __getattr__(self, name):
-        return self[name]
+        return self.get(name)
