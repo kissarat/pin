@@ -90,8 +90,7 @@ urls = (
     '/follow/(\d*)', 'PageFollow',
     '/addfriend/(\d*)', 'PageAddFriend',
     '/preview', 'PagePreview',
-    '/like/(\d*)', 'PageLike',
-    '/unlike/(\d*)', 'PageUnlike',
+    '/like-unlike/(\d*)', 'PinLikeUnlike',
     '/users', 'PageUsers',
     '/notifications', 'PageNotifications',
     '/notif/(\d*)', 'PageNotif',
@@ -1328,33 +1327,28 @@ class PagePreview:
             return json.dumps({'status': 'error'})
 
 
-class PageLike:
+class PinLikeUnlike:
     def GET(self, pin_id):
         force_login(sess)
         pin_id = int(pin_id)
-
-        try:
-            db.insert('likes', user_id=sess.user_id, pin_id=pin_id)
-        except:
-            pass
-        results = db.where(table='pins', id=pin_id)
-        for row in results:
-            external_id = row.external_id
+        logintoken = convert_to_logintoken(sess.user_id)
+        # Calling like API method.
+        url = "/api/social/pin/like-unlike"
+        context = {"csid_from_client": "",
+                   "logintoken": logintoken,
+                   "pin_id": pin_id}
+        api_request(url, data=context)
+        # Getting pin, to access external id
+        url = "/api/image/query"
+        context = {
+            "csid_from_client": "",
+            "logintoken": logintoken,
+            "query_params": pin_id
+        }
+        data = api_request(url, data=context).get("data")
+        pin = data.get("image_data_list")
+        external_id = pin[0].get("external_id")
         raise web.seeother('/p/%s' % external_id)
-
-
-class PageUnlike:
-    def GET(self, pin_id):
-        force_login(sess)
-        pin_id = int(pin_id)
-
-        db.delete('likes', where='user_id = $uid and pin_id = $pid',
-                  vars={'uid': sess.user_id, 'pid': pin_id})
-        results = db.where(table='pins', id=pin_id)
-        for row in results:
-            external_id = row.external_id
-        raise web.seeother('/p/%s' % external_id)
-
 
 class PageUsers:
     def GET(self):
