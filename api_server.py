@@ -91,7 +91,7 @@ urls = (
         api.views.social.GetCommentsToBackground,
     "/social/background/get_likes", \
         api.views.social.GetLikesToBackground,
-
+    "/social/pin/like-unlike", api.views.social.LikeOrUnlikePin,
 
     # API for search: items and users
     "/search/items", api.views.search.SearchItems,

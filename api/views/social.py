@@ -1008,3 +1008,42 @@ class GetLikesToBackground(BaseAPI):
                                 csid_from_client=csid_from_client,
                                 csid_from_server=csid_from_server)
         return response
+
+class LikeOrUnlikePin(BaseAPI):
+    """
+    Adds like to a certain pin.
+    :link: /api/social/pin/like
+    """
+    def POST(self):
+        """
+        :param str logintoken: Logintoken used fo authentication
+        :param str csid_from_client: CSID from client
+        :param str pin_id: Identifier of the pin
+
+        :response data: returns status: success, if like was added
+        """
+        request_data = web.input()
+        csid_from_client = request_data.get('csid_from_client')
+
+        logintoken = request_data.get('logintoken')
+        status, user_or_response = self.authenticate_by_token(logintoken)
+        if not status:
+            return user_or_response
+        csid_from_server = user_or_response['seriesid']
+
+        pin_id = request_data.get('pin_id')
+        if not pin_id:
+            error_code = "Pin id can't be empty"
+            return api_response(data={},
+                                error_code=error_code,
+                                csid_from_client=csid_from_client,
+                                csid_from_server=csid_from_server)
+        try:
+            db.insert('likes', user_id=user_or_response["id"], pin_id=pin_id)
+        except Exception:
+            db.delete('likes', where='user_id = $uid and pin_id = $pid',
+                      vars={'uid': user_or_response["id"],
+                            'pid': pin_id})
+        return api_response(data={'status': 'success'},
+                            csid_from_client=csid_from_client,
+                            csid_from_server=csid_from_server)
