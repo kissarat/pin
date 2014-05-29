@@ -132,11 +132,12 @@ $(document).ready(function() {
     $("#gallerynextweb").on("click",(function(){gallery.next();}));
     $("#galleryprevweb").on("click",(function(){gallery.prev();}));
 
-    $('#fetch-images').click(function(){
+    $('#fetch-images, #fetch-images-profile').click(function(){
+    var url_input_to_fetch = $(this).parent().find(".fetch-url");
     $.ajax({
         url:"/preview",
         data:{
-        url:$("#url").val(),
+        url: url_input_to_fetch.val(),
         },
         beforeSend: function(xhr, opts) {
             $(".progress").show();
@@ -156,9 +157,9 @@ $(document).ready(function() {
 	       var data = jQuery.parseJSON(xhr.responseText);
            if(data.status !== "error"){
 	            $(".progress").hide();
-	            $("#websitelinkweb").val($("#url").val());
+	            $("#websitelinkweb").val(url_input_to_fetch.val());
 	            // $( "#web_getlist_form" ).clearForm();
-                $("#url").attr("value", "");
+                url_input_to_fetch.attr("value", "");
 	            $( "#getlist-from-web" ).dialog("close");
 	            var percentVal = '100%';
                 barweb.width(percentVal)
