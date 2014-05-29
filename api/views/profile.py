@@ -850,6 +850,15 @@ class BgUpload(BaseAPI):
                   vars={'id': user['id']},
                   **bg_kwargs)
 
+        
+        db.delete('profile_bg_likes',
+                  where='bg_id = $id',
+                  vars={'id': user['id']})
+        
+        db.delete('profile_bg_comments',
+                  where='bg_id = $id',
+                  vars={'id': user['id']})
+
         data['bg_original_url'] = bg_kwargs['bg_original_url']
         data['bg_resized_url'] = bg_kwargs['bg_resized_url']
 
@@ -1004,6 +1013,15 @@ class PicRemove(BaseAPI):
                           vars={'id': user['id']},
                           pic=pid)
 
+        
+            db.delete('profile_photo_likes',
+                      where='photo_id = $id',
+                      vars={'id': photo_id})
+            
+            db.delete('profile_photo_comments',
+                      where='photo_id = $id',
+                      vars={'id': photo_id})
+
         response = api_response(data=data,
                                 status=status,
                                 error_code=error_code,
@@ -1047,6 +1065,15 @@ class BgRemove(BaseAPI):
                   where='id = $id',
                   vars={'id': user['id']},
                   **bg_kwargs)
+
+        
+        db.delete('profile_bg_likes',
+                  where='bg_id = $id',
+                  vars={'id': user['id']})
+        
+        db.delete('profile_bg_comments',
+                  where='bg_id = $id',
+                  vars={'id': user['id']})
 
         response = api_response(data=data,
                                 status=status,
