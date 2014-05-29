@@ -130,11 +130,12 @@ $(document).ready(function() {
     $("#gallerynextweb").on("click",(function(){gallery.next();}));
     $("#galleryprevweb").on("click",(function(){gallery.prev();}));
 
-    $('#fetch-images').click(function(){
+    $('#fetch-images, #fetch-images-profile').click(function(){
+    var url_input_to_fetch = $(this).parent().find(".fetch-url");
     $.ajax({
         url:"/preview",
         data:{
-        url:$("#url").val()
+        url: url_input_to_fetch.val(),
         },
         beforeSend: function(xhr, opts) {
             $(".loading").show();
@@ -145,20 +146,21 @@ $(document).ready(function() {
 	    complete: function(xhr) {
 	       var data = jQuery.parseJSON(xhr.responseText);
            if(data.status !== "error"){
-               $(".loading").hide();
-               // $( "#web_getlist_form" ).clearForm();
-               $( "#getlist-from-web" ).dialog("close");
-               //$( "#addpindialogformweb" ).dialog("open");
-               //$("#commentsweb").focus();
-               initgallery(data);
-               if (1 != gallery.lengthTotal)
-                   $("#websitelinkweb").val($("#url").val());
-               $("#url").val('');
-           } else {
-               $("#statusweb").html("please provide a valid image url");
-               return false;
-           }
-
+	            $(".progress").hide();
+	            $("#websitelinkweb").val(url_input_to_fetch.val());
+	            // $( "#web_getlist_form" ).clearForm();
+                url_input_to_fetch.attr("value", "");
+	            $( "#getlist-from-web" ).dialog("close");
+	            var percentVal = '100%';
+                barweb.width(percentVal)
+                percentweb.html(percentVal);
+                //$( "#addpindialogformweb" ).dialog("open");
+                //$("#commentsweb").focus();
+                initgallery(data);
+            }else{
+                $("#statusweb").html("please provide a valid image url");
+                return false;
+            }
 	    }
     })});
 
