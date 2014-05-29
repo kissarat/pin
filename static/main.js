@@ -61,6 +61,16 @@ $(document).ready(function() {
     id = xx.find(".active").attr("photoid");
     $("#remove_photo").attr("href", "/photo/" + id + "/remove");
   });
+
+  $( ".form_with_loading" ).submit(function( event ) {
+    $("body").addClass("loading");
+    // event.preventDefault();
+  });
+
+  $( ".link_with_loading" ).click(function() {
+    $("body").addClass("loading");
+    // event.preventDefault();
+  });
 });
 
 function hide_pins_date() {

@@ -84,7 +84,7 @@ $def with (user, countries, name, msg=None)
   <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                <li role="presentation"><a href='#' id="upload_thumbnail" data-toggle="modal" data-target="#uploadImageModal">Upload another profile picture</a></li>
                $if user.pic:
-                    <li role="presentation"><a href='/photo/$user.pic/remove' id="remove_photo1">Remove</a></li>
+                    <li role="presentation"><a href='/photo/$user.pic/remove' id="remove_photo1" class='link_with_loading'>Remove</a></li>
   </ul>
 
 </div>
@@ -117,7 +117,7 @@ $def with (user, countries, name, msg=None)
         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu2">
         <li role="presentation"><a href='#' data-toggle="modal" data-target="#uploadBackgroundImageModal">Upload background photo</a></li>
                $if user.bg:
-                    <li role="presentation"><a href='/background/$(user.id)/remove' id="remove_bg_photo">Remove</a></li>
+                    <li role="presentation"><a href='/background/$(user.id)/remove' id="remove_bg_photo" class='link_with_loading'>Remove</a></li>
         </ul>
         </div>
 
