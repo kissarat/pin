@@ -5,7 +5,7 @@ $def with (pin, comments, rating, embeded=False)
     <p class='faded'>Posted by <a href='/profile/$pin.user_id'>$pin.user_name</a>
     $if pin.categories:
     	in
-	    $for cat in pin.categories: 
+	    $for cat in pin.categories:
 	    	<a href='/category/$cat.slug'>$cat.name</a>
 	    	$if not loop.last:
 	    		,
@@ -38,9 +38,9 @@ $def with (pin, comments, rating, embeded=False)
         <div class='links left'>
           $if 'logged_in' in sess:
             $if pin.liked:
-              <a href='/unlike/$pin.id'>Unlike</a> &middot;
+              <a href='/like-unlike/$pin.id'>Unlike</a> &middot;
             $else:
-              <a href='/like/$pin.id'>Like</a> &middot;
+              <a href='/like-unlike/$pin.id'>Like</a> &middot;
             <label for='input-comment'>Comment</label> &middot;
           <span class='link' id='share'>Share</span>
           $if pin.tags:

@@ -1012,6 +1012,7 @@ class GetLikesToBackground(BaseAPI):
 class LikeOrUnlikePin(BaseAPI):
     """
     Adds like to a certain pin.
+
     :link: /api/social/pin/like
     """
     def POST(self):
@@ -1021,6 +1022,8 @@ class LikeOrUnlikePin(BaseAPI):
         :param str pin_id: Identifier of the pin
 
         :response data: returns status: success, if like was added
+
+        :example usage: curl --data "csid_from_client=1&logintoken=RxPu7fLYgv&pin_id=46" http://localhost:8080/api/social/pin/like-unlike
         """
         request_data = web.input()
         csid_from_client = request_data.get('csid_from_client')
