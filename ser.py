@@ -127,6 +127,7 @@ urls = (
     '/background/(\d*)/like', 'PageLikeBackground',
     '/background/(\d*)/dislike', 'PageDislikeBackground',
     '/background/(\d*)/comment', 'PageCommentBackground',
+    '/background/(\d*)/remove', 'PageRemoveBackground',
     '/setprofilepic/(\d*)', 'PageSetProfilePic',
     '/setprivacy/(\d*)', 'PageSetPrivacy',
 
@@ -279,40 +280,41 @@ class PageIndex:
         ajax = int(web.input(ajax=0).ajax)
         pins = []
 
-        data_to_send = {
-            'csid_from_client': '',
-            'page': offset,
-            # 'items_per_page': PIN_COUNT
-            'items_per_page': 100
-        }
-
-        # if logged_in(sess):
-        #     data_to_send['user_id'] = sess.user_id
-        #     url = "api/profile/userinfo/pins"
-        # else:
-        data_to_send['query_type'] = "range"
-        data_to_send['not_private'] = True
-        url = "api/image/query/category"
-
-        data = api_request(url, "POST", data_to_send)
-        if data['status'] == 200:
-            image_id_list = data['data'].get('image_id_list', None)
-            if image_id_list is None:
-                pins_list = data['data'].get('pins_list', [])
-                image_id_list = [pin['id'] for pin in pins_list]
-
-            data_for_image_query = {
-                "csid_from_client": '',
-                "query_params": image_id_list
+        if logged_in(sess):
+            data_to_send = {
+                'csid_from_client': '',
+                'page': offset,
+                # 'items_per_page': PIN_COUNT
+                'items_per_page': 100
             }
-            data_from_image_query = api_request("api/image/query",
-                                                "POST",
-                                                data_for_image_query)
 
-            if data_from_image_query['status'] == 200:
-                pins = data_from_image_query['data']['image_data_list']
+            # if logged_in(sess):
+            #     data_to_send['user_id'] = sess.user_id
+            #     url = "api/profile/userinfo/pins"
+            # else:
+            data_to_send['query_type'] = "range"
+            data_to_send['not_private'] = True
+            url = "api/image/query/category"
 
-        pins = [pin_utils.dotdict(pin) for pin in pins]
+            data = api_request(url, "POST", data_to_send)
+            if data['status'] == 200:
+                image_id_list = data['data'].get('image_id_list', None)
+                if image_id_list is None:
+                    pins_list = data['data'].get('pins_list', [])
+                    image_id_list = [pin['id'] for pin in pins_list]
+
+                data_for_image_query = {
+                    "csid_from_client": '',
+                    "query_params": image_id_list
+                }
+                data_from_image_query = api_request("api/image/query",
+                                                    "POST",
+                                                    data_for_image_query)
+
+                if data_from_image_query['status'] == 200:
+                    pins = data_from_image_query['data']['image_data_list']
+
+            pins = [pin_utils.dotdict(pin) for pin in pins]
 
         # query = (query1 if logged_in(sess) else query2) % (offset * PIN_COUNT, PIN_COUNT)
         # qvars = {}
@@ -1637,23 +1639,25 @@ class PageRemovePhoto:
     def GET(self, pid):
         force_login(sess)
         pid = int(pid)
+        logintoken = convert_to_logintoken(sess.user_id)
 
-        photo = db.query('''
-            select album_id from photos where photos.id = $id AND album_id = $album_id ''', vars={'id': pid, 'album_id':sess.user_id})
-        if not photo:
-            return 'no such photo'
+        photos_context = {
+            "csid_from_client": "",
+            "photo_id": pid,
+            "logintoken": logintoken}
 
-        photo = photo[0]
-        user = dbget('users', sess.user_id)
-        if photo.album_id != sess.user_id:
-            return 'no such photo'
-        else:
-            db.delete('photos', where="id = %s" % (pid))
-            user = dbget('users', sess.user_id)
-            '''if this is an avatar update to null'''
-            if user.pic == pid:
-                db.update('users', where='id = $id', vars={'id': sess.user_id}, pic=None, bgx=0, bgy=0)
-        return web.redirect('/%s' % (user.username))
+        data = api_request("/api/profile/userinfo/remove_pic",
+                           data=photos_context)
+
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "",
+            "id": sess.user_id,
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        return web.redirect('/%s' % (user['username']))
 
 
 class PageDefaultPhoto:
@@ -1817,6 +1821,30 @@ class PageCommentBackground:
             comment = data.get('comment', None)
 
         return tpl('comment', comment)
+
+
+class PageRemoveBackground:
+    def GET(self, pid):
+        force_login(sess)
+        pid = int(pid)
+        logintoken = convert_to_logintoken(sess.user_id)
+
+        photos_context = {
+            "csid_from_client": "",
+            "logintoken": logintoken}
+
+        data = api_request("/api/profile/userinfo/remove_bg",
+                           data=photos_context)
+
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "",
+            "id": sess.user_id,
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        return web.redirect('/%s' % (user['username']))
 
 
 class PageSetProfilePic:
