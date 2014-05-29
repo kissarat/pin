@@ -286,7 +286,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
                 <h1>Change your picture</h1>
                 </div>
 
-                <form id='uploadimageform' action="/changeprofile" method='post' enctype='multipart/form-data'>
+                <form class='form_with_loading' id='uploadimageform' action="/changeprofile" method='post' enctype='multipart/form-data'>
                 <div class="modal-body">
                <input type='file' name='file' id='file' accept="image/*" required="required" />
                  </div>
@@ -309,7 +309,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
                 <h1>Background Photo</h1>
                 </div>
 
-                <form id='uploadimageform' action="/changebg" method='post' enctype='multipart/form-data'>
+                <form class='form_with_loading' id='uploadimageform' action="/changebg" method='post' enctype='multipart/form-data'>
                 <div class="modal-body">
                <input type='file' name='file' id='file' accept="image/*" required="required" />
                  </div>
