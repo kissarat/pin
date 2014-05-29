@@ -957,6 +957,8 @@ class GetProfilePictures(BaseAPI):
 
             data['photos'] = []
             for photo in photos:
+                if not photo.resized_url:
+                    continue
                 photo['comments'] = get_comments_to_photo(photo['id'])
                 data['photos'].append(photo)
 
