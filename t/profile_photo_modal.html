@@ -10,6 +10,8 @@ $def with (photo, prev_photo=None, next_photo=None)
                 <div class="modal-image-previous-btn">
                     $if prev_photo:
                         <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#showPhotoModal$prev_photo.id"><</a>
+                    $else:
+                        &nbsp;
                 </div>
 
                 <div class="modal-image-container">
@@ -24,6 +26,8 @@ $def with (photo, prev_photo=None, next_photo=None)
                 <div class="modal-image-next-btn">
                     $if next_photo:
                         <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#showPhotoModal$next_photo.id">></a>
+                    $else:
+                        &nbsp;
                 </div>
                 $if 'logged_in' in sess and photo.user_id == sess.user_id:
                     <div class="modal-buttons">
