@@ -243,6 +243,7 @@ jQuery(function() {
       show_error($(this).find('#board_creation_layer'), 'Please select or add a list');
     }
     if (form_has_errors) {
+      $("body").removeClass("loading");
       return false;
     }
     return true;
