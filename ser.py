@@ -18,7 +18,10 @@ import BeautifulSoup
 import cStringIO
 import urllib2
 
-from mypinnings.database import connect_db, dbget
+
+from mypinnings.database import connect_db, dbget, load_sqla
+from models import Like
+
 db = connect_db()
 
 from mypinnings import auth
@@ -171,6 +174,8 @@ urls = (
 )
 
 app = web.application(urls, globals())
+app.add_processor(load_sqla)
+
 mypinnings.session.initialize(app)
 sess = mypinnings.session.sess
 mypinnings.template.initialize(directory='t')
@@ -275,6 +280,7 @@ class PageIndex:
         #     where not users.private
         #     group by tags.tags, categories.id, pins.id, users.id order by timestamp desc offset %d limit %d'''
 
+        import ipdb; ipdb.set_trace()
         offset = int(web.input(offset=1).offset)
         ajax = int(web.input(ajax=0).ajax)
         pins = []
@@ -2340,5 +2346,4 @@ def csrf_protected(f):
     return decorated
 
 if __name__ == '__main__':
-
     app.run()
