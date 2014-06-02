@@ -1039,11 +1039,13 @@ class PageProfile2:
         boards = api_request("/api/profile/userinfo/boards",
                              data=data).get("data", [])
 
+        # Getting pin ids from give boards
         pins_ids = []
         for board in boards:
             if len(board['pins_ids']) > 0:
                 pins_ids.append(board['pins_ids'][0])
 
+        # Getting pins from pin ids
         logintoken = convert_to_logintoken(sess.user_id)
         data_for_image_query = {
             "csid_from_client": '',
@@ -1053,16 +1055,13 @@ class PageProfile2:
         data_from_image_query = api_request("api/image/query",
                                             "POST",
                                             data_for_image_query)
-
         boards_first_pins = {}
         if data_from_image_query['status'] == 200:
             for pin in data_from_image_query['data']['image_data_list']:
                 boards_first_pins[pin['board_id']] = pin
 
-        boards_list = [pin_utils.dotdict(board) for board in boards]
-        # Takes only boards with pins
-        boards = [board for board in boards_list if len(board.get("pins_ids")) > 0]
 
+        boards = [pin_utils.dotdict(board) for board in boards]
 
         # Getting categories. Required in case when user
         # is editing own pins.
