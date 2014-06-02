@@ -9,7 +9,10 @@ $def with (boards, user, boards_first_pins={})
             <div class="dwItem inlineB small" id="horz-pin$board.id">
 
                 <div class="dwImg">
-                    <img src="$boards_first_pins[board.id]['image_202_url']" />
+                  $if boards_first_pins.get(board.id):
+                      <img src="$boards_first_pins[board.id]['image_202_url']" />
+                  $else:
+                      <img class="empty_list" src="/static/img/empty_list.png" />
                 </div>
                 <div class="dwName">
                     <p>
