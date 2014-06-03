@@ -69,7 +69,7 @@ urls = (
     '/lists', 'PageBoards',
     '/browse', 'PageBrowse',
     '/category/(.*)', 'mypinnings.category_listing.PageCategory',
-    '/new-list', 'PageNewBoard',
+    #'/new-list', 'PageNewBoard',
     '/newaddpin', 'NewPageAddPin',
     '/newaddpinform', 'NewPageAddPinForm',
 
@@ -449,27 +449,27 @@ class PageBoards:
         return ltpl('boards', boards, user)
 
 
-class PageNewBoard:
-    _form = form.Form(
-        form.Textbox('name'),
-        form.Textarea('description'),
-        #form.Checkbox('private'),
-        form.Button('create'),
-    )
+# class PageNewBoard:
+#     _form = form.Form(
+#         form.Textbox('name'),
+#         form.Textarea('description'),
+#         #form.Checkbox('private'),
+#         form.Button('create'),
+#     )
 
-    def GET(self):
-        force_login(sess)
-        form = self._form()
-        return ltpl('addboard', form)
+#     def GET(self):
+#         force_login(sess)
+#         form = self._form()
+#         return ltpl('addboard', form)
 
-    def POST(self):
-        form = self._form()
-        if not form.validates():
-            return 'you need to fill in everything'
+#     def POST(self):
+#         form = self._form()
+#         if not form.validates():
+#             return 'you need to fill in everything'
 
-        db.insert('boards', user_id=sess.user_id, name=form.d.name,
-                  description=form.d.description, public=False)
-        raise web.seeother('/lists')
+#         db.insert('boards', user_id=sess.user_id, name=form.d.name,
+#                   description=form.d.description, public=False)
+#         raise web.seeother('/lists')
 
 
 def make_tag(tag):

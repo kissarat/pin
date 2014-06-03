@@ -37,12 +37,13 @@ $def with (pin,categories_to_select, boards)
 			    		$for board in boards:
 			    			<option value="$board.id" $:('selected' if pin.board_id == board.id else '')>$board.name</option>
 		    		</select>
-		    		<button type="button" id="button_change_layer_to_add_new_board" alt="Add a new list">+</button>
+
+		    		<!-- <button type="button" id="button_change_layer_to_add_new_board" alt="Add a new list">+</button> -->
 	    		</div>
-	    		<div id="layer_add_new_board" style="display:none">
-	    			<input type="text" name="board_name" id="board_name">
-		    		<button type="button" id="button_change_layer_to_select_existing_board" alt="Select an existing board">-</button>
-	    		</div>
+	    		<!-- <div id="layer_add_new_board" style="display:none"> -->
+	    		<!-- 	<input type="text" name="board_name" id="board_name"> -->
+		    	<!-- 	<button type="button" id="button_change_layer_to_select_existing_board" alt="Select an existing board">-</button> -->
+	    		<!-- </div> -->
 	    	</td>
 	    </tr>
 	    <tr>
