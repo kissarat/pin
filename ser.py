@@ -280,7 +280,6 @@ class PageIndex:
         #     where not users.private
         #     group by tags.tags, categories.id, pins.id, users.id order by timestamp desc offset %d limit %d'''
 
-        import ipdb; ipdb.set_trace()
         offset = int(web.input(offset=1).offset)
         ajax = int(web.input(ajax=0).ajax)
         pins = []
