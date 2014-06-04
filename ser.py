@@ -2389,7 +2389,7 @@ class PageList(object):
     This class is responsible for rendering list individual page
     """
     def GET(self, profile_name, board_name):
-        # Getting board infor
+        # Getting board info
         url = "/api/image/query-board"
         ctx = {"csid_from_client": "", "board_name": board_name,
                "username": profile_name}
@@ -2402,7 +2402,6 @@ class PageList(object):
         pins_info = api_request(url, data=ctx).get("data")
         pins = [pin_utils.dotdict(pin)
                 for pin in pins_info.get("image_data_list")]
-
         ajax = int(web.input(ajax=0).ajax)
         if ajax:
             return tpl('list', pins, "horzpin3")

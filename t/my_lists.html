@@ -20,7 +20,7 @@ $def with (boards, user, boards_first_pins={}, active_tab='')
                   $if boards_first_pins.get(board.id):
                        <a class="boardlink" href="$board_url" rel="$board_slug">
                             <img src="$boards_first_pins[board.id]['image_202_url']" />
-                      </a>
+                       </a>
                   $else:
                       <img class="empty_list" src="/static/img/empty_list.png" />
                 </div>
