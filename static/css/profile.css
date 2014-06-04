@@ -460,7 +460,7 @@
 .dwLike p
 {
     color: #555555;
-    /*height: 30px; display: block;  */ 
+    /*height: 30px; display: block;  */
 }
 
 .dwIcoEye
@@ -522,7 +522,7 @@
 .modal-bottom {
       margin: 20px auto;
       width: 455px;
-      text-align: left; 
+      text-align: left;
 }
 
 .modal-bottom a {
@@ -553,3 +553,9 @@
     box-shadow: none; }
 .modal-bottom form textarea {
     width: 455px; }
+
+.empty_list{
+    width: auto !important;
+    display: block;
+    margin: 0px auto;
+}

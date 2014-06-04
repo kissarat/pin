@@ -2,7 +2,7 @@ $def with (pin)
 $if pin.id and pin.category:
   <div class='pin'>
     <div class='buttons'>
-      $if pin.repin == 0:
+      $if not pin.repin:
         <a href='/add-to-your-own-getlist/$pin.id' target='_blank' class='button small-pad'>Add to Getlist</a>
       $else:
         <a target='_blank' href='/add-to-your-own-getlist/$pin.repin' class='button small-pad'>Add to Getlist</a>

@@ -6,12 +6,13 @@ $def with (pin, form)
     <tr><th><label for="board">board</label></th><td>
     	<div id="board_selection_layer">
     		$:form['board'].render()
-    		<button type="button" id="button_add_board" title="Add another list">+</button>
+
+    		<!-- <button type="button" id="button_add_board" title="Add another list">+</button> -->
 		</div>
-		<div id="board_creation_layer" style="display:none;">
-			$:form['board_name'].render()
-			<button type="button" id="button_select_board" title="Select existing list">-</button>
-		</div>
+		<!-- <div id="board_creation_layer" style="display:none;"> -->
+		<!-- 	$:form['board_name'].render() -->
+		<!-- 	<button type="button" id="button_select_board" title="Select existing list">-</button> -->
+		<!-- </div> -->
 	</td></tr>
     <tr><th><label for="tags">tags (optional)</label></th><td>$:form['tags'].render()</td></tr>
     <tr><th><label for="add to getlist"></label></th><td>$:form['add to getlist'].render()</td></tr>

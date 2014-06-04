@@ -37,8 +37,8 @@ $else:
 <div class='clearfix category-disp'>
   <div class='left horz-pins'>
    </div>
-  
- 
+
+
 </div>
 
       <div class="modal fade" id="addToGetListModal">
@@ -60,12 +60,13 @@ $else:
     <option value="">Select one</option>
   $for board in boards:
     <option value="$board.id">$board.name</option>
-</select><button type="button" id="button_add_board" title="Add another list">+</button>
+</select>
+<!-- <button type="button" id="button_add_board" title="Add another list">+</button>xs -->
 </div>
-<div id="board_creation_layer" style="display:none;">
-	<input type="text" name="board_name" id="board_name" value="">
-	<button type="button" id="button_select_board" title="Select existing list">-</button>
-</div>
+<!-- <div id="board_creation_layer" style="display:none;"> -->
+<!-- 	<input type="text" name="board_name" id="board_name" value=""> -->
+<!-- 	<button type="button" id="button_select_board" title="Select existing list">-</button> -->
+<!-- </div> -->
 </td></tr>
     <tr><th><label for="tags">tags (optional)</label></th><td><input type="text" placeholder="#this #is #awesome" id="tags" name="tags"></td></tr>
 </tbody>
@@ -87,9 +88,9 @@ $else:
 
               </form>
               </div><!-- /.modal-content -->
-              
+
             </div><!-- /.modal-dialog -->
-        
+
         </div>
 $:tpl('pin212px_template')
 <script type="text/javascript" src="/static/category.js"></script>

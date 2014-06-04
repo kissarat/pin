@@ -9,6 +9,7 @@ import random
 from mypinnings import database
 from api.views.base import BaseAPI
 from api.utils import api_response, save_api_request, photo_id_to_url
+from api.utils import e_response
 from mypinnings.database import connect_db
 from mypinnings.conf import settings
 from mypinnings.media import store_image_from_filename
@@ -132,6 +133,59 @@ class ImageUpload(BaseAPI):
         if exists:
             filename = "%s.%s" % (uuid.uuid4().hex[:10], filename)
         return filename
+
+
+class QueryBoardInfo(BaseAPI):
+    """
+    Class responsible for getting all pins from a given board
+
+    :link: /api/image/query-board
+    """
+    def POST(self):
+        """ Returns pin id's of a given board
+
+        :param str csid_from_client: Csid string from client
+        :param str board_name: name of a queried board
+        :param username: name of the user who is being queried
+
+        :response: * img_ids - list of pins related to a given board
+                   * board_info - relevant board information
+
+        :to test: curl -d "username=olte" -d "board_name=Things to get" -d "csid_from_client=1" http://localhost:8080/api/image/query-board
+        """
+        request_data = web.input()
+        save_api_request(request_data)
+
+        username = request_data.get('username')
+        board_name = request_data.get('board_name')
+
+        csid_from_client = request_data.get("csid_from_client")
+        csid_from_server = ""
+
+        # Get user_id from username
+        user = db.select('users', where='username=$username',
+                            vars={'username': username}).list()
+
+        if len(user) == 0:
+            return e_response("Given user does not exist")
+        user_id = user[0].get("id")
+
+
+        # Get board by user_id and board_name
+        board = db.select('boards', where='user_id=$uid and name=$bname',
+                          vars = {'uid': user_id,
+                                  'bname': board_name}).list()
+        if len(board) == 0:
+            return e_response("Impossible to find board by name and user_id")
+        # Get pins by board.id
+        image_ids = db.select('pins', where='board_id=$bid',
+                              vars={'bid': board[0]['id']},
+                              what='id')
+        response = {}
+        response['img_ids'] = [img["id"] for img in image_ids.list()]
+        response['board'] = board
+        return api_response(data=response, csid_from_server=csid_from_server,
+                            csid_from_client=csid_from_client)
 
 
 class ImageQuery(BaseAPI):

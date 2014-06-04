@@ -13,6 +13,12 @@ def decimal_default(obj):
         return float(obj)
     raise TypeError
 
+def e_response(error_code):
+    """
+    A shortcut to return error response
+    """
+    return api_response(data={}, status=405, error_code=error_code)
+
 def api_response(data, status=200, error_code="", csid_from_server="",
     csid_from_client="", client_token="", notifications={}):
     """
