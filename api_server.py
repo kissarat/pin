@@ -11,7 +11,7 @@ import api.views.social
 import api.views.search
 import api.views.categories
 import api.views.websearch
-
+from mypinnings.database import load_sqla
 
 class redirect:
     """
@@ -58,9 +58,8 @@ urls = (
     "/profile/test-username", api.views.profile.TestUsernameOrEmail,
     "/profile/userinfo/upload_pic", api.views.profile.PicUpload,
     "/profile/userinfo/upload_bg", api.views.profile.BgUpload,
-    "/profile/userinfo/get_photos", api.views.profile.GetProfilePictures,
-    "/profile/userinfo/remove_pic", api.views.profile.PicRemove,
-    "/profile/userinfo/remove_bg", api.views.profile.BgRemove,
+    "/profile/userinfo/get_pictures", api.views.profile.GetPictures,
+    "/profile/userinfo/remove_pic", api.views.profile.PictureRemove,
 
     # API to user profile: change user password
     "/profile/pwd", api.views.profile.ChangePassword,
@@ -105,6 +104,7 @@ urls = (
     )
 web.config.debug = True
 api_app = web.application(urls, globals(), autoreload=True)
+api_app.add_processor(load_sqla)
 
 if __name__ == "__main__":
     api_app.run()
