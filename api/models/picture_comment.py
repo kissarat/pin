@@ -9,7 +9,7 @@ from basemodel import Base, engine, Serializer
 class PictureComment(Base, Serializer):
     __tablename__ = 'picture_comments'
     __table_args__ = {'extend_existing':True}
-    __public__ = ['id', 'picture_id', 'user_id', 'user']
+    __public__ = ['id', 'picture_id', 'user_id', 'comment']
 
     id = Column(Integer, primary_key=True)
     picture_id = Column(Integer, ForeignKey("pictures.id"))

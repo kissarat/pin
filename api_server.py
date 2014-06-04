@@ -74,22 +74,14 @@ urls = (
         api.views.social.SocialQueryMessages,
     "/social/query/conversations", \
         api.views.social.SocialQueryConversations,
-    "/social/photo/add_comment", \
-        api.views.social.AddCommentToPhoto,
-    "/social/photo/like_dislike", \
-        api.views.social.LikeDislikePhoto,
-    "/social/photo/get_comments", \
-        api.views.social.GetCommentsToPhoto,
-    "/social/photo/get_likes", \
-        api.views.social.GetLikesToPhoto,
-    "/social/background/add_comment", \
-        api.views.social.AddCommentToBackground,
-    "/social/background/like_dislike", \
-        api.views.social.LikeDislikeBackground,
-    "/social/background/get_comments", \
-        api.views.social.GetCommentsToBackground,
-    "/social/background/get_likes", \
-        api.views.social.GetLikesToBackground,
+    "/social/picture/add_comment", \
+        api.views.social.AddCommentToPicture,
+    "/social/picture/like_dislike", \
+        api.views.social.LikeDislikePicture,
+    # "/social/photo/get_comments", \
+    #     api.views.social.GetCommentsToPhoto,
+    # "/social/photo/get_likes", \
+    #     api.views.social.GetLikesToPhoto,
     "/social/pin/like-unlike", api.views.social.LikeOrUnlikePin,
 
     # API for search: items and users

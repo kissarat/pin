@@ -8,7 +8,7 @@ from basemodel import Base, engine, Serializer
 class PictureLike(Base, Serializer):
     __tablename__ = 'picture_likes'
     __table_args__ = {'extend_existing':True}
-    __public__ = ['id', 'picture_id', 'user_id', 'user']
+    __public__ = ['id', 'picture_id', 'user_id']
 
     id = Column(Integer, primary_key=True)
     picture_id = Column(Integer, ForeignKey("pictures.id"))
