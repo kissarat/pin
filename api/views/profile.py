@@ -253,21 +253,20 @@ class ProfileInfo(BaseUserProfile):
         if not user:
             return api_response(data={}, status=405,
                                 error_code="User was not found")
-
         followers = UserProfile\
-            .query_followed_by(profile_owner=user["id"],
+            .query_followed_by(profile_owner=user.id,
                                current_user=response_or_user["id"])
-        user['follower_count'] = len(followers)
+        user.follower_count = len(followers)
 
         follow = UserProfile\
-            .query_following(profile_owner=user["id"],
+            .query_following(profile_owner=user.id,
                              current_user=response_or_user["id"])
-        user['follow_count'] = len(follow)
+        user.follow_count = len(follow)
 
         csid_from_client = request_data.pop('csid_from_client')
         csid_from_server = ""
 
-        return api_response(data=user,
+        return api_response(data=user.to_serializable_dict(),
                             csid_from_client=csid_from_client,
                             csid_from_server=csid_from_server)
 
