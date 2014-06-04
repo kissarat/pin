@@ -6,11 +6,14 @@ $def with (boards, user, boards_first_pins={})
     <div class="inContentiySmoktunovskiy">
     $if boards:
         $for board in boards:
+            $ board_url = "/" + user.username + "/list/" + board.name
             <div class="dwItem inlineB small" id="horz-pin$board.id">
 
                 <div class="dwImg">
                   $if boards_first_pins.get(board.id):
-                      <img src="$boards_first_pins[board.id]['image_202_url']" />
+                      <a href="$board_url">
+                          <img src="$boards_first_pins[board.id]['image_202_url']" />
+                      </a>
                   $else:
                       <img class="empty_list" src="/static/img/empty_list.png" />
                 </div>

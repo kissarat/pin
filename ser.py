@@ -169,6 +169,7 @@ urls = (
     '/pwreset/(\d*)/(\d*)/(.*)/', 'mypinnings.recover_password.PasswordReset',
     '/recover_password_complete/', 'mypinnings.recover_password.RecoverPasswordComplete',
     '/getuserpins/(.*?)', 'GetUserPins',
+    '/(.*?)/list/(.*?)', 'PageList',
     '/(.*?)', 'PageProfile2',
     '/(.*?)/(.*?)', 'PageConnect2',
 
@@ -1045,7 +1046,7 @@ class PageProfile2:
         boards = api_request("/api/profile/userinfo/boards",
                              data=data).get("data", [])
 
-        # Getting pin ids from give boards
+        # Getting pin ids from given boards
         pins_ids = []
         for board in boards:
             if len(board['pins_ids']) > 0:
@@ -1956,6 +1957,7 @@ class PageViewCategory:
             group by tags.tags, categories.id, pins.id, users.id order by timestamp desc limit %d offset %d''' % (PIN_COUNT, offset * PIN_COUNT)
 
         pins = list(db.query(query, vars={'cid': cid}))
+
         return ltpl('category', pins, category, name, offset, PIN_COUNT)
 
 
@@ -2305,6 +2307,27 @@ class PageSearchItems:
                 return json_pins(pins, 'horzpin')
         return ltpl('search', pins, orig or hashtag)
 
+class PageList(object):
+    """
+    This class is responsible for rendering list individual page
+    """
+    def GET(self, profile_name, board_name):
+        force_login(sess)
+
+        # Getting board infor
+        url = "/api/image/query-board"
+        ctx = {"csid_from_client": "", "board_name": board_name,
+               "username": profile_name}
+        board_info = api_request(url, data=ctx).get("data")
+
+        # Getting images
+        url = "/api/image/query"
+        ctx = {"csid_from_client": "",
+               "query_params": board_info["img_ids"]}
+        pins_info = api_request(url, data=ctx).get("data")
+        pins = [pin_utils.dotdict(pin)
+                for pin in pins_info.get("image_data_list")]
+        return ltpl('pins', pins)
 
 class PageSearchPeople:
     def GET(self):
