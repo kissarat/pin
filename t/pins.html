@@ -40,7 +40,7 @@ $if template == "horzpin3":
                         </div>
                         <div class="dwContent">
                 $if not pin.repin:
-                    $:tpl('editaddedpinmodal', pin,categories_to_select, board)
+                    $:tpl('editaddedpinmodal', pin,categories_to_select, boards)
                 $:tpl(template, pin)
             </div>
             </div>

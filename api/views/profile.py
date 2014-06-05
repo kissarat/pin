@@ -601,7 +601,7 @@ class QueryPins(BaseAPI):
         :to test: curl --data "user_id=78&csid_from_client=1" http://localhost:8080/api/profile/userinfo/pins
         """
         query = '''
-        select tags.tags, pins.*, users.pic as user_pic,
+        select tags.tags, pins.*, users.pic_id as user_pic,
         users.username as user_username, users.name as user_name,
         count(distinct p1) as repin_count,
         count(distinct l1) as like_count

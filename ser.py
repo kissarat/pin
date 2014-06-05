@@ -1024,17 +1024,17 @@ class PageProfile2:
             .get("data", {})
         user['bg_likes'] = pin_utils.dotdict(likes_data)
 
-        comments_data = {
-            "csid_from_client": "",
-            "bg_id": user['id']}
+        # comments_data = {
+        #     "csid_from_client": "",
+        #     "bg_id": user['id']}
 
-        if logintoken:
-            comments_data['logintoken'] = logintoken
+        # if logintoken:
+        #     comments_data['logintoken'] = logintoken
 
-        comments_data = api_request("/api/social/background/get_comments",
-                             data=comments_data)\
-            .get("data", {})
-        user['bg_comments'] = pin_utils.dotdict(comments_data)
+        # comments_data = api_request("/api/social/background/get_comments",
+        #                      data=comments_data)\
+        #     .get("data", {})
+        user['bg_comments'] = pin_utils.dotdict({"comments": []})
 
 
         user = pin_utils.dotdict(user)
