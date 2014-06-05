@@ -79,7 +79,13 @@ $(document).ready(function() {
         event.preventDefault();
         $elem = $(this);
         $.get($elem.attr('href'), function(data){
-            $elem.text(data);
+            if (data == 'unfollowed'){
+                status = "Follow"
+            }
+            else {
+                status = "Unfollow"
+            }
+            $elem.text(status);
         });
     });
 });

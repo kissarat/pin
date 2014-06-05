@@ -44,7 +44,7 @@ urls = (
     "/image/categorize", api.views.images.Categorize,
     "/image/query/category", api.views.images.QueryCategory,
     "/image/query/hashtags", api.views.images.QueryHashtags,
-    "/image/follow-board", api.views.images.FollowOrUnfollowBoard,
+    "/image/follow-list", api.views.images.FollowOrUnfollowList,
     "/image/query/get_by_hashtags", \
         api.views.images.QueryGetByHashtags,
 
