@@ -555,20 +555,27 @@ class QueryBoards(BaseAPI):
 
         :param str csid_from_client: Csid string from client
         :param str user_id: id of the queried user
+        :param str current_user_id: id of current user
         :response_data: returns all boards of a given user as a list
         :to test: curl --data "user_id=2&csid_from_client=1" http://localhost:8080/api/profile/userinfo/boards
         """
         request_data = web.input()
         csid_from_client = request_data.get('csid_from_client')
         csid_from_server = ""
+        current_user_id = request_data.get('current_user_id', 0)
         user_id = request_data.get('user_id')
 
         if not user_id:
             return api_response(data={}, status=405,
                                 error_code="Missing user_id")
-        boards_tmp = db.select('boards',
-                           where='user_id=$user_id',
-                           vars={'user_id': user_id})
+        boards_query = """
+        SELECT b.id, b.name, b.description, bf.follower_id is not null
+        as is_following FROM boards b
+        LEFT JOIN boards_followers bf on bf.board_id = b.id
+        and bf.follower_id = $cid WHERE b.user_id=$uid;
+        """
+        boards_tmp = db.query(boards_query,
+                              vars={'uid': user_id, 'cid': current_user_id})
 
         boards = []
         for board in boards_tmp:
@@ -580,7 +587,6 @@ class QueryBoards(BaseAPI):
                 if pin_from_board['id'] not in board['pins_ids']:
                     board['pins_ids'].append(pin_from_board['id'])
             boards.append(board)
-
         return api_response(data=boards,
                             csid_from_server=csid_from_server,
                             csid_from_client=csid_from_client)

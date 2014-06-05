@@ -4,7 +4,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
   <head>
     <title>MyPinnings</title>
     <link rel='stylesheet' type='text/css' href='/static/main.css'/>
-    <link rel='stylesheet' type='text/css' href='/static/css/redesign.css'/>   
+    <link rel='stylesheet' type='text/css' href='/static/css/redesign.css'/>
     <link rel='stylesheet' type='text/css' href='/static/css/register.css'/> <!--Temp-->
     <link rel='stylesheet' type='text/css' href='/static/css/profile.css'/>
     <link rel="stylesheet" type="text/css" href="/static/css/iconFont/flaticon.css" />
@@ -45,16 +45,16 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
             </div>
             &nbsp;
             <div class='nav-item item' id='switch1'>
-              <i class='fa fa-bars'></i> 
+              <i class='fa fa-bars'></i>
               <div class='menu invis' id='menu1'>
                 <div style="width: 100%;">
-                 
-                  
+
+
                   $for cat in categories:
-                    
+
                     <a href="/category/$cat['slug']">$cat['name']</a>
-                    
-                  
+
+
                 </div>
               </div>
             </div>
@@ -95,9 +95,9 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
               </div>
             </div>
           </div><div id="inSess"></div>
-          <script type='text/javascript' src='/static/main.js'></script>
+
         $else:
-          
+
           <div class='white-links pad-top'>
             <a href='/login'>Login</a>
             <!-- <a href='/register'>Signup</a> -->
@@ -105,7 +105,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
           </div>
       </div>
     </div>
-    
+
     <!-- <div id="mainPage"> -->
             <!-- <div class="pinRoll"> -->
                 <!-- <div id="firstRow"> -->
@@ -127,7 +127,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
         <div class="signForm">
             <p style="color: #f8a41a; font-size: 36px;">MyPinnings</p>
             <br />
-                          
+
             <div>
                 <a class="signupfb" href="/facebook/register/">Signup with Facebook</a>
             </div>
