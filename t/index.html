@@ -5,7 +5,8 @@ $if first_time is not None:
     <p class='pad-top'><button id='next'>Next</button> <button id='skip'>Skip</button></p>
   </div>  
   <script type='text/javascript' src='/static/firsttime.js'></script>
-$:tpl('pins', pins)
+$if 'user_id' in sess:
+    $:tpl('pins', pins)
 
 <div class="block-100px-height"></div>
 <div id="mainPage">
