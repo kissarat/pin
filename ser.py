@@ -92,6 +92,7 @@ urls = (
     '/newconvo/(\d*)', 'PageNewConvo',
     '/convo/(\d*)', 'PageConvo',
     '/follow/(\d*)', 'PageFollow',
+    '/follow-list/(\d+)', 'FollowList',
     '/addfriend/(\d*)', 'PageAddFriend',
     '/preview', 'PagePreview',
     '/like-unlike/(\d*)', 'PinLikeUnlike',
@@ -637,7 +638,7 @@ class PageRepin:
 
         data = {
             'csid_from_client': "",
-            'user_id': sess.user_id
+            'user_id': sess.user_id,
         }
 
         boards = api_request("/api/profile/userinfo/boards",
@@ -1029,7 +1030,7 @@ class PageProfile2:
 
         # Updating api_request data with user_id
         data['user_id'] = user.id
-
+        data['current_user_id'] = sess.user_id
         # Getting boards of a given user
         boards = api_request("/api/profile/userinfo/boards",
                              data=data).get("data", [])
@@ -1115,7 +1116,6 @@ class PageProfile2:
             pins = data_from_image_query['data']['image_data_list']
 
         pins = [pin_utils.dotdict(pin) for pin in pins]
-
         # Handle ajax request to pins
         ajax = int(web.input(ajax=0).ajax)
         if ajax:
@@ -1153,6 +1153,22 @@ class PageFollow:
         except: pass
         raise web.seeother('/profile/%d' % user_id)
 
+
+class FollowList:
+    """
+    Site view which allows to follow list
+    """
+    def GET(self, board_id):
+        force_login(sess)
+        logintoken = convert_to_logintoken(sess.user_id)
+        url = "/api/image/follow-board"
+        ctx = {
+            "user_id": sess.user_id,
+            "csid_from_client": '',
+            "board_id": board_id
+        }
+        result = api_request(url, data=ctx).get("data")
+        return result
 
 class PageAddFriend:
     def GET(self, user_id):

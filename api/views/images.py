@@ -766,3 +766,38 @@ def _already_exists(id):
     for _ in results:
         return True
     return False
+
+
+class FollowOrUnfollowBoard(BaseAPI):
+    """
+    Allows to follow a given board if it was not already followed,
+    Removes follow in case follow was set before.
+    Works as toggle on/off
+
+    :link: /api/image/follow-board
+    """
+    def POST(self):
+        """
+        :param str board_id: id of the board to follow
+        :param str csid_from_client: CSID from client
+        :param str user_id: id of the user who follows the board
+
+        :response data: returns status:ok
+        :example usage: curl --data "csid_from_client=1&user_id=98&board_id=15" http://localhost:8080/api/image/follow-board
+        """
+        request_data = web.input()
+        csid_from_client = request_data.get('csid_from_client')
+        user_id = request_data.get('user_id')
+        board_id = request_data.get('board_id')
+        try:
+            db.insert('boards_followers', follower_id=user_id,
+                      board_id=board_id)
+            data = "Following"
+        except Exception:
+            db.delete('boards_followers',
+                      where="follower_id=$uid and board_id=$bid",
+                      vars={'uid': user_id, 'bid': board_id})
+            data = "Follow"
+        return api_response(data=data,
+                            csid_from_client=csid_from_client,
+                            csid_from_server="")
