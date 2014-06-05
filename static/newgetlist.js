@@ -135,7 +135,7 @@ $(document).ready(function() {
     $.ajax({
         url:"/preview",
         data:{
-<<<<<<< HEAD
+// <<<<<<< HEAD
         url: url_input_to_fetch.val(),
 // =======
         // url:$("#url").val()
