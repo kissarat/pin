@@ -257,6 +257,8 @@ class ImageQuery(BaseAPI):
                 continue
 
             if not image_properties or image_properties['id'] != image['id']:
+                if image_properties:
+                    image_properties['tags'] = list(image_properties['tags'])
                 image_properties = {
                     "id": image.get('id'),
                     "name": image.get('name'),
@@ -289,16 +291,16 @@ class ImageQuery(BaseAPI):
 
                 if image.get('tags'):
                     image_properties['tags'] = \
-                        image.get('tags').split()
+                        set(image.get('tags').split())
                 else:
-                    image_properties['tags'] = []
+                    image_properties['tags'] = set()
 
                 image_data_list.append(image_properties)
             elif image.get('tags'):
-                image_properties['tags'] = \
-                    image_properties['tags'] + \
-                    image.get('tags').split()
-
+                image_properties['tags'].update(
+                    image.get('tags').split())
+        if image_properties:
+            image_properties['tags'] = list(image_properties['tags'])
         return image_data_list
 
 
@@ -584,7 +586,7 @@ class QueryCategory(BaseAPI):
                         ON pins_categories.pin_id = pins.id \
                         LEFT JOIN users ON pins.user_id = users.id \
                         WHERE %s \
-                        ORDER BY pins.timestamp desc" % (where))\
+                        ORDER BY random()" % (where))\
             .list()
 
         for pin in pins:

@@ -25,6 +25,11 @@ GOOGLE = {'client_id': '985703411904-602sd2jgsl6v5ad8k3fb6tanc46a0v88.apps.googl
           'client_secret': os.environ.get('GPLUS_APPLICATION_SECRET'),
           }
 
+BING = {
+    'customer_id': '7e41d6a8-1914-4354-bf31-3abd36cb0179',
+    'account_key': os.environ['BING_APPLICATION_SECRET']
+}
+
 LANGUAGES = (('en', 'English'),
              ('fr', 'Français'),
              ('es', 'Español'),
@@ -51,8 +56,9 @@ COUNTRIES = [
     'Virgin Islands, British', 'Virgin Islands, U.s.', 'Wallis and Futuna', 'Western Sahara', 'Yemen', 'Zambia', 'Zimbabwe',
 ]
 
-PIN_COUNT = 100
+PIN_COUNT = 30
+SEARCH_PINS = True
 
-API_URL = "http://mypinnings.com/"
+API_URL = os.environ['API_URL'] if 'API_URL' in os.environ else "http://mypinnings.com/"
 PIN_NEW_DAYS = 7
 MEDIA_PATH = "static/tmp"

@@ -11,6 +11,7 @@ import api.views.social
 import api.views.search
 import api.views.categories
 from mypinnings.database import load_sqla
+import api.views.websearch
 
 
 class redirect:
@@ -91,7 +92,10 @@ urls = (
     "/search/people", api.views.search.SearchPeople,
 
     # API for categories: get categories list
-    "/categories/get", api.views.categories.GetCategories
+    "/categories/get", api.views.categories.GetCategories,
+
+    # API for Web search: images
+    "/websearch/images", api.views.websearch.Image
     )
 web.config.debug = True
 api_app = web.application(urls, globals(), autoreload=True)

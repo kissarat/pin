@@ -31,6 +31,7 @@ jQuery(function() {
   $('#form').submit(function(e) {
     var can_submit, i, no_error, _i;
     try {
+      $('#btn-add').prop("disabled", true);
       can_submit = true;
       remove_all_errors();
       for (i = _i = 1; _i <= 10; i = ++_i) {
@@ -49,9 +50,12 @@ jQuery(function() {
         $('#wait_for_process_to_finish_layer').height($(window).innerHeight());
         $('#wait_for_process_to_finish_layer div').css('margin-top', ($(window).innerHeight() / 2) - 150);
         $('#wait_for_process_to_finish_layer').show();
+      } else {
+        $('#btn-add').prop("disabled", false);
       }
       return can_submit;
     } catch (error) {
+      $('#btn-add').prop("disabled", false);
       alert(error);
       return false;
     }
@@ -386,17 +390,8 @@ jQuery(function() {
       error: function(x, textStatus, errorThrown) {
         console.log("Error:" + textStatus + ', ' + errorThrown);
       }
-/*<<<<<<< HEAD */
-      return sep.join(' ');
-    };
-  });
-
-}).call(this);
-
-
-/*=======
     });
-  };*/
+  };
   separate_link_to_fit_small_space = function(url) {
     var i, last_val, sep, slice, _i, _ref;
     sep = Array();
@@ -564,4 +559,3 @@ jQuery(function() {
     });
   };
 });
-/*>>>>>>> 700e48b51a916845e5c81855b4e6daffffcffacf*/

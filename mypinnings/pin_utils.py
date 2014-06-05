@@ -58,6 +58,8 @@ def create_pin(db, user_id, title, description, link, tags, price, product_url,
 
 def update_base_pin_information(db, pin_id, user_id, title, description, link, tags, price, product_url,
                    price_range, board_id=None):
+    if price == '':
+        price = None
     db.update(tables='pins',
                where='id=$id and user_id=$user_id',
                vars={'id': pin_id, 'user_id': user_id},
@@ -187,6 +189,18 @@ def _already_exists(id):
     for _ in results:
         return True
     return False
+
+
+def delete_all_pins_for_user(db, user_id):
+    db.delete(table='likes', where='pin_id in (select id from pins where user_id=$id)', vars={'id': user_id})
+    db.delete(table='tags', where='pin_id in (select id from pins where user_id=$id)', vars={'id': user_id})
+    db.delete(table='pins_categories', where='pin_id in (select id from pins where user_id=$id)', vars={'id': user_id})
+    db.delete(table='comments', where='pin_id in (select id from pins where user_id=$id)', vars={'id': user_id})
+    db.delete(table='cool_pins', where='pin_id in (select id from pins where user_id=$id)', vars={'id': user_id})
+    db.delete(table='ratings', where='pin_id in (select id from pins where user_id=$id)', vars={'id': user_id})
+    db.update(tables='pins', where='repin in (select id from pins where user_id=$id)', vars={'id': user_id}, repin=None)
+    db.delete(table='pins', where='id in (select id from pins where user_id=$id)', vars={'id': user_id})
+
 
 class dotdict(dict):
     '''
