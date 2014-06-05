@@ -21,6 +21,12 @@ $def with (boards, user, boards_first_pins={})
                     <p>
                         $board.name
                     </p>
+                    <a class="follow" href="/follow-list/$board.id">
+                      $if board.is_following:
+                          Unfollow
+                      $else:
+                          Follow
+                    </a>
                 </div>
                 <div class="dwLike">
                     <p>

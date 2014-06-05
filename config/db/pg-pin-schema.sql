@@ -1217,3 +1217,14 @@ ALTER TABLE public.profile_bg_likes OWNER TO postgres;
 
 ALTER TABLE ONLY profile_bg_likes
     ADD CONSTRAINT profile_bg_likes_pkey PRIMARY KEY (user_id, bg_id);
+
+CREATE TABLE boards_followers (
+    id bigserial primary key,
+    follower_id integer NOT NULL references users(id) on delete cascade on update cascade,
+    board_id integer NOT NULL references boards(id) on delete cascade on update cascade,
+    unique (follower_id, board_id)  
+);
+
+ALTER TABLE public.boards_followers
+  OWNER TO postgres;
+
