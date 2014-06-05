@@ -67,7 +67,7 @@ $def with (user, countries, name, msg=None)
         <td>
 
               <div class="pull-left">
-              $if user.pic:
+              $if user.pic_id:
                  <a href='/$user.username' id="user_avatar_placeholder_wrapper">
                  <img  src='$(user.resized_url)' style="width:44px;" />
                 $else:
@@ -83,8 +83,8 @@ $def with (user, countries, name, msg=None)
               <span class="caret"></span>
   <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                <li role="presentation"><a href='#' id="upload_thumbnail" data-toggle="modal" data-target="#uploadImageModal">Upload another profile picture</a></li>
-               $if user.pic:
-                    <li role="presentation"><a href='/photo/$user.pic/remove' id="remove_photo1" class='link_with_loading'>Remove</a></li>
+               $if user.pic_id:
+                    <li role="presentation"><a href='/picture/$user.pic_id/remove' id="remove_photo1" class='link_with_loading'>Remove</a></li>
   </ul>
 
 </div>
@@ -101,7 +101,7 @@ $def with (user, countries, name, msg=None)
         <td>
 
              <div class="pull-left">
-              $if user.bg:
+              $if user.bg_id:
                  <img class='avatar' src='$(user.bg_resized_url)' style="width:44px;" />
                 $else:
                   <span style="width:44px;margin-right:10px;" />No Photo</span>
@@ -116,8 +116,8 @@ $def with (user, countries, name, msg=None)
         <span class="caret"></span>
         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu2">
         <li role="presentation"><a href='#' data-toggle="modal" data-target="#uploadBackgroundImageModal">Upload background photo</a></li>
-               $if user.bg:
-                    <li role="presentation"><a href='/background/$(user.id)/remove' id="remove_bg_photo" class='link_with_loading'>Remove</a></li>
+               $if user.bg_id:
+                    <li role="presentation"><a href='/picture/$(user.bg_id)/remove' id="remove_bg_photo" class='link_with_loading'>Remove</a></li>
         </ul>
         </div>
 

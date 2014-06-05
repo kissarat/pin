@@ -1,4 +1,4 @@
-$def with (photo, prev_photo=None, next_photo=None)
+$def with (photo, user, prev_photo=None, next_photo=None)
 <div class="modal" id="showPhotoModal$photo.id">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -29,32 +29,32 @@ $def with (photo, prev_photo=None, next_photo=None)
                     $else:
                         &nbsp;
                 </div>
-                $if 'logged_in' in sess and photo.user_id == sess.user_id:
+                $if 'logged_in' in sess and user.id == sess.user_id:
                     <div class="modal-buttons">
                         <a href='#' id="upload_thumbnail" data-toggle="modal" data-target="#uploadImageModal" class='button small-pad'>Upload new picture</a>
-                        $if photo.id != photo.user_pic:
+                        $if not user.pic_obj or photo.id != user.pic_obj['id']:
                             <a href='/photo/$(photo.id)/default' class='button small-pad'>Set as profile picture</a>
 
-                        <a href='/photo/$(photo.id)/remove' class='button small-pad link_with_loading'>Remove</a>
+                        <a href='/picture/$(photo.id)/remove' class='button small-pad link_with_loading'>Remove</a>
                     </div>
                 <div class="modal-bottom">
                     <div class='clearfix'>
                         <div class='links left'>
                           $if 'logged_in' in sess:
-                            $if photo.self_like_count and photo.self_like_count > 0:
+                            $if photo.liked:
                               $ like_style = "display: none;"
                               $ dislike_style = ""
                             $else:
                               $ like_style = ""
                               $ dislike_style = "display: none;"
 
-                            <a href='#' data-url='/photo/$photo.id/dislike' data-id='$photo.id' data-action="dislike" class="dislike" style="$dislike_style">Unlike</a>
-                            <a href='#' data-url='/photo/$photo.id/like' data-id='$photo.id' data-action="like" class="like" style="$like_style">Like</a> &middot;
+                            <a href='#' data-url='/picture/$photo.id/dislike' data-id='$photo.id' data-action="dislike" class="dislike" style="$dislike_style">Unlike</a>
+                            <a href='#' data-url='/picture/$photo.id/like' data-id='$photo.id' data-action="like" class="like" style="$like_style">Like</a> &middot;
                         </div>
                         <div class='right'>
                             <b id="likes_count_$photo.id">
-                            $if photo.like_count > 0:
-                                $photo.like_count like$('s' if photo.like_count != 1 else '')
+                            $if photo.likes_count > 0:
+                                $photo.likes_count like$('s' if photo.likes_count != 1 else '')
                             </b>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ $def with (photo, prev_photo=None, next_photo=None)
                                 <textarea id='input_comment_$photo.id' name='comment' placeholder='Write a comment...'></textarea>
                             </p>
                             <p>
-                                <a href='#' data-url='/photo/$photo.id/comment' data-id='$photo.id' class="button send_comment">Comment</a>
+                                <a href='#' data-url='/picture/$photo.id/comment' data-id='$photo.id' class="button send_comment">Comment</a>
                             </p>
                         </div>
                 </div>

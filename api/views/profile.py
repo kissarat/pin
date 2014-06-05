@@ -31,10 +31,10 @@ class BaseUserProfile(BaseAPI):
     """
     def __init__(self):
         self._fields = ['id', 'name', 'about', 'city', 'country', 'hometown',
-                        'about', 'email', 'pic', 'website', 'facebook',
-                        'twitter', 'getlist_privacy_level', 'private', 'bg',
+                        'about', 'email', 'pic_id', 'bg_id', 'website', 'facebook',
+                        'twitter', 'getlist_privacy_level', 'private',
                         'bgx', 'bgy', 'show_views', 'views', 'username', 'zip',
-                        'linkedin', 'gplus', 'bg_resized_url', 'headerbgy', 'headerbgx']
+                        'linkedin', 'gplus', 'headerbgy', 'headerbgx']
         self._birthday_fields = ['birthday_year', 'birthday_month',
                                  'birthday_day']
         self.required = ['csid_from_client', 'logintoken']
@@ -203,7 +203,8 @@ class GetProfileInfo(BaseUserProfile):
             return response_or_user
 
         response = {field: response_or_user[field] for field in self._fields}
-        response['resized_url'] = photo_id_to_url(response['pic'])
+        response['resized_url'] = photo_id_to_url(response['pic_id'])
+        response['bg_resized_url'] = photo_id_to_url(response['bg_id'])
         csid_from_client = request_data.pop('csid_from_client')
         csid_from_server = response_or_user['seriesid']
         self.format_birthday(response_or_user, response)
@@ -756,7 +757,7 @@ class PicUpload(BaseAPI):
             .filter(User.id == user['id'])\
             .first()
 
-        user_to_update.pic = photo
+        user_to_update.pic_obj = photo
         web.ctx.orm.commit()
 
         data['id'] = photo.id
@@ -1029,7 +1030,7 @@ class PictureRemove(BaseAPI):
             if album.user_id == user_to_update.id:
                 if album.slug == "photos":
                     if user_to_update.pic_id == picture.id:
-                        user_to_update.pic = self._get_next_picture(album,
+                        user_to_update.pic_obj = self._get_next_picture(album,
                                                                     picture)
                 elif album.slug == "backgrounds":
                     if user_to_update.bg_id == picture.id:

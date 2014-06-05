@@ -122,15 +122,12 @@ urls = (
     '/album/(\d*)/remove', 'PageAlbum',
     '/newpic/(\d*)', 'PageNewPicture',
     '/photo/(\d*)', 'PagePhoto',
-    '/photo/(\d*)/remove', 'PageRemovePhoto',
     '/photo/(\d*)/default', 'PageDefaultPhoto',
-    '/photo/(\d*)/like', 'PageLikePhoto',
-    '/photo/(\d*)/dislike', 'PageDislikePhoto',
-    '/photo/(\d*)/comment', 'PageCommentPhoto',
-    '/background/(\d*)/like', 'PageLikeBackground',
-    '/background/(\d*)/dislike', 'PageDislikeBackground',
-    '/background/(\d*)/comment', 'PageCommentBackground',
-    '/background/(\d*)/remove', 'PageRemoveBackground',
+    '/background/(\d*)/default', 'PageDefaultBackground',
+    '/picture/(\d*)/remove', 'PageRemovePicture',
+    '/picture/(\d*)/like', 'PageLikePicture',
+    '/picture/(\d*)/dislike', 'PageDislikePicture',
+    '/picture/(\d*)/comment', 'PageCommentPicture',
     '/setprofilepic/(\d*)', 'PageSetProfilePic',
     '/setprivacy/(\d*)', 'PageSetPrivacy',
 
@@ -1000,42 +997,33 @@ class PageProfile2:
 
         photos_context = {
             "csid_from_client": "",
+            "album_type": "photos",
             "user_id": user['id']}
 
         if logintoken:
             photos_context['logintoken'] = logintoken
 
-        photos = api_request("/api/profile/userinfo/get_photos",
+        photos = api_request("/api/profile/userinfo/get_pictures",
                              data=photos_context)\
             .get("data", {}).get("photos", [])
 
         photos = [pin_utils.dotdict(photo) for photo in photos]
         user['photos'] = photos
 
-        likes_data = {
+        backgrounds_context = {
             "csid_from_client": "",
-            "bg_id": user['id']}
+            "album_type": "backgrounds",
+            "user_id": user['id']}
 
         if logintoken:
-            likes_data['logintoken'] = logintoken
+            backgrounds_context['logintoken'] = logintoken
 
-        likes_data = api_request("/api/social/background/get_likes",
-                             data=likes_data)\
-            .get("data", {})
-        user['bg_likes'] = pin_utils.dotdict(likes_data)
+        backgrounds = api_request("/api/profile/userinfo/get_pictures",
+                             data=backgrounds_context)\
+            .get("data", {}).get("photos", [])
 
-        # comments_data = {
-        #     "csid_from_client": "",
-        #     "bg_id": user['id']}
-
-        # if logintoken:
-        #     comments_data['logintoken'] = logintoken
-
-        # comments_data = api_request("/api/social/background/get_comments",
-        #                      data=comments_data)\
-        #     .get("data", {})
-        user['bg_comments'] = pin_utils.dotdict({"comments": []})
-
+        backgrounds = [pin_utils.dotdict(background) for background in backgrounds]
+        user['backgrounds'] = backgrounds
 
         user = pin_utils.dotdict(user)
 
@@ -1635,19 +1623,19 @@ class PagePhoto:
         return ltpl('photo', photo, user.pic == pid)
 
 
-class PageRemovePhoto:
+class PageRemovePicture:
     def GET(self, pid):
         force_login(sess)
         pid = int(pid)
         logintoken = convert_to_logintoken(sess.user_id)
 
-        photos_context = {
+        pictures_context = {
             "csid_from_client": "",
-            "photo_id": pid,
+            "picture_id": pid,
             "logintoken": logintoken}
 
         data = api_request("/api/profile/userinfo/remove_pic",
-                           data=photos_context)
+                           data=pictures_context)
 
         profile_url = "/api/profile/userinfo/info"
         profile_owner_context = {
@@ -1666,24 +1654,34 @@ class PageDefaultPhoto:
         pid = int(pid)
         logintoken = convert_to_logintoken(sess.user_id)
 
-        photos_context = {
+        profile_update_url = "/api/profile/userinfo/update"
+        profile_update_owner_context = {
             "csid_from_client": "",
-            "user_id": sess.user_id}
+            "pic_id": pid,
+            "logintoken": logintoken}
+        api_request(profile_update_url,
+                    data=profile_update_owner_context)
 
-        photos = api_request("/api/profile/userinfo/get_photos",
-                             data=photos_context)\
-            .get("data", []).get("photos", [])
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "",
+            "id": sess.user_id,
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
 
-        for photo in photos:
-            if photo['id'] == pid:
-                pass
+        return web.redirect('/%s' % (user['username']))
 
-                break
+class PageDefaultBackground:
+    def GET(self, pid):
+        force_login(sess)
+        pid = int(pid)
+        logintoken = convert_to_logintoken(sess.user_id)
 
         profile_update_url = "/api/profile/userinfo/update"
         profile_update_owner_context = {
             "csid_from_client": "",
-            "pic": pid,
+            "bg_id": pid,
             "logintoken": logintoken}
         api_request(profile_update_url,
                     data=profile_update_owner_context)
@@ -1699,28 +1697,28 @@ class PageDefaultPhoto:
         return web.redirect('/%s' % (user['username']))
 
 
-class PageLikePhoto:
+class PageLikePicture:
     def GET(self, pid):
-        return like_dislike_photo(pid, "like")
+        return like_dislike_picture(pid, "like")
 
 
-class PageDislikePhoto:
+class PageDislikePicture:
     def GET(self, pid):
-        return like_dislike_photo(pid, "dislike")
+        return like_dislike_picture(pid, "dislike")
 
 
-def like_dislike_photo(pid, action):
+def like_dislike_picture(pid, action):
     # force_login(sess)
     pid = int(pid)
     logintoken = convert_to_logintoken(sess.user_id)
 
     photos_context = {
         "csid_from_client": "",
-        "photo_id": pid,
+        "picture_id": pid,
         "logintoken": logintoken,
         "action": action}
 
-    data = api_request("/api/social/photo/like_dislike",
+    data = api_request("/api/social/picture/like_dislike",
                          data=photos_context)
 
     return_data = {}
@@ -1736,7 +1734,7 @@ def like_dislike_photo(pid, action):
     return json.dumps(return_data)
 
 
-class PageCommentPhoto:
+class PageCommentPicture:
     def POST(self, pid):
         comment = web.input(comment='').comment
 
@@ -1745,73 +1743,11 @@ class PageCommentPhoto:
 
         photo_comment_context = {
             "csid_from_client": "",
-            "photo_id": pid,
+            "picture_id": pid,
             "logintoken": logintoken,
             "comment": comment}
 
-        data = api_request("/api/social/photo/add_comment",
-                             data=photo_comment_context)
-
-        comment = None
-
-        if data['status'] == 200:
-            data = data.get('data', {})
-            comment = data.get('comment', None)
-
-        return tpl('comment', comment)
-
-
-class PageLikeBackground:
-    def GET(self, bg_id):
-        return like_dislike_background(bg_id, "like")
-
-
-class PageDislikeBackground:
-    def GET(self, bg_id):
-        return like_dislike_background(bg_id, "dislike")
-
-
-def like_dislike_background(bg_id, action):
-    # force_login(sess)
-    bg_id = int(bg_id)
-    logintoken = convert_to_logintoken(sess.user_id)
-
-    photos_context = {
-        "csid_from_client": "",
-        "bg_id": bg_id,
-        "logintoken": logintoken,
-        "action": action}
-
-    data = api_request("/api/social/background/like_dislike",
-                         data=photos_context)
-
-    return_data = {}
-
-    if data['status'] == 200:
-        data = data.get('data', {})
-        if data['count_likes'] > 0:
-            return_data['likes'] = str(data['count_likes']) + \
-                " like" + ('s' if data['count_likes'] != 1 else '')
-        else:
-            return_data['likes'] = ""
-
-    return json.dumps(return_data)
-
-
-class PageCommentBackground:
-    def POST(self, bg_id):
-        comment = web.input(comment='').comment
-
-        bg_id = int(bg_id)
-        logintoken = convert_to_logintoken(sess.user_id)
-
-        photo_comment_context = {
-            "csid_from_client": "",
-            "bg_id": bg_id,
-            "logintoken": logintoken,
-            "comment": comment}
-
-        data = api_request("/api/social/background/add_comment",
+        data = api_request("/api/social/picture/add_comment",
                              data=photo_comment_context)
 
         comment = None
@@ -2006,7 +1942,6 @@ class PageChangeBG:
         force_login(sess)
         self.upload_image()
 
-        db.update('users', where='id = $id', vars={'id': sess.user_id}, bg=True)
         raise web.seeother('/profile/%d' % sess.user_id)
 
 

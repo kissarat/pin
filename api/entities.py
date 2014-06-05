@@ -65,12 +65,7 @@ class UserProfile(object):
         # response = {field: user.getattr(field) for field in UserProfile.fields}
         # response = UserProfile.format_birthday(user, response)
         # return response
-
-        if user.pic_obj:
-            user.pic = user.pic_obj.resized_url
-        else:
-            user.pic = None
-
+        
         return user
 
     @staticmethod

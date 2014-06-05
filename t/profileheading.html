@@ -4,23 +4,18 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
         $if 'logged_in' in sess and sess.user_id == user.id:
           data-bg="true"
           id='header_background'
-          style='background-size:100% auto;background-position: $(user.headerbgx)px $(user.headerbgy)px;background-image: url($(user.bg_resized_url));position:relative;'
+          style='background-size:100% auto;background-position: $(user.headerbgx)px $(user.headerbgy)px;background-image: url($(user.bg['resized_url']));position:relative;'
         $else:
           id='header_background'
-          style='background-size:100% auto;background-position: $(user.bgx)px $(user.bgy)px;background-image: url($(user.bg_resized_url));cursor:default !important;position:relative;'
+          style='background-size:100% auto;background-position: $(user.bgx)px $(user.bgy)px;background-image: url($(user.bg['resized_url']));cursor:default !important;position:relative;'
       $else:
         data-nobg='true'
         style='background: #333842;position:relative;'
 >
     <div class="userHolder">
         <div class="userPic">
-            $ user_pic = None
-            $if user.pic:
-              $for photo in user.photos:
-                $if photo.id == photo.user_pic and photo.resized_url:
-                  <a href="#" data-toggle="modal" data-target="#showPhotoModal$photo.id"><img src="$(photo.resized_url)" /></a>
-                  $ user_pic = photo
-                  $ break
+            $if user.pic_obj:
+              <a href="#" data-toggle="modal" data-target="#showPhotoModal$(user.pic_obj['id'])"><img src="$(user.pic_obj['resized_url'])" /></a>
             $else:
               <a href='#' data-toggle="modal" data-target="#uploadImageModal">
                 <img src='/static/default-avatar.png' alt='' />
@@ -28,7 +23,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
             <div class="otherPics">
               $ photos_qty = 1
               $for photo in user.photos:
-                $if photo.id != photo.user_pic and photo.resized_url and photos_qty <=5:
+                $if not user.pic_obj or (photo.id != user.pic_obj['id'] and photo.resized_url and photos_qty <=5):
                   <a href="#" data-toggle="modal" data-target="#showPhotoModal$photo.id"><img src="$(photo.resized_url)" /></a>
                   $ photos_qty = photos_qty + 1
             </div>
@@ -45,11 +40,11 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
 
         <p class="userButtons">
 
-          $if user_pic:
-            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$user_pic.id">View album</a>
+          $if len(user.photos) > 0:
+            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.photos[0].id)">View album</a>
 
-          $if user.bg:
-            <a class='button' href='#' data-toggle="modal" data-target="#showBackgroundModal$user.id">View background</a>
+          $if len(user.backgrounds) > 0:
+            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.backgrounds[0].id)">View background</a>
 
           $if 'logged_in' in sess and user.id == sess.user_id:
             <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
@@ -99,7 +94,27 @@ $for i, photo in enumerate(user.photos):
 
 
   $if photo.resized_url:
-    $:tpl('profile_photo_modal', photo, prev_photo, next_photo)
+    $:tpl('profile_photo_modal', photo, user, prev_photo, next_photo)
 
-$if user.bg:
-  $:tpl('profile_bg_modal', user)
+$for i, photo in enumerate(user.backgrounds):
+  $ next_photo = None
+  $ prev_photo = None
+
+  $if len(user.backgrounds) > 1:
+    $ next_index = i + 1
+    $ prev_index = i - 1
+
+    $if len(user.backgrounds) == next_index:
+      $ next_index = 0
+
+    $ next_photo = user.backgrounds[next_index]
+
+    $if prev_index < 0:
+      $ prev_index = len(user.backgrounds) - 1
+
+    $ prev_photo = user.backgrounds[prev_index]
+
+
+  $if photo.resized_url:
+    $:tpl('profile_bg_modal', photo, user, prev_photo, next_photo)
+
