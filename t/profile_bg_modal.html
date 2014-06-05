@@ -1,5 +1,5 @@
-$def with (user)
-<div class="modal" id="showBackgroundModal$user.id">
+$def with (photo, user, prev_photo=None, next_photo=None)
+<div class="modal" id="showPhotoModal$photo.id">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -7,47 +7,70 @@ $def with (user)
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="modal-image-container modal-image-bg-container">
-                    <img src="$(user.bg_resized_url)" />
+                <div class="modal-image-previous-btn">
+                    $if prev_photo:
+                        <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#showPhotoModal$prev_photo.id"><</a>
+                    $else:
+                        &nbsp;
+                </div>
+
+                <div class="modal-image-container">
+                    $if next_photo:
+                        <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#showPhotoModal$next_photo.id">
+                            <img src="$(photo.original_url)" />
+                        </a>
+                    $else:
+                        <img src="$photo.original_url" />
+                </div>
+
+                <div class="modal-image-next-btn">
+                    $if next_photo:
+                        <a href="#" data-toggle="modal" data-dismiss="modal" data-target="#showPhotoModal$next_photo.id">></a>
+                    $else:
+                        &nbsp;
                 </div>
                 $if 'logged_in' in sess and user.id == sess.user_id:
                     <div class="modal-buttons">
-                        <a data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#" class='button small-pad'>Upload new background</a>
-                        <a href='/background/$(user.id)/remove' class='button small-pad link_with_loading'>Remove</a>
+                        <a href='#' id="upload_thumbnail" data-toggle="modal" data-target="#uploadBackgroundImageModal" class='button small-pad'>Upload new background</a>
+                        
+                        $if not user.bg or photo.id != user.bg['id']:
+                            <a href='/background/$(photo.id)/default' class='button small-pad'>Set as profile background</a>
+
+                        <a href='/picture/$(photo.id)/remove' class='button small-pad link_with_loading'>Remove</a>
                     </div>
                 <div class="modal-bottom">
                     <div class='clearfix'>
                         <div class='links left'>
                           $if 'logged_in' in sess:
-                            $if user.bg_likes.liked:
+                            $if photo.liked:
                               $ like_style = "display: none;"
                               $ dislike_style = ""
                             $else:
                               $ like_style = ""
                               $ dislike_style = "display: none;"
 
-                            <a href='#' data-url='/background/$user.id/dislike' data-id='$user.id' class="dislike_bg" style="$dislike_style">Unlike</a>
-                            <a href='#' data-url='/background/$user.id/like' data-id='$user.id'  class="like_bg" style="$like_style">Like</a> &middot;
+                            <a href='#' data-url='/picture/$photo.id/dislike' data-id='$photo.id' data-action="dislike" class="dislike" style="$dislike_style">Unlike</a>
+                            <a href='#' data-url='/picture/$photo.id/like' data-id='$photo.id' data-action="like" class="like" style="$like_style">Like</a> &middot;
                         </div>
                         <div class='right'>
-                            <b id="bg_likes_count_$user.id">
-                            $if user.bg_likes.count_likes > 0:
-                                $user.bg_likes.count_likes like$('s' if  user.bg_likes.count_likes != 1 else '')
+                            <b id="likes_count_$photo.id">
+                            $if photo.likes_count > 0:
+                                $photo.likes_count like$('s' if photo.likes_count != 1 else '')
                             </b>
                         </div>
                     </div>
                     <hr/>
-                    <div id="comments_bg_$user.id">
-                    $for comment in user.bg_comments.comments:
+                    <div id="comments_$photo.id">
+                    $for comment in photo.comments:
                         $:tpl('comment', comment)
                     </div>
                     $if 'logged_in' in sess:
                         <div class="modal-buttons">
                             <p>
-                                <textarea id='input_bg_comment_$user.id' name='comment' placeholder='Write a comment...'></textarea>
+                                <textarea id='input_comment_$photo.id' name='comment' placeholder='Write a comment...'></textarea>
                             </p>
                             <p>
-                                <a href='#' data-url='/background/$user.id/comment' data-id='$user.id' class="button send_comment_bg">Comment</a>
+                                <a href='#' data-url='/picture/$photo.id/comment' data-id='$photo.id' class="button send_comment">Comment</a>
                             </p>
                         </div>
                 </div>

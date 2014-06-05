@@ -12,7 +12,7 @@ class User(Base, Serializer):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing':True}
     __public__ = ['id', 'email', 'name', 'username', 'timestamp',
-        'pic', 'bg', 'hometown', 'city', 'website']
+        'pic', 'bg', 'hometown', 'city', 'website', 'pic_obj']
 
     id = Column(Integer, primary_key=True)
     email = Column(String)
@@ -74,6 +74,16 @@ class User(Base, Serializer):
 
     def __repr__(self):
        return "<User('%s', '%s', '%s')>" % (self.id, self.name, self.username)
+
+    def to_serializable_dict(self):
+        if self.pic_obj:
+            self.pic = self.pic_obj.resized_url
+        else:
+            self.pic = None
+
+        serializable_dict =  super(self.__class__, self).to_serializable_dict()
+
+        return serializable_dict
 
 
 metadata = Base.metadata

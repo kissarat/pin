@@ -9,12 +9,12 @@ from basemodel import Base, engine, Serializer
 class PictureComment(Base, Serializer):
     __tablename__ = 'picture_comments'
     __table_args__ = {'extend_existing':True}
-    __public__ = ['id', 'picture_id', 'user_id', 'comment']
+    __public__ = ['id', 'picture_id', 'user_id', 'comment', 'user_name']
 
     id = Column(Integer, primary_key=True)
     picture_id = Column(Integer, ForeignKey("pictures.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
-    user = relationship("User")
+    user = relationship("User", uselist=False)
     comment = Column(Text, default='')
     timestamp = Column(Integer,
                        server_default=text("date_part('epoch', now())"))
@@ -26,6 +26,10 @@ class PictureComment(Base, Serializer):
 
     def __repr__(self):
        return "<Comment(%s, %s)>" % (self.picture_id, self.picture_id, self.comment)
+
+    def to_serializable_dict(self):
+        self.user_name = self.user.name
+        return super(self.__class__, self).to_serializable_dict()
 
 
 metadata = Base.metadata

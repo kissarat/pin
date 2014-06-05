@@ -560,13 +560,8 @@ class AddCommentToPicture(BaseAPI):
             web.ctx.orm.add(comment)
             web.ctx.orm.commit()
 
-            comments =  web.ctx.orm.query(PictureComment).filter(
-                PictureComment.picture_id == picture_id
-            ).all()
-
-            if len(comments) > 0:
-                data['comment'] = \
-                    [comment.to_serializable_dict() for comment in comments]
+            if comment.id:
+                data['comment'] = comment.to_serializable_dict()
 
         response = api_response(data=data,
                                 status=status,
