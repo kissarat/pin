@@ -766,36 +766,46 @@ def _already_exists(id):
     return False
 
 
-class FollowOrUnfollowBoard(BaseAPI):
+class FollowOrUnfollowList(BaseAPI):
     """
     Allows to follow a given board if it was not already followed,
     Removes follow in case follow was set before.
     Works as toggle on/off
 
-    :link: /api/image/follow-board
+    :link: /api/image/follow-list
     """
     def POST(self):
         """
         :param str board_id: id of the board to follow
         :param str csid_from_client: CSID from client
-        :param str user_id: id of the user who follows the board
+        :param str logintoken: logintoken of the user who follows the board
 
         :response data: returns status:ok
-        :example usage: curl --data "csid_from_client=1&user_id=98&board_id=15" http://localhost:8080/api/image/follow-board
+        :example usage: curl --data "csid_from_client=1&user_id=98&board_id=15" http://localhost:8080/api/image/follow-list
         """
         request_data = web.input()
         csid_from_client = request_data.get('csid_from_client')
-        user_id = request_data.get('user_id')
+        logintoken = request_data.get('logintoken')
+
+        user_status, user = self.authenticate_by_token(logintoken)
+        # User id contains error code
+        if not user_status:
+            return user
+
         board_id = request_data.get('board_id')
-        try:
-            db.insert('boards_followers', follower_id=user_id,
-                      board_id=board_id)
-            data = "Following"
-        except Exception:
+        is_following = db.select('boards_followers',
+                  where="follower_id=$uid and board_id=$bid",
+                  vars={'uid': user.id, 'bid': board_id})
+        # Checking if current user is already following the given board
+        if len(is_following.list()) > 0:
+            status = "unfollowed"
             db.delete('boards_followers',
                       where="follower_id=$uid and board_id=$bid",
-                      vars={'uid': user_id, 'bid': board_id})
-            data = "Follow"
-        return api_response(data=data,
+                      vars={'uid': user.id, 'bid': board_id})
+        else:
+            db.insert('boards_followers', follower_id=user.id,
+                      board_id=board_id)
+            status = "followed"
+        return api_response(data={"status": status},
                             csid_from_client=csid_from_client,
                             csid_from_server="")
