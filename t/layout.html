@@ -141,23 +141,85 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
     </div> -->
 
     <div class='content'>
-      $:tpl('pin212px_template')
-      $if acti_needed is not None:
-        $if acti_needed:
-          <div class='notice'>
-            Notice: You haven't activated your account yet! Please check $user.email. <a href='/resend-activation'>Resend</a>
-          </div>
-      <div id="getlist-from-web" style="display:none">
-        <form method="get" action="/preview"  id="web_getlist_form" class="form_with_loading">
-          Image Link Or website Address
-          <input type="input" name="url" id="url" class="fetch-url" placeholder="http://"><br/>
-          <input type="button" id="get_cancel" value="Go Back">
-          <input type="button" id="fetch-images" value="Fetch Images">
+        $if acti_needed is not None:
+            $if acti_needed:
+                <div class='notice'>Notice: You haven't activated your account yet! Please check $user.email. <a href='/resend-activation'>Resend</a></div>
+    <div id="getlist-from-web" style="display:none">
+        <form method="get" action="/preview"  id="web_getlist_form">
+            <label for="url">Image Link Or website Address</label>
+            <input type="text" name="url" id="url" placeholder="http://"><br/>
+            <input type="button" id="get_cancel" value="Go Back">
+            <input type="button" id="fetch-images" value="Fetch Images">
         </form>
-        <div class="progress" style="display:none" >
-          <div class="bar"></div >
-          <div class="percent">0%</div >
-          <div id="statusweb"></div>
+        <div class="loading">
+            <img src="/static/img/horiz-loading.gif" />
+        </div>
+    </div>
+	<div id="dialog-form" style="display:none">
+	<form method="post" action="/newaddpin" enctype="multipart/form-data" id="upload_form">
+	<input type="file" name="image" id="image" accept="image/*" placeholder="Please choose a file"><br/>
+	    <input type="button" id="upload_cancel" value="Go Back">
+        <input type="submit" value="Upload">
+	</form>
+
+	<div class="progress" style="display:none" >
+		<div class="bar"></div >
+		<div class="percent">0%</div >
+	</div>
+
+	<div id="status"></div>
+	</div>
+	<div id="addpindialogform" style="display:none">
+	<div class="wrapper">
+	<form method="post" action="/newaddpinform" id="ajaxpinform">
+	    <div class="c1" id="imagediv">
+	    <div id="slideshowupload" class="photo">
+
+        </div>
+        </div>
+	    <div class="c2">
+
+        <input type="hidden" id="fname" value="">
+        <table>
+        <tr><th><label for="title"></label></th><td><div id="imagename"></div></td></tr>
+        <tr><th><label for="title">Title</label></th><td><input type="text" id="title"></td></tr>
+        <tr><th><label for="weblink">Link</label></th><td><input type="text" id="weblink" placeholder="Where to buy?"></td></tr>
+        <tr><th><label for="hashtag">Tags</label></th><td><input type="text" id="hashtag" placeholder="#this is great"></td></tr>
+	    <tr><th><label for="board">Get list</label></th>
+	    	<td>
+	    		<div id="board_selection_layer">
+		    		<select id="board" name="board">
+		    			<option value="">Select one</option>
+		    		$for board in boards:
+		    			<option value="$board.id">$board.name</option>
+		    		</select>
+		    		<button type="button" id="button_add_board" alt="Add a new list">+</button>
+	    		</div>
+	    		<div id="board_creation_layer" style="display:none">
+	    			<input type="text" name="board_name" id="board_name">
+		    		<button type="button" id="button_select_board" alt="Select an existing board">-</button>
+	    		</div>
+	    	</td>
+	    </tr>
+        </table>
+        </div>
+    </div>
+    <div class="row">
+    <textarea id="comments" class="comments" placeholder="Say something about this"></textarea><br>
+    <input type="hidden" id="image-url" >
+    <input type="button" id="cancelfancy" name="cancelfancy" value="Cancel">&nbsp;&nbsp;
+    <span><input type="submit" id="addfancy" name="addfancy" value="Add to your GetList"><span id="addtogetlistupload" class="loadimg"></span></span>
+    </div>
+    </form>
+    </div>
+    <div id="addpindialogformweb" style="display:none">
+	<div class="wrapper">
+	<form method="post" action="/add-from-website" id="ajaxpinformweb">
+	    <div class="c1" id="imagedivweb">
+	    <div id="slideshowweb" class="photo">
+            <img src="" id="slide-imageweb">
+        </div>
+        <div id="imagesize">
         </div>
       </div>
       <div id="dialog-form" style="display:none">
