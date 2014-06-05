@@ -1179,14 +1179,24 @@ class FollowList:
     def GET(self, board_id):
         force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
+<<<<<<< HEAD
         url = "/api/image/follow-list"
         ctx = {
             "logintoken": logintoken,
+=======
+        url = "/api/image/follow-board"
+        ctx = {
+            "user_id": sess.user_id,
+>>>>>>> Refs #403 Allowed to follow boards
             "csid_from_client": '',
             "board_id": board_id
         }
         result = api_request(url, data=ctx).get("data")
+<<<<<<< HEAD
         return result.get('status')
+=======
+        return result
+>>>>>>> Refs #403 Allowed to follow boards
 
 class PageAddFriend:
     def GET(self, user_id):
