@@ -47,7 +47,7 @@ def save_api_request(request_data):
 
 
 def photo_id_to_url(photo_id):
-    results = db.select('photos',
+    results = db.select('pictures',
                         where='id = $id',
                         vars={'id': photo_id})
 

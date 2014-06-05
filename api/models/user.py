@@ -39,7 +39,7 @@ class User(Base, Serializer):
     pic_id = Column(Integer, ForeignKey('pictures.id',
                                         use_alter=True,
                                         name="fk_pic"))
-    pic = relationship("Picture", primaryjoin=(pic_id==Picture.id),
+    pic_obj = relationship("Picture", primaryjoin=(pic_id==Picture.id),
                        backref=backref("user_pic", uselist=False))
 
     hometown = Column(String)

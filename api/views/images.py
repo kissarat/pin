@@ -230,7 +230,7 @@ class ImageQuery(BaseAPI):
         query = '''
             select
                 tags.tags, pins.*, categories.id as category,
-                categories.name as cat_name, photos.resized_url as user_pic,
+                categories.name as cat_name, pictures.resized_url as user_pic,
                 users.username as user_username, users.name as user_name,
                 users.id as user_id,
                 count(distinct p1) as repin_count,
@@ -240,13 +240,13 @@ class ImageQuery(BaseAPI):
                 left join pins p1 on p1.repin = pins.id
                 left join likes l1 on l1.pin_id = pins.id
                 left join users on users.id = pins.user_id
-                left join photos on users.pic = photos.id
+                left join pictures on users.pic_id = pictures.id
                 left join follows on follows.follow = users.id
                 left join pins_categories on pins.id=pins_categories.pin_id
                 left join categories
                 on pins_categories.category_id = categories.id
             where %s
-            group by tags.tags, categories.id, pins.id, users.id, photos.id
+            group by tags.tags, categories.id, pins.id, users.id, pictures.id
             order by timestamp desc''' % (where)
 
         images = db.query(query)

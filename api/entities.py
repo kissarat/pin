@@ -3,6 +3,8 @@ from mypinnings.database import connect_db
 from api.utils import photo_id_to_url
 from api.models.user import User
 
+from sqlalchemy import or_
+
 db = connect_db()
 
 
@@ -47,7 +49,11 @@ class UserProfile(object):
         # query = db.select('users', vars={'username': profile,
         #                       'id': user_id},
         #                       where="username=$username or id=$id")
-        user = web.ctx.orm.query(User).filter(User.id == user_id).first()
+        # user = web.ctx.orm.query(User).filter(User.id == user_id).first()
+        user = web.ctx.orm.query(User).filter(
+            or_(User.id == user_id, User.username == profile)
+        ).first()
+
         if not user:
             return False
         # if len(query) > 0:
@@ -59,6 +65,12 @@ class UserProfile(object):
         # response = {field: user.getattr(field) for field in UserProfile.fields}
         # response = UserProfile.format_birthday(user, response)
         # return response
+
+        if user.pic_obj:
+            user.pic = user.pic_obj.resized_url
+        else:
+            user.pic = None
+
         return user
 
     @staticmethod
