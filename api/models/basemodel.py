@@ -24,6 +24,6 @@ class Serializer(object):
             elif isinstance(value, Base):
                 dict_to_return[public_key] = value.to_serializable_dict()
             else:
-                if value:
+                if value is not None:
                     dict_to_return[public_key] = value
         return dict_to_return

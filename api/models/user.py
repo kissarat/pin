@@ -12,7 +12,8 @@ class User(Base, Serializer):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing':True}
     __public__ = ['id', 'email', 'name', 'username', 'timestamp',
-        'pic', 'bg', 'hometown', 'city', 'website', 'pic_obj']
+        'pic', 'bg', 'hometown', 'city', 'website', 'pic_obj',
+        'headerbgx', 'headerbgy']
 
     id = Column(Integer, primary_key=True)
     email = Column(String)
