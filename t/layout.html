@@ -195,7 +195,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
                       $for board in boards:
                         <option value="$board.id">$board.name</option>
                       </select>
-                      <button type="button" id="button_add_board" alt="Add a new list">+</button>
+                      <!-- <button type="button" id="button_add_board" alt="Add a new list">+</button> -->
                     </div>
                     <div id="board_creation_layer" style="display:none">
                       <input type="text" name="board_name" id="board_name">
@@ -243,7 +243,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
                           $for board in boards:
                               <option value="$board.id">$board.name</option>
                       </select>
-                      <button type="button" id="button_add_boardweb" alt="Add a new list">+</button>
+                      <!-- <button type="button" id="button_add_boardweb" alt="Add a new list">+</button> -->
                     </div>
                     <div id="board_creation_layerweb" style="display:none">
                       <input type="text" name="board_name" id="board_name">
