@@ -68,30 +68,36 @@ $(document).ready(function() {
 
     $('#upload_form').ajaxForm({
         beforeSend: function(xhr, opts) {
-
-            $(".progress").show();
-            var percentVal = '0%';
-            bar.width(percentVal)
-            percent.html(percentVal);
-            if  (!validate()){
-                xhr.abort();
-            }else{
-                return true
-            }
-
-        },
-        uploadProgress: function(event, position, total, percentComplete) {
-            $(".progress").show();
-            var percentVal = percentComplete + '%';
-            bar.width(percentVal)
-            percent.html(percentVal);
+            $(".loading").show();
         },
         success: function() {
-            $(".progress").show();
-            var percentVal = '100%';
-            bar.width(percentVal)
-            percent.html(percentVal);
+            $(".loading").show();
         },
+        // beforeSend: function(xhr, opts) {
+
+        //     $(".progress").show();
+        //     var percentVal = '0%';
+        //     bar.width(percentVal)
+        //     percent.html(percentVal);
+        //     if  (!validate()){
+        //         xhr.abort();
+        //     }else{
+        //         return true
+        //     }
+
+        // },
+        // uploadProgress: function(event, position, total, percentComplete) {
+        //     $(".progress").show();
+        //     var percentVal = percentComplete + '%';
+        //     bar.width(percentVal)
+        //     percent.html(percentVal);
+        // },
+        // success: function() {
+        //     $(".progress").show();
+        //     var percentVal = '100%';
+        //     bar.width(percentVal)
+        //     percent.html(percentVal);
+        // },
 	    complete: function(xhr) {
 	       $(".progress").hide();
 	        $( "#dialog-form" ).clearForm();
