@@ -127,6 +127,8 @@ $(document).ready(function() {
         }
     }
 
+    var barweb = $('.bar');
+    var percentweb = $('.percent');
     $("#gallerynextweb").on("click",(function(){gallery.next();}));
     $("#galleryprevweb").on("click",(function(){gallery.prev();}));
 

@@ -776,7 +776,7 @@ class PagePin:
 
         pin = db.query('''
             select
-                pins.*, users.name as user_name, users.pic as user_pic, users.username as user_username,
+                pins.*, users.name as user_name, pictures.resized_url as user_pic, users.username as user_username,
                 ''' + query1 + ''' as liked,
                 count(distinct l2) as likes,
                 count(distinct p1) as repin_count
@@ -786,8 +786,9 @@ class PagePin:
                 ''' + query2 + '''
                 left join likes l2 on l2.pin_id = pins.id
                 left join pins p1 on p1.repin = pins.id
+                left join pictures on pictures.id = users.pic_id
             where pins.external_id = $external_id
-            group by pins.id, users.id''', vars=qvars)
+            group by pins.id, users.id, pictures.id''', vars=qvars)
         if not pin:
             return 'pin not found'
 
@@ -805,9 +806,10 @@ class PagePin:
 
         comments = db.query('''
             select
-                comments.*, users.pic as user_pic, users.username as user_username, users.name as user_name
+                comments.*, pictures.resized_url as user_pic, users.username as user_username, users.name as user_name
             from comments
                 join users on users.id = comments.user_id
+                left join pictures on pictures.id = users.pic_id
             where pin_id = $id
             order by timestamp asc''', vars={'id': pin.id})
 
