@@ -412,7 +412,7 @@ a.signupgg:hover
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .8 ) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .8 ) url('../img/loader.gif') 50% 50% no-repeat;
 }
 
 /* When the body has the loading class, we turn
