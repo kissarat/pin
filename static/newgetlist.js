@@ -69,6 +69,11 @@ $(document).ready(function() {
     $('#upload_form').ajaxForm({
         beforeSend: function(xhr, opts) {
             $(".loading").show();
+            if  (!validate()){
+                xhr.abort();
+            }else{
+                return true;
+            }
         },
         success: function() {
             $(".loading").show();
@@ -270,6 +275,7 @@ $(document).ready(function() {
             list.attr("style", "");
         }
         if (errors.length>0){
+            $("body").removeClass("loading");
             for (i=0;i<errors.length;i++){
                 if(errors[i] instanceof jQuery){
                     $.each(errors[i], function(i,v){
@@ -284,7 +290,8 @@ $(document).ready(function() {
         $("#addfancy").prop("disabled", true);
         var spanelememnt = $("#addtogetlistupload");
         spanelememnt.empty();
-        spanelememnt.append("<img src='/static/img/getlist-load.gif'>")
+        $("body").addClass("loading");
+        // spanelememnt.append("<img src='/static/img/getlist-load.gif'>")
         return true;
     }
 
@@ -320,7 +327,8 @@ $(document).ready(function() {
         $("#addfancyweb").prop("disabled", true);
         var spanelememnt = $("#addtogetlist");
         spanelememnt.empty();
-        spanelememnt.append("<img src='/static/img/getlist-load.gif'>")
+        $("body").addClass("loading");
+        // spanelememnt.append("<img src='/static/img/getlist-load.gif'>")
         return true;
     }
 
