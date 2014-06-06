@@ -71,11 +71,8 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
 
                 $if user.pic:
                  <a href='/$user.username' id="user_avatar_placeholder_wrapper">
-                 <div class="user_pic_placeholder avatar" style='background-image: url($(user.pic)); background-position: $(user.bgx)px $(user.bgy)px; $('' if 'logged_in' in sess and sess.user_id == user.id else 'cursor: default')"'></div>
+                 <div class="user_pic_placeholder avatar" style="background-image: url($(user.pic)); background-position: $(user.bgx)px $(user.bgy)px; $('' if 'logged_in' in sess and sess.user_id == user.id else 'cursor: default')"></div>
                 $else:
-                <!--
-                  <a href='#' id="lolimage1">
-                  -->
                   <a href='/$user.username' >
                   <img class='avatar' src='/static/default-avatar.png' style="height:44px;" />
               </a>
@@ -141,87 +138,22 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
     </div> -->
 
     <div class='content'>
-        $if acti_needed is not None:
-            $if acti_needed:
-                <div class='notice'>Notice: You haven't activated your account yet! Please check $user.email. <a href='/resend-activation'>Resend</a></div>
-    <div id="getlist-from-web" style="display:none">
-    <form method="get" action="/preview"  id="web_getlist_form">
-    Image Link Or website Address
-	<input type="input" name="url" id="url" class="fetch-url" placeholder="http://"><br/>
-	    <input type="button" id="get_cancel" value="Go Back">
-        <input type="button" id="fetch-images" value="Fetch Images">
-	</form>
-	<div class="progress" style="display:none" >
-		<div class="bar"></div >
-		<div class="percent">0%</div >
-		<div id="statusweb"></div>
-	</div>
-    </div>
-	<div id="dialog-form" style="display:none">
-	<form method="post" action="/newaddpin" enctype="multipart/form-data" id="upload_form">
-	<input type="file" name="image" id="image" accept="image/*" placeholder="Please choose a file"><br/>
-	    <input type="button" id="upload_cancel" value="Go Back">
-        <input type="submit" value="Upload">
-	</form>
-
-	<div class="progress" style="display:none" >
-		<div class="bar"></div >
-		<div class="percent">0%</div >
-	</div>
-
-	<div id="status"></div>
-	</div>
-	<div id="addpindialogform" style="display:none">
-	<div class="wrapper">
-	<form method="post" action="/newaddpinform" id="ajaxpinform">
-	    <div class="c1" id="imagediv">
-	    <div id="slideshowupload" class="photo">
-
-        </div>
-        </div>
-	    <div class="c2">
-
-        <input type="hidden" id="fname" value="">
-        <table>
-        <tr><th><label for="title"></label></th><td><div id="imagename"></div></td></tr>
-        <tr><th><label for="title">Title</label></th><td><input type="text" id="title"></td></tr>
-        <tr><th><label for="weblink">Link</label></th><td><input type="text" id="weblink" placeholder="Where to buy?"></td></tr>
-        <tr><th><label for="hashtag">Tags</label></th><td><input type="text" id="hashtag" placeholder="#this is great"></td></tr>
-	    <tr><th><label for="board">Get list</label></th>
-	    	<td>
-	    		<div id="board_selection_layer">
-		    		<select id="board" name="board">
-		    			<option value="">Select one</option>
-		    		$for board in boards:
-		    			<option value="$board.id">$board.name</option>
-		    		</select>
-		    		<button type="button" id="button_add_board" alt="Add a new list">+</button>
-	    		</div>
-	    		<div id="board_creation_layer" style="display:none">
-	    			<input type="text" name="board_name" id="board_name">
-		    		<button type="button" id="button_select_board" alt="Select an existing board">-</button>
-	    		</div>
-	    	</td>
-	    </tr>
-        </table>
-        </div>
-    </div>
-    <div class="row">
-    <textarea id="comments" class="comments" placeholder="Say something about this"></textarea><br>
-    <input type="hidden" id="image-url" >
-    <input type="button" id="cancelfancy" name="cancelfancy" value="Cancel">&nbsp;&nbsp;
-    <span><input type="submit" id="addfancy" name="addfancy" value="Add to your GetList"><span id="addtogetlistupload" class="loadimg"></span></span>
-    </div>
-    </form>
-    </div>
-    <div id="addpindialogformweb" style="display:none">
-	<div class="wrapper">
-	<form method="post" action="/add-from-website" id="ajaxpinformweb">
-	    <div class="c1" id="imagedivweb">
-	    <div id="slideshowweb" class="photo">
-            <img src="" id="slide-imageweb">
-        </div>
-        <div id="imagesize">
+      $if acti_needed is not None:
+        $if acti_needed:
+          <div class='notice'>
+            Notice: You haven't activated your account yet! Please check $user.email. <a href='/resend-activation'>Resend</a>
+          </div>
+      <div id="getlist-from-web" style="display:none">
+        <form method="get" action="/preview"  id="web_getlist_form">
+          Image Link Or website Address
+          <input type="input" name="url" id="url" class="fetch-url" placeholder="http://"><br/>
+          <input type="button" id="get_cancel" value="Go Back">
+          <input type="button" id="fetch-images" value="Fetch Images">
+        </form>
+        <div class="progress" style="display:none" >
+          <div class="bar"></div >
+          <div class="percent">0%</div >
+          <div id="statusweb"></div>
         </div>
       </div>
       <div id="dialog-form" style="display:none">
@@ -244,6 +176,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
             <div class="c1" id="imagediv">
               <div id="slideshowupload" class="photo">
 
+
               </div>
             </div>
             <div class="c2">
@@ -262,7 +195,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
                       $for board in boards:
                         <option value="$board.id">$board.name</option>
                       </select>
-                      <!-- <button type="button" id="button_add_board" alt="Add a new list">+</button> -->
+                      <button type="button" id="button_add_board" alt="Add a new list">+</button>
                     </div>
                     <div id="board_creation_layer" style="display:none">
                       <input type="text" name="board_name" id="board_name">
@@ -310,7 +243,7 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
                           $for board in boards:
                               <option value="$board.id">$board.name</option>
                       </select>
-                      <!-- <button type="button" id="button_add_boardweb" alt="Add a new list">+</button> -->
+                      <button type="button" id="button_add_boardweb" alt="Add a new list">+</button>
                     </div>
                     <div id="board_creation_layerweb" style="display:none">
                       <input type="text" name="board_name" id="board_name">
@@ -345,62 +278,42 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
     </div>
 
     $if 'logged_in' in sess and sess.user_id == user.id:
-      <div class="modal fade" id="uploadImageModal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <a href="#" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-              <h1>Change your picture</h1>
-            </div>
-
-            <form class='form_with_loading' id='uploadimageform' action="/changeprofile" method='post' enctype='multipart/form-data'>
-              <div class="modal-body">
-                <input type='file' name='file' id='file' accept="image/*" required="required" />
-              </div>
-              <div class="modal-footer">
-                <button type="submit"  class="button">Upload Picture</button>
-              </div>
-            </form>
-
+    <div class="modal fade" id="uploadImageModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <a href="#" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+            <h1>Change your picture</h1>
           </div>
-        </div>
-      </div>
 
-      <div class="modal fade" id="uploadBackgroundImageModal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <a href="#" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-              <h1>Background Photo</h1>
-            </div>
-            <form class='form_with_loading change_bg_form' id='uploadimageform' action="/changebg" method='post' enctype='multipart/form-data'>
-              <div class="modal-body">
-                <input type='file' name='file' id='file' accept="image/*" required="required" />
-              </div>
-              <div class="modal-footer">
-                <button type="submit"  class="button">Upload Photo</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-
-
-      <!-- <div class="modal fade" id="enlargeImage">
-        <div class="modal-dialog fullscreen-modal-dialog">
-          <div class="modal-content fullscreen-modal-content">
-            <div class="modal-header">
-              <a href="#" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
-              <h1></h1>
-            </div>
+          <form class='form_with_loading' id='uploadimageform' action="/changeprofile" method='post' enctype='multipart/form-data'>
             <div class="modal-body">
-              <div id="enlarged-img-holder">
-                <img src="" id="enlarged-img" />
-              </div>
+              <input type='file' name='file' id='file' accept="image/*" required="required" />
             </div>
-          </div>
+            <div class="modal-footer">
+              <button type="submit"  class="button">Upload Picture</button>
+            </div>
+          </form>
         </div>
-      </div> -->
-
+      </div>
+    </div>
+    <div class="modal fade" id="uploadBackgroundImageModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <a href="#" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+            <h1>Background Photo</h1>
+          </div>
+          <form class='form_with_loading change_bg_form' id='uploadimageform' action="/changebg" method='post' enctype='multipart/form-data'>
+            <div class="modal-body">
+              <input type='file' name='file' id='file' accept="image/*" required="required" />
+            </div>
+            <div class="modal-footer">
+              <button type="submit"  class="button">Upload Photo</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
