@@ -638,3 +638,11 @@
     position: absolute;
     bottom: 0px;
 }
+
+#choose_avatar_image a{
+    text-decoration: none;
+}
+
+#choose_avatar_image img{
+    border: 1px solid #333;
+}
