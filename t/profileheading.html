@@ -57,17 +57,32 @@ $#            <a class='button' href='#' data-toggle="modal" data-target="#showP
     <div class="userHolder">
         <div class="userPic">
             $if user.pic_obj:
-              <a href="#" id="profile_avatar" data-toggle="modal" data-target="#showPhotoModal$(user.pic_obj['id'])"><img src="$(user.pic_obj['resized_url'])" /></a>
+              <a href="#" id="profile_avatar" data-toggle="modal" data-target="#showPhotoModal$(user.pic_obj['id'])">
+                <img src="$(user.pic_obj['resized_url'])" />
+              </a>
+              <!-- <div id="transparent_button" data-target="#uploadImageModal" data-toggle="modal"> -->
+              <div id="transparent_button" data-toggle="dropdown">
+                <img src="https://fbstatic-a.akamaihd.net/rsrc.php/v2/yt/r/ErjpFSQWdpX.png">
+                <a href="javascript:void(0);">
+                  Upload new avatar
+                </a>
+              </div>
+              <ul class="dropdown-menu">
+                <li>
+                  <a href="javascript:void(0);" data-target="#uploadImageModal" data-toggle="modal">
+                    Upload new image
+                  </a>
+                </li>
+                <li>
+                  <a class="link_with_loading" href="/picture/$(user.pic_obj['id'])/remove">
+                    Remove current avatar
+                  </a>
+                </li>
+              </ul>
             $else:
               <a id="profile_avatar" href='#' id="" data-toggle="modal" data-target="#uploadImageModal">
                 <img src='/static/default-avatar.png' alt='' />
               </a>
-            <div id="transparent_button" data-target="#uploadImageModal" data-toggle="modal">
-              <img src="https://fbstatic-a.akamaihd.net/rsrc.php/v2/yt/r/ErjpFSQWdpX.png">
-              <a href="javascript:void(0);">
-                Upload new avatar
-              </a>
-            </div>
             <div class="otherPics">
               $ photos_qty = 1
               $for photo in user.photos:
