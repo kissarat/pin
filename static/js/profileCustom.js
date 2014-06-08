@@ -6,9 +6,9 @@
         $(".userPic").mouseleave(function(){
             $("#transparent_button").hide();
         });
-        $("#transparent_button").click(function(){
-            $("##uploadImageModal").dialog('open');
-        })
+        // $("#transparent_button").click(function(){
+        //     $("#uploadImageModal").dialog('open');
+        // })
         $(".change_bg_form").submit(function(evnt){
             evnt.preventDefault();
             var path = window.location.pathname;
