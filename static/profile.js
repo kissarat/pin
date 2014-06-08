@@ -65,9 +65,16 @@ $("body").mouseup(function() {
     otherY = _ref[1];
     tempX = parseInt(otherX.slice(0, +(otherX.length - 2) + 1 || 9e9));
     tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
-    return $.post("/changebgpos", {
+    return $.ajax({
+      url: "/changebgpos",
+      data: {
       x: tempX,
-      y: tempY
+      y: tempY },
+      success: function(){},
+      beforeSend: function(){
+        $("body").removeClass('loading');
+      },
+      type: 'POST',
     });
   }
 });
