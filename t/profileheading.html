@@ -1,4 +1,25 @@
 $def with (user, hashed, edit_profile=None, edit_profile_done=None)
+<div class="profCoverBackground"
+  $if len(user.backgrounds) > 0: 
+    data-target="#showPhotoModal$(user.backgrounds[0].id)" data-toggle="modal"
+>
+</div>
+<div class="profBackgroundsButtons">
+    <p class="userButtons">
+
+          $if len(user.photos) > 0:
+            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.photos[0].id)">View album</a>
+
+          $if len(user.backgrounds) > 0:
+            <a class='button' id="change_background" href="javascript:void(0)">Change background position</a>
+
+          $if 'logged_in' in sess and user.id == sess.user_id:
+            <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
+                Upload background photo
+            </a>
+    </p>
+</div>
+
 <div class="profBack"
       $if user.bg:
         $if 'logged_in' in sess and sess.user_id == user.id:
@@ -38,18 +59,23 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
             <a href="$user.website"><i class="flaticon-earth9"></i> Blog: $user.website</a>
         </p>
 
-        <p class="userButtons">
+        <!-- replacement height when user button don`t show -->
+        <p class="heightBG"></p>
 
-          $if len(user.photos) > 0:
-            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.photos[0].id)">View album</a>
-
-          $if len(user.backgrounds) > 0:
-            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.backgrounds[0].id)">View background</a>
-
-          $if 'logged_in' in sess and user.id == sess.user_id:
-            <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
-                Upload background photo
-            </a>
+$#        <p class="userButtons">
+$#
+$#          <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">&nbsp</a>
+$#
+$#          $if len(user.photos) > 0:
+$#            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.photos[0].id)">View album</a>
+$#
+$#          $if len(user.backgrounds) > 0:
+$#            <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.backgrounds[0].id)">View background</a>
+$#
+$#          $if 'logged_in' in sess and user.id == sess.user_id:
+$#            <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
+$#                Upload background photo
+$#            </a>
 
 
 $#            $if 'logged_in' in sess and user.id != sess.user_id:
@@ -70,7 +96,7 @@ $#                        <a class='button' href='/follow/$user.id'>Follow</a>
 $#                    <a class='button buttonWhite' href='/newconvo/$user.id'>
 $#                        <i class="flaticon-email21"></i> Message
 $#                    </a>
-        </p>
+$#        </p>
     </div>
 </div>
 
