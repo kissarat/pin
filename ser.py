@@ -514,7 +514,9 @@ class NewPageAddPinForm:
 
         data = api_request("api/image/upload", "POST", data_to_send, files)
         if data['status'] == 200:
-            return '/p/%s' % data['data']['external_id']
+            # return '/p/%s' % data['data']['external_id']
+            redirect_url = "/profile/%s" % (sess.user_id)
+            return redirect_url
 
 
 class NewPageAddPin:
@@ -588,7 +590,9 @@ class PageAddPinUrl:
 
         data = api_request("api/image/upload", "POST", data, files)
         if data['status'] == 200:
-            return '/p/%s' % data['data']['external_id']
+            # return '/p/%s' % data['data']['external_id']
+            redirect_url = "/profile/%s" % (sess.user_id)
+            return redirect_url
 
 
 class PageRemoveRepin:
