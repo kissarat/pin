@@ -33,11 +33,19 @@
                 // If user on his profile page
                 $(this).ajaxSubmit(function(data){
                     if (data.status == "ok"){
+                        $("#header_background").removeAttr('data-nobg');
+                        $("#header_background").removeAttr('style');
+                        $("#header_background").attr('data-bg', 'true');
                         $("#header_background").css("background-image", "url("+data.resized_url+")");
-                        $(".close").click();
+                        $("#header_background").css('background-size', "100%");
+                        $("#header_background").css('position','relative');
+                        // $(".close").click();
                         $(".profCoverBackground").css( "z-index", "0" );
                         $("#save_background").text("Save position");
                         $("#save_background").css("display","block");
+                        // $("#dropdown_bg").show();
+                        // $("#first_bg_upload").hide();
+                        window.location.href = window.location.pathname
                     }
                     if (data.status == 'error'){
                         alert(data.message);
