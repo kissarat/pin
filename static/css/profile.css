@@ -7,6 +7,7 @@
 .userPic
 {
     position: relative;
+    height: 150px;
 }
 
 .otherPics
@@ -606,7 +607,8 @@
 #transparent_button{
     background-color: rgba(0,0,0,0.6);
     position: absolute;
-    top: 80px;
+    /*top: 80px;*/
+    top: 97px;
     width: 160px;
     height: 53px;
     /*text-align: center;*/
@@ -630,4 +632,9 @@
 
 #transparent_button a:hover {
     text-decoration: none;
+}
+
+#profile_avatar img{
+    position: absolute;
+    bottom: 0px;
 }
