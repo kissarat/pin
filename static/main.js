@@ -118,10 +118,9 @@ $(document).ready(function() {
             });
         })
         .on( "mouseleave", function() {
-            if ($("#dropdown_bg").mouseenter() == false)
-                $("#dropdown_bg").css({
-                  "display": "none"
-                });        
+            if ($("#dropdown_bg").mouseenter() == false) {
+                $("#dropdown_bg").css({ "display": "none" }); 
+            }
         });
     });
 
