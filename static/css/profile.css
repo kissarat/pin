@@ -38,12 +38,24 @@
 
 .userHolder
 {
-    position: relative;
-    z-index: 1;
+    /*position: relative;*/
+    position: absolute;
+    z-index: 10;
     padding: 14px 22px;
-    background: rgba(0,0,0, 0.3);
+    /*background: rgba(0,0,0, 0.3);*/
+    width: 200px;
+    top: 80px;
 }
 
+#transbox{
+    /*width: 400px;*/
+    height: 262px;
+    /*margin: 30px 50px;*/
+    background-color: #000;
+    border: 1px solid black;
+    opacity: 0.3;
+    filter: alpha(opacity=60); /* For IE8 and earlier */
+}
 .userBackImg
 {
     position: absolute;
@@ -156,7 +168,7 @@
 }
 
 .profBackgroundsButtons {
-    z-index: 3;
+    z-index: 101;
     position: absolute;
 }
 

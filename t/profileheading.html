@@ -33,6 +33,11 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
         data-nobg='true'
         style='background: #333842;position:relative;'
 >
+<div id="transbox">
+
+</div>
+</div>
+
     <div class="userHolder">
         <div class="userPic">
             $if user.pic_obj:
@@ -98,7 +103,6 @@ $#                        <i class="flaticon-email21"></i> Message
 $#                    </a>
 $#        </p>
     </div>
-</div>
 
 $for i, photo in enumerate(user.photos):
   $ next_photo = None
