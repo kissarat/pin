@@ -13,11 +13,28 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
           $if len(user.backgrounds) > 0:
             <a class='button' id="change_background" href="javascript:void(0)">Change background position</a>
 
-          $if 'logged_in' in sess and user.id == sess.user_id:
-            <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
-                Upload background photo
-            </a>
     </p>
+
+    <div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        Change BG
+        <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        $if len(user.backgrounds) > 0:
+          <li>
+            <a class='button' id="change_background" href="javascript:void(0)">
+              Change background position</a>
+          </li>
+
+        $if 'logged_in' in sess and user.id == sess.user_id:
+          <li>
+            <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
+              Upload background photo</a>
+          </li>
+      </ul>
+    </div>
+
 </div>
 
 <div class="profBack"
