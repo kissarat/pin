@@ -89,7 +89,7 @@ $(document).ready(function() {
         });
     });
 
-    $("#change_background").click(function(e){
+    $("li > #change_background").click(function(e){
         var action = $("#change_background").text();
         $(".profCoverBackground").css( "z-index", "0" );
         $("#change_background").text("Save position");
@@ -99,6 +99,15 @@ $(document).ready(function() {
         }
     });
 
+    $("#change_background").click(function(e){
+        var action = $("#change_background").text();
+        $(".profCoverBackground").css( "z-index", "0" );
+        $("#change_background").text("Save position");
+        if (action == "Save position") {
+            $(".profCoverBackground").css( "z-index", "2" );
+            $("#change_background").text("Change background position");
+        }
+    });
 });
 
 function hide_pins_date() {
