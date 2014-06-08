@@ -112,7 +112,7 @@ $(document).ready(function() {
     });
 
     $(".profCoverBackground")
-        .on( "mouseenter", function() {
+        .on( "mouseover", function() {
             $("#dropdown_bg").css({
               "display": "block"
             });
