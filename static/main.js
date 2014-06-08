@@ -107,7 +107,7 @@ $(document).ready(function() {
         $("#dropdown_bg").removeClass("open");
     });
 
-    $(".profCoverBackground").mouseenter(function(e){
+    $("#dropdown_bg").mouseenter(function(e){
         $("#dropdown_bg").css("display","block");
     });
 
@@ -118,11 +118,10 @@ $(document).ready(function() {
             });
         })
         .on( "mouseleave", function() {
-            if ($("#dropdown_bg").mouseenter() == false) {
-                $("#dropdown_bg").css({ "display": "none" }); 
-            }
+            $("#dropdown_bg").css({ "display": "none" }); 
         });
     });
+    
 
 function hide_pins_date() {
   $(".dateWrap").each(function() {
