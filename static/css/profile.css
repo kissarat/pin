@@ -143,6 +143,23 @@
     width: 25%;
 }
 
+.profCoverBackground {
+    z-index: 2;
+    border: 1px solid #fff;
+    width: 791px;
+    height: 264px;
+    position: absolute;
+}
+
+.heightBG {
+    height: 42px;
+}
+
+.profBackgroundsButtons {
+    z-index: 3;
+    position: absolute;
+}
+
 .userMenuItem
 {
     width: 100%;
