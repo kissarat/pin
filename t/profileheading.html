@@ -10,29 +10,28 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
           $if len(user.photos) > 0:
             <a class='button' href='#' data-toggle="modal" data-target="#showPhotoModal$(user.photos[0].id)">View album</a>
 
-          $if len(user.backgrounds) > 0:
-            <a class='button' id="change_background" href="javascript:void(0)">Change background position</a>
-
     </p>
 
-    <div class="btn-group">
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-        Change BG
-        <span class="caret"></span>
-      </button>
-      <ul class="dropdown-menu">
-        $if len(user.backgrounds) > 0:
-          <li>
-            <a class='button' id="change_background" href="javascript:void(0)">
-              Change background position</a>
-          </li>
 
-        $if 'logged_in' in sess and user.id == sess.user_id:
-          <li>
-            <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#">
-              Upload background photo</a>
-          </li>
-      </ul>
+    <a class='button' id="save_background" href="javascript:void(0)">Change background position</a>
+
+    <div class="btn-group" id="dropdown_bg">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Change BG
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" style="margin-left:-105px;">
+            $if len(user.backgrounds) > 0:
+                <li>
+                    <a id="change_background" href="javascript:void(0)">
+                      Change background position</a>
+                </li>
+
+            $if 'logged_in' in sess and user.id == sess.user_id:
+                <li>
+                    <a data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#"> Upload background photo</a>
+                </li>
+        </ul>
     </div>
 
 </div>

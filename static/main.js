@@ -90,25 +90,40 @@ $(document).ready(function() {
     });
 
     $("li > #change_background").click(function(e){
-        var action = $("#change_background").text();
         $(".profCoverBackground").css( "z-index", "0" );
-        $("#change_background").text("Save position");
+        $("#save_background").text("Save position");
+        $("#save_background").css("display","block");
+    });
+
+    $("#save_background").click(function(e){
+        var action = $("#save_background").text();
+        $("#save_background").css("display","none");
         if (action == "Save position") {
             $(".profCoverBackground").css( "z-index", "2" );
-            $("#change_background").text("Change background position");
         }
     });
 
-    $("#change_background").click(function(e){
-        var action = $("#change_background").text();
-        $(".profCoverBackground").css( "z-index", "0" );
-        $("#change_background").text("Save position");
-        if (action == "Save position") {
-            $(".profCoverBackground").css( "z-index", "2" );
-            $("#change_background").text("Change background position");
-        }
+    $("#dropdown_bg > ul").mouseleave(function(e){
+        $("#dropdown_bg").removeClass("open");
     });
-});
+
+    $(".profCoverBackground").mouseenter(function(e){
+        $("#dropdown_bg").css("display","block");
+    });
+
+    $(".profCoverBackground")
+        .on( "mouseenter", function() {
+            $("#dropdown_bg").css({
+              "display": "block"
+            });
+        })
+        .on( "mouseleave", function() {
+            if ($("#dropdown_bg").mouseenter() == false)
+                $("#dropdown_bg").css({
+                  "display": "none"
+                });        
+        });
+    });
 
 function hide_pins_date() {
   $(".dateWrap").each(function() {
