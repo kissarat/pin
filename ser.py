@@ -1963,6 +1963,45 @@ class PageChangeBG:
         raise web.seeother('/profile/%d' % sess.user_id)
 
 
+class PageChangeBGOLD:
+    def upload_image(self):
+        file_data = web.input(file={}).file
+
+
+
+        new_filename = os.path.join('static',
+                                    'tmp',
+                                    '{}'.format(file_data.filename))
+
+        with open(new_filename, 'w') as f:
+            f.write(file_data.file.read())
+
+        files = {'file': open(new_filename)}
+
+        logintoken = convert_to_logintoken(sess.user_id)
+
+        data_to_send = {
+            "csid_from_client": '',
+            "logintoken": logintoken
+        }
+
+        data = api_request("api/profile/userinfo/upload_bg",
+                           "POST",
+                           data_to_send,
+                           files)
+
+        if data['status'] == 200:
+            return True
+        return False
+
+
+    def POST(self):
+        force_login(sess)
+        self.upload_image()
+
+        raise web.seeother('/profile/%d' % sess.user_id)
+
+
 class PageRemoveBg:
     def GET(self):
         force_login(sess)
