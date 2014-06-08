@@ -6,13 +6,10 @@
         $(".userPic").mouseleave(function(){
             $("#transparent_button").hide();
         });
-        // $("#transparent_button").click(function(){
-        //     $("#uploadImageModal").dialog('open');
-        // })
         $(".change_bg_form").submit(function(evnt){
             evnt.preventDefault();
             var path = window.location.pathname;
-            if (path.indexOf('settings')){
+            if (path.indexOf('settings') > 0){
                 // If user is on 'settings' page
                 $(this).ajaxSubmit(function(data){
                     if (data.status == "ok"){
@@ -38,6 +35,9 @@
                     if (data.status == "ok"){
                         $("#header_background").css("background-image", "url("+data.resized_url+")");
                         $(".close").click();
+                        $(".profCoverBackground").css( "z-index", "0" );
+                        $("#save_background").text("Save position");
+                        $("#save_background").css("display","block");
                     }
                     if (data.status == 'error'){
                         alert(data.message);
