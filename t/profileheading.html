@@ -68,12 +68,12 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
               <div id="transparent_button" data-toggle="dropdown">
                 <img src="https://fbstatic-a.akamaihd.net/rsrc.php/v2/yt/r/ErjpFSQWdpX.png">
                 <a href="javascript:void(0);">
-                  Change image
+                  Update profile image
                 </a>
               </div>
               <ul class="dropdown-menu">
                 <li>
-                  <a href="javascript:void(0);" data-target="#uploadImageModal" data-toggle="modal">
+                  <a href="javascript:void(0);" id="upload_image_button">
                     Upload new image
                   </a>
                 </li>
@@ -92,13 +92,13 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
               <a id="profile_avatar" href='#' id="" data-toggle="modal" data-target="#uploadImageModal">
                 <img src='/static/default-avatar.png' alt='' />
               </a>
-            <div class="otherPics">
-              $ photos_qty = 1
-              $for photo in user.photos:
-                $if not user.pic_obj or (photo.id != user.pic_obj['id'] and photo.resized_url and photos_qty <=3):
-                  <a href="#" data-toggle="modal" data-target="#showPhotoModal$photo.id"><img src="$(photo.resized_url)" /></a>
-                  $ photos_qty = photos_qty + 1
-            </div>
+        </div>
+        <div class="otherPics">
+          $ photos_qty = 1
+          $for photo in user.photos:
+            $if not user.pic_obj or (photo.id != user.pic_obj['id'] and photo.resized_url and photos_qty <=3):
+              <a href="#" data-toggle="modal" data-target="#showPhotoModal$photo.id"><img src="$(photo.resized_url)" /></a>
+              $ photos_qty = photos_qty + 1
         </div>
         <p class="userName">
             $user.name

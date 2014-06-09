@@ -12,11 +12,15 @@
 
 .otherPics
 {
-    position: absolute;
+/*    position: absolute;
     left: 160px;
     bottom: 0;
-    padding-left: 3px;
+    padding-left: 3px;*/
     /*display: none;*/
+    position: absolute;
+    margin-left: 165px;
+    width: 400px;
+    top: 115px;
 }
 
 .otherPics img
@@ -26,8 +30,9 @@
 
 .otherPics img:hover
 {
+    border: 3px solid #7bc2f4;
     cursor: pointer;
-    border-color: #7bc2f4;
+    /*border-color: #7bc2f4;*/
 }
 
 .profBack
