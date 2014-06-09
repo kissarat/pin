@@ -1,5 +1,12 @@
 ﻿jQuery(function ($) {
     $(document).ready(function (){
+        $("#upload_image_button").click(function(evnt){
+            evnt.preventDefault();
+            $("#uploadImageModal #uploadimageform #file").click();
+        });
+        $("#uploadImageModal #uploadimageform #file").change(function(evnt){
+            $("#uploadImageModal #uploadimageform").submit();
+        });
         $(".userPic").mouseenter(function(){
             $("#transparent_button").show();
         });
