@@ -1,5 +1,16 @@
 ﻿jQuery(function ($) {
     $(document).ready(function (){
+        $(".choose_existed_image").click(function(evnt){
+            evnt.preventDefault();
+
+            $(".choose_existed_image").find('img').attr("style", "border:1px solid #333333;");
+
+            $(this).find("img").attr("style", "border: 3px solid #f2f2f2;");
+
+
+            $("#save_and_close_existed_image").attr('href', $(this).attr('data_url'));
+            $("#save_and_close_existed_image button").removeAttr('disabled');
+        });
         $("#upload_image_button").click(function(evnt){
             evnt.preventDefault();
             $("#uploadImageModal #uploadimageform #file").click();
