@@ -1034,16 +1034,16 @@ class PictureRemove(BaseAPI):
             ).first()
 
             if album.user_id == user_to_update.id:
-                if album.slug == "photos":
-                    if user_to_update.pic_id == picture.id:
-                        user_to_update.pic_obj = self._get_next_picture(album,
-                                                                    picture)
-                elif album.slug == "backgrounds":
-                    if user_to_update.bg_id == picture.id:
-                        user_to_update.bg = self._get_next_picture(album,
-                                                                   picture)
-                        user_to_update.bgx = 0
-                        user_to_update.bgy = 0
+                # if album.slug == "photos":
+                #     if user_to_update.pic_id == picture.id:
+                #         user_to_update.pic_obj = self._get_next_picture(album,
+                #                                                     picture)
+                # elif album.slug == "backgrounds":
+                #     if user_to_update.bg_id == picture.id:
+                #         user_to_update.bg = self._get_next_picture(album,
+                #                                                    picture)
+                #         user_to_update.bgx = 0
+                #         user_to_update.bgy = 0
 
                 for comment in picture.comments:
                     web.ctx.orm.delete(comment)

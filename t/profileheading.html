@@ -1,6 +1,6 @@
 $def with (user, hashed, edit_profile=None, edit_profile_done=None)
 <div class="profCoverBackground"
-  $if len(user.backgrounds) > 0: 
+  $if user.bg: 
     data-target="#showPhotoModal$(user.bg['id'])" data-toggle="modal"
 >
 </div>
@@ -16,7 +16,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
               <span class="caret"></span>
           </button>
           <ul class="dropdown-menu" style="margin-left:-105px;">
-              $if len(user.backgrounds) > 0:
+              $if user.bg:
                   <li>
                       <a id="change_background" href="javascript:void(0)">
                         Change background position</a>
@@ -26,7 +26,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
                   <li>
                       <a data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#"> Upload background photo</a>
                   </li>
-              $if len(user.backgrounds) > 0:
+              $if user.bg:
                   <li>
                       <a class="link_with_loading" href="/picture/$(user.bg['id'])/remove"> Remove current background</a>
                   </li>
