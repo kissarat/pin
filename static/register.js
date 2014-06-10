@@ -43,7 +43,7 @@
     $usernameInfo.show();
     u = $username.val();
     if (!taken) {
-      $usernameInfo.html('Your URL: <span class="link">http://mypinnings.com/' + u);
+      $usernameInfo.html('Your URL: <span class="link">http://mypinnings.com/' + u + '</span>');
     }
     if (timer !== null) {
       clearInterval(timer);
@@ -69,5 +69,7 @@
   $username.on('input', lolfunc);
 
   $username.blur(lolfunc);
+
+  lolfunc();
 
 }).call(this);
