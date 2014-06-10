@@ -4,6 +4,10 @@ $ options = options or {}
 $ template = template or 'onepin'
 $ pins = list(pins)
 
+$if len(pins):
+    $ profile = pins[0].user_username
+    <a href="/$profile" class="button">Back</a>
+
 $if edit_profile:
     <div id='pin-box-wrapper' class='tab-pane fade'>
 $else:
