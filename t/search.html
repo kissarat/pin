@@ -2,11 +2,6 @@ $def with (pins, query)
 <h1>Search results for items: "$query"</h1>
 <hr>
 <div class='clearfix category-disp'>
-    <script type="text/javascript">
-        var query = '$query';
-        query = query.replace(/[ \t"'#&%=]+/g, '+');
-        jQuery(websearch_add_images);
-    </script>
     <div id="search_results"></div>
     <button id="more_results" onclick="websearch_add_images()">More results</button>
     $if None != pins:
@@ -19,4 +14,9 @@ $def with (pins, query)
             <a href='/search/people?q=$query'>People</a>
         </div>
 </div>
-<script type='text/javascript' src='/static/category.js'></script>
+<!-- <script type='text/javascript' src='/static/category.js'></script> -->
+<script type="text/javascript">
+    var query = '$query';
+    query = query.replace(/[ \t"'#&%=]+/g, '+');
+    jQuery(websearch_add_images);
+</script>
