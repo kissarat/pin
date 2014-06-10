@@ -211,7 +211,7 @@ $('.profile_list_subtab').on('click', function(event) {
     return;
   }
   $.current_board = boardid;
-  get_more_items();
+  //get_more_items();
 });
 
 get_more_items = function(show_images) {
@@ -398,8 +398,8 @@ disableNormalScroll = function(e) {
 };
 
 $('#list-box-wrapper-link').on('click', function() {
-  get_more_items(true);
-  setTimeout(scrollToShowImages(), 200);
+  //get_more_items(true);
+  // setTimeout(scrollToShowImages(), 200);
 });
 
 scrollToShowImages = function() {
@@ -444,7 +444,7 @@ $('.send_comment').click(function() {
   }
   $( "#input_comment_" + photo_id ).val("")
 
-  $.post( url, { comment: comment }, 
+  $.post( url, { comment: comment },
     function( data ) {
       $( "#comments_" + photo_id ).append(data);
     }
