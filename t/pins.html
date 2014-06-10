@@ -3,6 +3,9 @@ $def with (pins, template=None, options=None, edit_profile=None, boards=None, ca
 $ options = options or {}
 $ template = template or 'onepin'
 $ pins = list(pins)
+$ profile = pins[0].user_username
+
+<a href="/$profile">Back</a>
 
 $if edit_profile:
     <div id='pin-box-wrapper' class='tab-pane fade'>
