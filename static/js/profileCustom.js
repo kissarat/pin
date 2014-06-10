@@ -1,5 +1,16 @@
 ﻿jQuery(function ($) {
     $(document).ready(function (){
+        $("#album_details").click(function(evnt){
+            var request_type = $(this).attr("data-id");
+            var user_id = $(this).attr("data-userid");
+            var data = {
+                "user_id": user_id,
+                "request_type": request_type
+            }
+            $.get("/ajax_album", data, function(data){
+                $("#albums_list").html(data);
+            });
+        });
         $(".choose_existed_image").click(function(evnt){
             evnt.preventDefault();
 
