@@ -451,3 +451,15 @@ $('.send_comment').click(function() {
   );
   return false;
 });
+
+$('.profile_tabs_link').click(function(e) {
+  location.hash = this.id;
+  e.preventDefault();
+});
+
+$( document ).ready(function() {
+  var hash = window.location.hash;
+  if(hash) {
+    $(hash).click();
+  }
+});
