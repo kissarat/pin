@@ -2331,7 +2331,7 @@ class PageList(object):
         pins_info = api_request(url, data=ctx).get("data")
         pins = [pin_utils.dotdict(pin)
                 for pin in pins_info.get("image_data_list")]
-        return ltpl('pins', pins)
+        return ltpl('list', pins)
 
 class PageSearchPeople:
     def GET(self):
