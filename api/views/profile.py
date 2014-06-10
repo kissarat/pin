@@ -757,7 +757,7 @@ class PicUpload(BaseAPI):
                                 error_code="Required args are missing")
 
         album = self._get_or_create_album(user['id'], 'photos')
-        photo = self._save_in_database(file_obj, 80, album.id)
+        photo = self._save_in_database(file_obj, 160, album.id)
 
         user_to_update = web.ctx.orm.query(User)\
             .filter(User.id == user['id'])\
