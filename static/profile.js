@@ -88,7 +88,7 @@ $("#header_background").mousemove(function(e) {
                          .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
                          .split(',')[0];
 
-  // I just broke it up on newlines for readability        
+  // I just broke it up on newlines for readability
 
   var image = new Image();
   image.src = imageSrc;
@@ -458,8 +458,18 @@ $('.profile_tabs_link').click(function(e) {
 });
 
 $( document ).ready(function() {
-  var hash = window.location.hash;
-  if(hash) {
-    $(hash).click();
-  }
+    var hash = window.location.hash;
+    if(hash) {
+        $(hash).click();
+    }
+
+
+    $(".boardlink").click(function(event){
+        console.log("Clicked");
+        var link = $(this).attr("href") + "?ajax=1";
+        console.log(link)
+        $(".inContentiySmoktunovskiy").load(encodeURI(link));
+        event.preventDefault();
+
+    });
 });
