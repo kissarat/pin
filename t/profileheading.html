@@ -8,6 +8,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
     <p class="userButtons"></p>
 
     <a class='button' id="save_background" href="javascript:void(0)">Save changes</a>
+    <a class='button' id="cancel_background_move" href="javascript:void(0)">Cancel</a>
 
     $if len(user.backgrounds) > 0:
       <div class="btn-group" id="dropdown_bg">
@@ -42,7 +43,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
         $if 'logged_in' in sess and sess.user_id == user.id:
           data-bg="true"
           id='header_background'
-          style='background-size:100% auto;background-position: $(user.headerbgx)px $(user.headerbgy)px;background-image: url($(user.bg['resized_url']));position:relative;'
+          style='background-size:100% auto;background-position: $(user.headerbgx4rf)px $(user.headerbgy4rf)px;background-image: url($(user.bg['resized_url']));position:relative;'
         $else:
           id='header_background'
           style='background-size:100% auto;background-position: $(user.headerbgx)px $(user.headerbgy)px;background-image: url($(user.bg['resized_url']));cursor:default !important;position:relative;'
@@ -52,7 +53,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
         style='background: #333842;position:relative;'
 >
 <div id="instructionWrap">
-  <div class="instructions">Move and edit position of your background</div>
+  <div class="instructions">Drag to reposition cover</div>
 </div>
 <div id="transbox">
 
