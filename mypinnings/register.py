@@ -98,7 +98,7 @@ class PageRegister:
                 return template.tpl('register/reg', form, msg)
         else:
             message = _('Please enter an username, full name, email, pasword, and language.')
-            return template.tpl('register/reg', form, message)
+            return template.ltpl('register/reg', form, message)
 
 
 class PageResendActivation:
