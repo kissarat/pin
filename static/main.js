@@ -92,6 +92,7 @@ $(document).ready(function() {
     var init_bg_pos;
     $("li > #change_background").click(function(e){
         $(".profCoverBackground").css( "z-index", "0" );
+        $("#header_background").css( "z-index", "100" );
         $("#save_background").text("Save position");
         $("#save_background").css("display","block");
         $("#cancel_background_move").css("display","block");
@@ -125,6 +126,7 @@ $(document).ready(function() {
     $("#cancel_background_move").click(function(e){
         $("#header_background").css("background-position", init_bg_pos);
         $(".profCoverBackground").css( "z-index", "2" );
+        $("#header_background").css( "z-index", "" );
         $("#instructionWrap").hide();
         $("#transbox").css("cursor","default");
         $("#save_background").css("display","none");
@@ -137,6 +139,7 @@ $(document).ready(function() {
         $("#cancel_background_move").css("display","none");
         if (action == "Save position") {
             $(".profCoverBackground").css( "z-index", "2" );
+            $("#header_background").css( "z-index", "" );
             $("#instructionWrap").hide();
             $("#transbox").css("cursor","default");
             save_bg();
