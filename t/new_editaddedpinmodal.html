@@ -1,0 +1,70 @@
+$def with (pin,categories_to_select, boards)
+<div class="modal fade" id="editPinModal$pin.id$pin.id">
+          <div class="modal-dialog">
+          <div class="modal-content">
+          <div class="modal-header">
+          <h1>Edit Getlist</h1>
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <div class="modal-body">
+<table>
+    <tr>
+        <td valign="top">
+<form  name="editPinModal$pin.id$pin.id"  enctype='multipart/form-data' method='post' action='/pin/$pin.id/' class="editPinModal">
+    <table>
+        <tr><th><label for="link">Source URL</label></th><td><input type="text" id="link" name="link" value="$pin.link" /></td></tr>
+        <tr><th><label for="product_url">Buy It Here</label></th><td><input type="text" id="product_url" name="product_url" value="$pin.product_url" /></td></tr>
+        <tr><th><label for="title">Title</label></th><td><input type="text" id="title" name="title" value="$pin.name" /></td></tr>
+        <tr><th><label for="description">Description</label></th><td><textarea id="description" name="description">$pin.description</textarea></td></tr>
+        <tr><th><label for="tags">Tags</label></th><td><input type="text" placeholder="#this #is #awesome" id="tags" name="tags" value="$pin.tags"/></td></tr>
+        <tr><th><label for="price">Price</label></th><td><input type="text" id="price" name="price" value="$pin.price"  /></td></tr>
+        <tr><th><label for="price_range">Price range</label></th>
+            <td>
+                <label><input type="radio" name="price_range" value="1" $:('checked' if pin.price_range == 1 else '')> $$</label>
+                <label><input type="radio" name="price_range" value="2" $:('checked' if pin.price_range == 2 else '')> $$$$</label>
+                <label><input type="radio" name="price_range" value="3" $:('checked' if pin.price_range == 3 else '')> $$$$$$</label>
+                <label><input type="radio" name="price_range" value="4" $:('checked' if pin.price_range == 4 else '')> $$$$$$$$</label>
+                <label><input type="radio" name="price_range" value="5" $:('checked' if pin.price_range == 5 else '')> $$$$$$$$+</label>
+                <div id="price_range"></div>
+            </td>
+        </tr>
+        <tr><th><label for="board">Get list</label></th>
+            <td>
+                <div id="layer_select_existing_board">
+                    <select id="board_id" name="board_id">
+                        <option value="">Select one</option>
+                    $if boards:
+                        $for board in boards:
+                            <option value="$board.id" $:('selected' if pin.board_id == board.id else '')>$board.name</option>
+                    </select>
+
+                    <!-- <button type="button" id="button_change_layer_to_add_new_board" alt="Add a new list">+</button> -->
+                </div>
+                <!-- <div id="layer_add_new_board" style="display:none"> -->
+                <!--    <input type="text" name="board_name" id="board_name"> -->
+                <!--    <button type="button" id="button_change_layer_to_select_existing_board" alt="Select an existing board">-</button> -->
+                <!-- </div> -->
+            </td>
+        </tr>
+        <tr>
+            <td valign="top">
+                <div id="layer_preview_of_selected_image" >
+                <span>Selected image</span>
+                <img id="preview_of_selected_image" src="$pin.image_202_url" style="width:160px;height:auto;">
+                </div>
+            </td>
+            <td valign="top"><button id="btn-add" name="add">Save changes</button></td>
+        </tr>
+    </table>
+</form>
+
+        </td>
+        <td valign="top">
+            <div id="preview"></div>
+        </td>
+    </tr>
+</table>
+  </div>
+          </div>
+          </div>
+          </div>

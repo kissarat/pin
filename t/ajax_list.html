@@ -1,0 +1,14 @@
+$def with (pins, template=None, options=None, edit_profile=None, boards=None, categories_to_select=None, user=None)
+
+$ options = options or {}
+$ template = template or 'horzpin3'
+$ pins = list(pins)
+
+<div class='' id='pin-buf'>
+  $ i = 0
+  $for pin in pins:
+    $ i += 1
+    $if not pin.repin:
+        $:tpl('editaddedpinmodal', pin,categories_to_select, boards)
+    $:tpl(template, pin)
+</div>
