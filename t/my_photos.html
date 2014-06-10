@@ -7,8 +7,9 @@ $def with (user)
       <div class="dwItem inlineB small" id="horz-pin">
           <div class="dwImg">
               $if len(user.photos) > 0:
-                <a href="javascript:void(0)" data-target="#showPhotoModal$(user.photos[0]['id'])"
-                data-toggle="modal">
+                <!-- <a href="javascript:void(0)" data-target="#showPhotoModal$(user.photos[0]['id'])"
+                data-toggle="modal"> -->
+                <a href="#" id="album_details" data-id="photos">
                     <img src="$user.photos[0]['original_url']" />
                 </a>
               $else:
@@ -29,8 +30,9 @@ $def with (user)
       <div class="dwItem inlineB small" id="horz-pin">
           <div class="dwImg">
                 $if len(user.backgrounds) > 0:
-                  <a href="javascript:void(0);" data-target="#showPhotoModal$(user.backgrounds[0]['id'])"
-                  data-toggle="modal">
+                  <!-- <a href="javascript:void(0);" data-target="#showPhotoModal$(user.backgrounds[0]['id'])"
+                  data-toggle="modal"> -->
+                  <a href="#" id="album_details" data-id="backgrounds" data-userid="$user.id">
                       <img src="$user.backgrounds[0]['resized_url']" />
                   </a>
                 $else:

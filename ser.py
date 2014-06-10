@@ -119,6 +119,7 @@ urls = (
     '/.*?/photos', 'PagePhotos',
     '/photos', 'PagePhotos',
     '/newalbum', 'PageNewAlbum',
+    '/ajax_album', 'PageAlbumAJAX',
     '/album/(\d*)', 'PageAlbum',
     '/album/(\d*)/remove', 'PageAlbum',
     '/newpic/(\d*)', 'PageNewPicture',
@@ -1573,6 +1574,42 @@ class PageAlbum:
         photos = db.select('photos', where='album_id = $id', vars={'id': aid})
         carousel = db.select('photos', where='album_id = $id', vars={'id': aid})
         return ltpl('album', user, photos, carousel)
+
+
+class PageAlbumAJAX:
+    def GET(self):
+        force_login(sess)
+        logintoken = convert_to_logintoken(sess.user_id)
+        data = {"csid_from_client": ""}
+        album_type = web.input().get("request_type")
+
+        # Getting profile of a given user
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "adfasdf",
+            "id": web.input().get("user_id"),
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        if len(user) == 0:
+            return u"Profile was not found"
+
+        photos_context = {
+            "csid_from_client": "",
+            "album_type": album_type,
+            "user_id": user['id']}
+
+        if logintoken:
+            photos_context['logintoken'] = logintoken
+        # import ipdb; ipdb.set_trace()
+        photos = api_request("/api/profile/userinfo/get_pictures",
+                             data=photos_context)\
+            .get("data", {}).get("photos", [])
+
+        photos = [pin_utils.dotdict(photo) for photo in photos]
+        user['photos'] = photos
+        return tpl('album_details', user)
 
 
 class PageNewPicture:
