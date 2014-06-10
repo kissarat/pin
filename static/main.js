@@ -93,6 +93,8 @@ $(document).ready(function() {
         $(".profCoverBackground").css( "z-index", "0" );
         $("#save_background").text("Save position");
         $("#save_background").css("display","block");
+        $("#instructionWrap").show();
+        $("#transbox").css("cursor","move");
     });
 
     $("#save_background").click(function(e){
@@ -101,6 +103,8 @@ $(document).ready(function() {
         if (action == "Save position") {
             $(".profCoverBackground").css( "z-index", "2" );
         }
+        $("#instructionWrap").hide();
+        $("#transbox").css("cursor","default");
     });
 
     $("#dropdown_bg > ul").mouseleave(function(e){

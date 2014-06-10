@@ -40,6 +40,7 @@
     padding: 0;
     border: 1px solid #f2f2f2;
     position: relative;
+    background-repeat: no-repeat;
 }
 
 .userHolder
@@ -650,4 +651,26 @@
 
 #choose_avatar_image img{
     border: 1px solid #333;
+}
+
+#instructionWrap {
+    display: block;
+    line-height: 26px;
+    position: absolute;
+    text-align: center;
+    top: 125px;
+    width: 100%;
+    display: none;
+}
+
+.instructions {
+    background: #546185 url(../img/instructions_icon.png) 9px 8px no-repeat;
+    background-color: rgba(84, 97, 133, .4);
+    -webkit-border-radius: 2px;
+    -webkit-box-shadow: inset 0 1px 0 rgba(0, 0, 0, .12);
+    color: #fff;
+    display: inline;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 9px 6px 29px;
 }
