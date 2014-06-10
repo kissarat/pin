@@ -35,11 +35,10 @@ $("#set_as_profile_pic").click(function() {
 dragging_header_background = false;
 
 x = 0;
-
 y = 0;
-
+prev_x = 0;
+prev_y = 0;
 otherX = 0;
-
 otherY = 0;
 
 $("#header_background").mousedown(function(e) {
@@ -47,6 +46,8 @@ $("#header_background").mousedown(function(e) {
   _ref = void 0;
   x = e.pageX;
   y = e.pageY;
+  prev_x = e.pageX;
+  prev_y = e.pageY;
   _ref = $(this).css("background-position").split(" ");
   otherX = _ref[0];
   otherY = _ref[1];
@@ -80,15 +81,60 @@ $("body").mouseup(function() {
 });
 
 $("#header_background").mousemove(function(e) {
-  var tempY, upload;
-  tempY = void 0;
+
+  var imageSrc = document.getElementById('header_background')
+                         .style
+                         .backgroundImage
+                         .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
+                         .split(',')[0];
+
+  // I just broke it up on newlines for readability        
+
+  var image = new Image();
+  image.src = imageSrc;
+
+  var width = image.width,
+      height = image.height;
+
+  height = Math.round(height * $('.profBack').width() / width);
+
+  var deltaY = 0;
+  var tempX, tempY;
+
+  var _ref = $(this).css("background-position").split(" ");
+  otherX = _ref[0];
+  otherY = _ref[1];
+
   if (dragging_header_background) {
-    upload = false;
-    tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
-    if (tempY + (e.pageY - y) < 0) {
-      return $(this).css("background-position", otherX + " " + (tempY + (e.pageY - y)) + "px");
+    prev_x = x;
+    prev_y = y;
+    x = e.pageX;
+    y = e.pageY;
+
+    deltaY = prev_y - y;
+
+    tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9)) - deltaY;
+    //console.log(($('.profBack').height() - height) + " " + tempY)
+    if(tempY <= 0 && tempY >= ($('.profBack').height() - height)) {
+      return $(this).css("background-position", otherX + " " + tempY + "px");
     }
   }
+
+  // var tempY, upload;
+  // tempY = void 0;
+  // if (dragging_header_background) {
+  //   upload = false;
+  //   tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
+
+  //   console.log(otherY);
+
+  //   if (Math.abs(tempY) <= (height - $('.profBack').height())) {
+  //     if (tempY + (e.pageY - y) < 0) {
+  //       return $(this).css("background-position", otherX + " " + (tempY) + "px");
+  //     }
+  //   }
+  // }
+
 });
 
 $("#switch5_wrapper").mouseover(function() {
