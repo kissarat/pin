@@ -193,6 +193,14 @@
     width: 125px;
 }
 
+#cancel_background_move {
+    display: none;
+    position: absolute;
+    left: 555px;
+    top: 220px;
+    width: 82px;
+}
+
 .userMenuItem
 {
     width: 100%;
@@ -658,7 +666,7 @@
     line-height: 26px;
     position: absolute;
     text-align: center;
-    top: 125px;
+    top: 70px;
     width: 100%;
     display: none;
 }

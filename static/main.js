@@ -89,22 +89,58 @@ $(document).ready(function() {
         });
     });
 
+    var init_bg_pos;
     $("li > #change_background").click(function(e){
         $(".profCoverBackground").css( "z-index", "0" );
         $("#save_background").text("Save position");
         $("#save_background").css("display","block");
+        $("#cancel_background_move").css("display","block");
         $("#instructionWrap").show();
         $("#transbox").css("cursor","move");
+
+        init_bg_pos = $("#header_background").css("background-position");
+    });
+
+    function save_bg() {
+      var tempX, tempY, _ref;
+      
+      _ref = $("#header_background").css("background-position").split(" ");
+      otherX = _ref[0];
+      otherY = _ref[1];
+      tempX = parseInt(otherX.slice(0, +(otherX.length - 2) + 1 || 9e9));
+      tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
+      return $.ajax({
+        url: "/changebgpos",
+        data: {
+        x: tempX,
+        y: tempY },
+        success: function(){},
+        beforeSend: function(){
+          $("body").removeClass('loading');
+        },
+        type: 'POST',
+      });
+    }
+
+    $("#cancel_background_move").click(function(e){
+        $("#header_background").css("background-position", init_bg_pos);
+        $(".profCoverBackground").css( "z-index", "2" );
+        $("#instructionWrap").hide();
+        $("#transbox").css("cursor","default");
+        $("#save_background").css("display","none");
+        $("#cancel_background_move").css("display","none");
     });
 
     $("#save_background").click(function(e){
         var action = $("#save_background").text();
         $("#save_background").css("display","none");
+        $("#cancel_background_move").css("display","none");
         if (action == "Save position") {
             $(".profCoverBackground").css( "z-index", "2" );
+            $("#instructionWrap").hide();
+            $("#transbox").css("cursor","default");
+            save_bg();
         }
-        $("#instructionWrap").hide();
-        $("#transbox").css("cursor","default");
     });
 
     $("#dropdown_bg > ul").mouseleave(function(e){
