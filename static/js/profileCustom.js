@@ -1,6 +1,6 @@
 ﻿jQuery(function ($) {
     $(document).ready(function (){
-        $("#album_details").click(function(evnt){
+        $(".album_details").click(function(evnt){
             var request_type = $(this).attr("data-id");
             var user_id = $(this).attr("data-userid");
             var data = {
