@@ -1578,7 +1578,7 @@ class PageAlbum:
 
 class PageAlbumAJAX:
     def GET(self):
-        force_login(sess)
+        # force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
         data = {"csid_from_client": ""}
         album_type = web.input().get("request_type")
