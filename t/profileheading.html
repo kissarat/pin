@@ -27,6 +27,12 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
                   <li>
                       <a data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#"> Upload background photo</a>
                   </li>
+              $if len(user.backgrounds)>0:
+                  <li>
+                    <a href="javascript:void(0);" data-target="#choose_background_image" data-toggle="modal">
+                      Choose profile background from album
+                    </a>
+                  </li>
               $if user.bg:
                   <li>
                       <a class="link_with_loading" href="/picture/$(user.bg['id'])/remove"> Remove current background</a>
@@ -176,6 +182,33 @@ $#        </p>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               <a class="link_with_loading" id="save_and_close_existed_image" href="#">
+                <button type="button" class="btn btn-default" disabled="true">
+                    Save and close
+                </button>
+              </a>
+            </div>
+        </div>
+      </div>
+    </div>
+
+      <div class="modal fade" id="choose_background_image">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <a href="#" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</a>
+              <h1>Choose background from existed images</h1>
+            </div>
+            <div class="modal-body">
+              $ photos_qty = 1
+              $for photo in user.backgrounds:
+                  <a class="choose_existed_bg" data_url="/background/$(photo.id)/default" href="javascript:void(0);">
+                    <img src="$(photo.resized_url)" />
+                  </a>
+                  $ photos_qty = photos_qty + 1
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <a class="link_with_loading" id="save_and_close_existed_bg" href="#">
                 <button type="button" class="btn btn-default" disabled="true">
                     Save and close
                 </button>
