@@ -9,8 +9,8 @@ $def with (user)
               $if len(user.photos) > 0:
                 <!-- <a href="javascript:void(0)" data-target="#showPhotoModal$(user.photos[0]['id'])"
                 data-toggle="modal"> -->
-                <a href="#" id="album_details" data-id="photos">
-                    <img src="$user.photos[0]['original_url']" />
+                <a href="#" id="album_details" data-id="photos" data-userid="$user.id">
+                    <img src="$user.photos[0]['resized_url']" />
                 </a>
               $else:
               <img class="empty_list" src="/static/img/empty_list.png" />
