@@ -2368,6 +2368,11 @@ class PageList(object):
         pins_info = api_request(url, data=ctx).get("data")
         pins = [pin_utils.dotdict(pin)
                 for pin in pins_info.get("image_data_list")]
+
+        ajax = int(web.input(ajax=0).ajax)
+        if ajax:
+            return tpl('list', pins, "horzpin3")
+
         return ltpl('list', pins)
 
 class PageSearchPeople:

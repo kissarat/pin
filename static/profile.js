@@ -88,7 +88,7 @@ $("#header_background").mousemove(function(e) {
                          .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
                          .split(',')[0];
 
-  // I just broke it up on newlines for readability        
+  // I just broke it up on newlines for readability
 
   var image = new Image();
   image.src = imageSrc;
@@ -302,7 +302,15 @@ $(document).on('click', '.category_pin_image', function(event) {
 
 open_pin_detail = function(pinid) {
   $.get('/p/' + pinid + '?embed=true', function(data) {
+    console.log(data);
     var current_position;
+    $('#show_pin_layer_content').html(data);
+    current_position = $('#show_pin_layer_content').position();
+    current_position.top = $(window).scrollTop();
+    $('#show_pin_layer_content').css(current_position);
+    $('#show_pin_layer').width($(window).width());
+    $('#show_pin_layer').height($(window).height());
+    $('#show_pin_layer').show();
     try {
       if (window.history.state === null) {
         window.history.pushState(pinid, '', '/p/' + pinid);
@@ -313,13 +321,6 @@ open_pin_detail = function(pinid) {
       window.location.href = '/p/' + pinid;
       return;
     }
-    $('#show_pin_layer_content').html(data);
-    current_position = $('#show_pin_layer_content').position();
-    current_position.top = $(window).scrollTop();
-    $('#show_pin_layer_content').css(current_position);
-    $('#show_pin_layer').width($(window).width());
-    $('#show_pin_layer').height($(window).height());
-    $('#show_pin_layer').show();
     disable_scroll();
   });
 };
@@ -458,8 +459,20 @@ $('.profile_tabs_link').click(function(e) {
 });
 
 $( document ).ready(function() {
-  var hash = window.location.hash;
-  if(hash) {
-    $(hash).click();
-  }
+    var hash = window.location.hash;
+    if(hash) {
+        $(hash).click();
+    }
+
+
+    $(".boardlink").click(function(event){
+        console.log("Clicked");
+        event.preventDefault();
+        var link = $(this).attr("href") + "?ajax=1";
+        console.log(link)
+        $.get(encodeURI(link), function(data){
+          $("#list-box-wrapper").html(data);
+        });
+
+    });
 });
