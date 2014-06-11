@@ -987,7 +987,7 @@ class PageProfile2:
         """
         Returns user profile information by username
         """
-        force_login(sess)
+        # force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
         data = {"csid_from_client": ""}
 
@@ -2353,7 +2353,7 @@ class PageList(object):
     This class is responsible for rendering list individual page
     """
     def GET(self, profile_name, board_name):
-        force_login(sess)
+        # force_login(sess)
 
         # Getting board infor
         url = "/api/image/query-board"
