@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 import os
+import logging
 
 try:
     import local_settings
@@ -62,3 +63,46 @@ SEARCH_PINS = False
 API_URL = os.environ['API_URL'] if 'API_URL' in os.environ else "http://mypinnings.com/"
 PIN_NEW_DAYS = 7
 MEDIA_PATH = "static/tmp"
+
+ch = logging.handlers.RotatingFileHandler('/var/log/webpy.log', maxBytes=1024*1024, backupCount=5)
+ch.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+ch.setFormatter(formatter)
+
+logger = logging.getLogger("mypinnings.facebook")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("mypinnings.twitter")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("mypinnings.google")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("mypinnings.data_loaders")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("admin")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("mypinnings.admin.categories")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("mypinnings.categories")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("mypinnings.pin")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
+
+logger = logging.getLogger("ser")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(ch)
