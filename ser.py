@@ -2371,7 +2371,7 @@ class PageList(object):
 
         ajax = int(web.input(ajax=0).ajax)
         if ajax:
-            return ltpl('list', pins, "horzpin3")
+            return tpl('list', pins, "horzpin3")
 
         return ltpl('list', pins)
 
