@@ -653,12 +653,13 @@
     bottom: 0px;
 }
 
-#choose_avatar_image a{
+#choose_avatar_image a, #choose_background_image a{
     text-decoration: none;
 }
 
-#choose_avatar_image img{
+#choose_avatar_image img, #choose_background_image img{
     border: 1px solid #333;
+    max-width: 160px;
 }
 
 #instructionWrap {

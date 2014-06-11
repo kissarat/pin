@@ -68,11 +68,10 @@ $(document).ready(function() {
     $( ".form_with_loading" ).submit(function( event ) {
         $("body").addClass("loading");
         // event.preventDefault();
-  });
+    });
 
     $( ".link_with_loading" ).click(function() {
         $("body").addClass("loading");
-        // event.preventDefault();
     });
 
     $("a.follow").click(function(event){

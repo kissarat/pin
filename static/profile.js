@@ -472,6 +472,10 @@ $( document ).ready(function() {
         console.log(link)
         $.get(encodeURI(link), function(data){
           $("#list-box-wrapper").html(data);
+          
+          $( ".link_with_loading" ).click(function() {
+              $("body").addClass("loading");
+          });
         });
 
     });
