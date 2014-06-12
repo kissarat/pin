@@ -36,6 +36,8 @@ $def with (photo, user, prev_photo=None, next_photo=None)
                         $if not user.bg or photo.id != user.bg['id']:
                             <a href='/background/$(photo.id)/default' class='button small-pad'>Set as profile background</a>
 
+                        <a href='/picture/$(photo.id)/album_default' class='button small-pad link_with_loading'>Set as album cover</a>
+
                         <a href='/picture/$(photo.id)/remove' class='button small-pad link_with_loading'>Remove</a>
                     </div>
                 <div class="modal-bottom">
