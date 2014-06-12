@@ -465,18 +465,4 @@ $( document ).ready(function() {
     }
 
 
-    $(".boardlink").click(function(event){
-        console.log("Clicked");
-        event.preventDefault();
-        var link = $(this).attr("href") + "?ajax=1";
-        console.log(link)
-        $.get(encodeURI(link), function(data){
-          $("#list-box-wrapper").html(data);
-          
-          $( ".link_with_loading" ).click(function() {
-              $("body").addClass("loading");
-          });
-        });
-
-    });
 });

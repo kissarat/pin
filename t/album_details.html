@@ -1,6 +1,5 @@
 $def with (user)
     <div class="greyLine">
-        <a href='/$(user["username"])#photos_list' class="link_with_loading button" onclick="window.location.hash='#photos_list';window.location.reload(true);"><b>Back</b></a>
     </div>
     <div class="inContentiySmoktunovskiy">
       $for photo in user.get("photos", ()):

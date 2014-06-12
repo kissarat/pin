@@ -9,12 +9,31 @@
             }
             $.get("/ajax_album", data, function(data){
                 $("#albums_list").html(data);
-                
+
                 $( ".link_with_loading" ).click(function() {
                     $("body").addClass("loading");
                 });
+
+                $("#photos_list").attr("onclick", "window.location.hash='#photos_list';window.location.reload(true);")
             });
         });
+        $(".boardlink").click(function(event){
+
+            event.preventDefault();
+            var link = $(this).attr("href") + "?ajax=1";
+
+            $.get(encodeURI(link), function(data){
+                $("#list-box-wrapper").html(data);
+
+                $(".link_with_loading").click(function() {
+                    $("body").addClass("loading");
+                });
+
+                $("#list-box-wrapper-link").attr("onclick", "window.location.hash='#list-box-wrapper-link';window.location.reload(true);")
+            });
+
+        });
+
         $(".choose_existed_image").click(function(evnt){
             evnt.preventDefault();
 
