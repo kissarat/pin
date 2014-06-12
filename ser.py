@@ -126,6 +126,7 @@ urls = (
     '/photo/(\d*)', 'PagePhoto',
     '/photo/(\d*)/default', 'PageDefaultPhoto',
     '/background/(\d*)/default', 'PageDefaultBackground',
+    '/picture/(\d*)/album_default', 'PageAlbumDefaultPicture',
     '/picture/(\d*)/remove', 'PageRemovePicture',
     '/picture/(\d*)/like', 'PageLikePicture',
     '/picture/(\d*)/dislike', 'PageDislikePicture',
@@ -1695,6 +1696,7 @@ class PageRemovePicture:
 
         data = api_request("/api/profile/userinfo/remove_pic",
                            data=pictures_context)
+        # import ipdb; ipdb.set_trace()
 
         profile_url = "/api/profile/userinfo/info"
         profile_owner_context = {
@@ -1731,6 +1733,7 @@ class PageDefaultPhoto:
 
         return web.redirect('/%s' % (user['username']))
 
+
 class PageDefaultBackground:
     def GET(self, pid):
         force_login(sess)
@@ -1754,6 +1757,30 @@ class PageDefaultBackground:
             .get("data", [])
 
         return web.redirect('/%s' % (user['username']))
+
+
+class PageAlbumDefaultPicture:
+    def GET(self, pid):
+        pid = int(pid)
+        logintoken = convert_to_logintoken(sess.user_id)
+
+        update_url = "/api/profile/userinfo/album_default_picture"
+        update_context = {
+            "csid_from_client": "",
+            "picture_id": pid,
+            "logintoken": logintoken}
+        data = api_request(update_url,
+                           data=update_context)
+
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "",
+            "id": sess.user_id,
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        return web.redirect('/%s#photos_list' % (user['username']))
 
 
 class PageLikePicture:

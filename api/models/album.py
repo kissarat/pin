@@ -9,14 +9,20 @@ from picture import Picture
 class Album(Base, Serializer):
     __tablename__ = 'albums'
     __table_args__ = {'extend_existing':True}
-    __public__ = ['id', 'user_id', 'slug', 'title', 'description', 'pictures']
+    __public__ = ['id', 'user_id', 'slug', 'title', 'description', 'pictures', 'cover']
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     slug = Column(String(40), nullable=False)
     title = Column(String(250), default='')
     description = Column(Text, default='')
-    pictures = relationship("Picture")
+    pictures = relationship("Picture", primaryjoin=(id==Picture.album_id), post_update=True)
+
+    cover_id = Column(Integer, ForeignKey('pictures.id',
+                                        use_alter=True,
+                                        name="fk_pic"))
+    cover = relationship("Picture", primaryjoin=(cover_id==Picture.id),
+                       backref=backref("cover", uselist=False), post_update=True)
 
     def __init__(self, user_id, slug, title='', description=''):
         self.user_id = user_id

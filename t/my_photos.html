@@ -10,10 +10,13 @@ $def with (user)
                 <!-- <a href="javascript:void(0)" data-target="#showPhotoModal$(user.photos[0]['id'])"
                 data-toggle="modal"> -->
                 <a href="#" class="album_details" data-id="photos" data-userid="$user.id">
+                  $if user.photos[0]['album_cover']:
+                    <img src="$user.photos[0]['album_cover']" />
+                  $else:
                     <img src="$user.photos[0]['resized_url']" />
                 </a>
               $else:
-              <img class="empty_list" src="/static/img/empty_list.png" />
+                <img class="empty_list" src="/static/img/empty_list.png" />
           </div>
           <div class="dwName">
               <p>
@@ -33,7 +36,10 @@ $def with (user)
                   <!-- <a href="javascript:void(0);" data-target="#showPhotoModal$(user.backgrounds[0]['id'])"
                   data-toggle="modal"> -->
                   <a href="#" class="album_details" data-id="backgrounds" data-userid="$user.id">
-                      <img src="$user.backgrounds[0]['resized_url']" />
+                      $if user.backgrounds[0]['album_cover']:
+                        <img src="$user.backgrounds[0]['album_cover']" />
+                      $else:
+                        <img src="$user.backgrounds[0]['resized_url']" />
                   </a>
                 $else:
                   <img class="empty_list" src="/static/img/empty_list.png" />

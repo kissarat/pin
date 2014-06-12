@@ -756,7 +756,7 @@ class PicUpload(BaseAPI):
             return api_response(data={}, status=405,
                                 error_code="Required args are missing")
 
-        album = self._get_or_create_album(user['id'], 'photos')
+        album, album_created = self._get_or_create_album(user['id'], 'photos')
         photo = self._save_in_database(file_obj, 160, album.id)
 
         user_to_update = web.ctx.orm.query(User)\
@@ -764,6 +764,8 @@ class PicUpload(BaseAPI):
             .first()
 
         user_to_update.pic_obj = photo
+        if album_created:
+            album.cover = photo
         web.ctx.orm.commit()
 
         data['id'] = photo.id
@@ -781,14 +783,16 @@ class PicUpload(BaseAPI):
     def _get_or_create_album(self, user_id, slug):
         album = web.ctx.orm.query(Album).filter(Album.user_id == user_id,
                                                Album.slug == slug).first()
+        created = False
 
         if not album:
             album = Album(user_id, slug)
 
             web.ctx.orm.add(album)
             web.ctx.orm.commit()
+            created = True
 
-        return album
+        return album, created
 
     def _save_in_database(self, file_obj, resized_size, album_id):
         file_path = self._save_file(file_obj)
@@ -880,7 +884,8 @@ class BgUpload(PicUpload):
             return api_response(data={}, status=405,
                                 error_code="Required args are missing")
 
-        album = self._get_or_create_album(user['id'], 'backgrounds')
+        album, album_created = self._get_or_create_album(user['id'],
+                                                         'backgrounds')
         photo = self._save_in_database(file_obj, 1100, album.id)
 
         user_to_update = web.ctx.orm.query(User)\
@@ -888,6 +893,8 @@ class BgUpload(PicUpload):
             .first()
 
         user_to_update.bg = photo
+        if album_created:
+            album.cover = photo
         web.ctx.orm.commit()
 
         data['id'] = photo.id
@@ -1045,6 +1052,10 @@ class PictureRemove(BaseAPI):
                 #         user_to_update.bgx = 0
                 #         user_to_update.bgy = 0
 
+                if album.cover_id == picture.id:
+                    album.cover = self._get_next_picture(album,
+                                                         picture)
+
                 for comment in picture.comments:
                     web.ctx.orm.delete(comment)
 
@@ -1060,3 +1071,63 @@ class PictureRemove(BaseAPI):
                 return pic
 
         return None
+
+
+class AlbumDefaultPic(BaseAPI):
+    """
+    Sets picture as default album cover
+    
+    :link: /api/profile/userinfo/album_default_picture
+    """
+    def POST(self):
+        """
+        :param str csid_from_client: Csid string from client
+        :param str logintoken: logintoken of user
+        :param int picture_id: id of photo that you wish tis set as xover
+        :response data: no extra rsponse
+        :to test: curl --data "csid_from_client=1&picture_id=5&logintoken=XXXXXXX" http://localhost:8080/api/profile/userinfo/album_default_picture
+        """
+        data = {}
+        status = 200
+        csid_from_server = None
+        error_code = ""
+
+        request_data = web.input()
+        logintoken = request_data.get('logintoken')
+        picture_id = request_data.get('picture_id')
+
+        user_status, user = self.authenticate_by_token(logintoken)
+        # User id contains error code
+        if not user_status:
+            return user
+
+        csid_from_server = user['seriesid']
+        csid_from_client = request_data.get("csid_from_client")
+
+        self._set_picture(user['id'], picture_id)
+
+        response = api_response(data=data,
+                                status=status,
+                                error_code=error_code,
+                                csid_from_client=csid_from_client,
+                                csid_from_server=csid_from_server)
+
+        return response
+
+    def _set_picture(self, user_id, picture_id):
+        user = web.ctx.orm.query(User)\
+            .filter(User.id == user_id)\
+            .first()
+
+        picture = web.ctx.orm.query(Picture)\
+            .filter(Picture.id == picture_id)\
+            .first()
+
+        if picture:
+            album = web.ctx.orm.query(Album).filter(
+                Album.id == picture.album_id
+            ).first()
+
+            if album.user_id == user.id:
+                album.cover = picture
+                web.ctx.orm.commit()
