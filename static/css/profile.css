@@ -457,6 +457,11 @@
     width: 100%;
 }
 
+.dwImg div.centred-img {
+    width: 100%;
+    height: 150px;
+}
+
 .dwDate
 {
     float: left;
