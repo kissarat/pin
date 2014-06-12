@@ -37,6 +37,8 @@ $def with (photo, user, prev_photo=None, next_photo=None)
 
                         <a href='/picture/$(photo.id)/album_default' class='button small-pad link_with_loading'>Set as album cover</a>
 
+                        <a href='#' class='button small-pad enlarge' data-src="$(photo.original_url)">Enlarge</a>
+
                         <a href='/picture/$(photo.id)/remove' class='button small-pad link_with_loading'>Remove</a>
                     </div>
                 <div class="modal-bottom">
