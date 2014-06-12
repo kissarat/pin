@@ -11,9 +11,11 @@ $def with (user)
                 data-toggle="modal"> -->
                 <a href="#" class="album_details" data-id="photos" data-userid="$user.id">
                   $if user.photos[0]['album_cover']:
-                    <img src="$user.photos[0]['album_cover']" />
+                    <!-- <img src="$user.photos[0]['album_cover']" /> -->
+                    <div class="centred-img" style="background:url($user.photos[0]['album_cover']) no-repeat center center;"></div>
                   $else:
-                    <img src="$user.photos[0]['resized_url']" />
+                    <!-- <img src="$user.photos[0]['resized_url']" /> -->
+                    <div class="centred-img" style="background:url($user.photos[0]['resized_url']) no-repeat center center;"></div>
                 </a>
               $else:
                 <img class="empty_list" src="/static/img/empty_list.png" />
@@ -37,9 +39,11 @@ $def with (user)
                   data-toggle="modal"> -->
                   <a href="#" class="album_details" data-id="backgrounds" data-userid="$user.id">
                       $if user.backgrounds[0]['album_cover']:
-                        <img src="$user.backgrounds[0]['album_cover']" />
+                        <!-- <img src="$user.backgrounds[0]['album_cover']" /> -->
+                        <div class="centred-img" style="background:url($user.backgrounds[0]['album_cover']) no-repeat center center;"></div>
                       $else:
-                        <img src="$user.backgrounds[0]['resized_url']" />
+                        <!-- <img src="$user.backgrounds[0]['resized_url']" /> -->
+                        <div class="centred-img" style="background:url($user.backgrounds[0]['resized_url']) no-repeat center center;"></div>
                   </a>
                 $else:
                   <img class="empty_list" src="/static/img/empty_list.png" />
