@@ -458,11 +458,16 @@ $('.profile_tabs_link').click(function(e) {
   e.preventDefault();
 });
 
-$( document ).ready(function() {
+(function() {
     var hash = window.location.hash;
     if(hash) {
-        $(hash).click();
+        //$(hash).click();
+
+        $("#myTab li.active").removeClass('active');
+        $(hash).parent().addClass('active');
+
+        console.log($('.tab-pane.active'));
+        $('.tab-pane.active').removeClass('active').removeClass('in');
+        $($(hash).attr('href')).addClass('active').addClass('in');
     }
-
-
-});
+})();

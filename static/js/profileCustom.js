@@ -117,11 +117,11 @@
             }
         });
 
-        $('.enlarge').click(function() {
+        /*$('.enlarge').click(function() {
             $('#enlarged-img').attr('src', $(this).attr('data-src'));
             $('#enlargeImage').modal('show');
 
             return false;
-        });
+        });*/
     });
 });
