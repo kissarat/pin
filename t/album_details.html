@@ -1,0 +1,25 @@
+$def with (user)
+    <div class="greyLine">
+    </div>
+    <div class="inContentiySmoktunovskiy">
+      $for photo in user.get("photos", ()):
+        <div class="dwItem inlineB small" id="horz-pin">
+            <div class="dwImg">
+                  <a href="javascript:void(0)" data-target="#showPhotoModal$photo.get('id')"
+                  data-toggle="modal">
+                      <!-- <img src="$photo['resized_url']" /> -->
+                      <div class="centred-img" style="background:url($photo['resized_url']) no-repeat center center;"></div>
+                  </a>
+                <!-- <img class="empty_list" src="/static/img/empty_list.png" /> -->
+            </div>
+            <div class="dwName">
+                <p>
+                </p>
+            </div>
+            <div class="dwLike">
+                <p>
+                </p>
+            </div>
+        </div>
+    </div>
+<!-- <script type="text/javascript" src="/static/js/underscore-min.js"></script> -->

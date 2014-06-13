@@ -7,15 +7,20 @@
 .userPic
 {
     position: relative;
+    height: 150px;
 }
 
 .otherPics
 {
-    position: absolute;
+/*    position: absolute;
     left: 160px;
     bottom: 0;
-    padding-left: 3px;
-    display: none;
+    padding-left: 3px;*/
+    /*display: none;*/
+    position: absolute;
+    margin-left: 165px;
+    width: 400px;
+    top: 115px;
 }
 
 .otherPics img
@@ -25,8 +30,9 @@
 
 .otherPics img:hover
 {
+    border: 3px solid #7bc2f4;
     cursor: pointer;
-    border-color: #7bc2f4;
+    /*border-color: #7bc2f4;*/
 }
 
 .profBack
@@ -34,16 +40,30 @@
     padding: 0;
     border: 1px solid #f2f2f2;
     position: relative;
+    background-repeat: no-repeat;
 }
 
 .userHolder
 {
-    position: relative;
-    z-index: 1;
+    /*position: relative;*/
+    position: absolute;
+    z-index: 10;
     padding: 14px 22px;
-    background: rgba(0,0,0, 0.3);
+    /*background: rgba(0,0,0, 0.3);*/
+    /*width: 200px;*/
+    height: 200px;
+    top: 80px;
 }
 
+#transbox{
+    /*width: 400px;*/
+    height: 262px;
+    /*margin: 30px 50px;*/
+    background-color: #000;
+    border: 1px solid black;
+    opacity: 0.3;
+    filter: alpha(opacity=60); /* For IE8 and earlier */
+}
 .userBackImg
 {
     position: absolute;
@@ -134,13 +154,51 @@
 .profLeft
 {
     width: 72%;
-    margin-right: 2%;
+    margin: 0px auto;
 }
 
 .profRight
 {
     float: right;
     width: 25%;
+}
+
+.profCoverBackground {
+    z-index: 2;
+    border: 1px solid #fff;
+    width: 791px;
+    height: 264px;
+    position: absolute;
+}
+
+.heightBG {
+    height: 42px;
+}
+
+.profBackgroundsButtons {
+    z-index: 101;
+    position: absolute;
+}
+
+#dropdown_bg {
+    display:none;
+    left: 660px;
+}
+
+#save_background {
+    display: none;
+    position: absolute;
+    left: 650px;
+    top: 220px;
+    width: 125px;
+}
+
+#cancel_background_move {
+    display: none;
+    position: absolute;
+    left: 555px;
+    top: 220px;
+    width: 82px;
 }
 
 .userMenuItem
@@ -399,6 +457,12 @@
     width: 100%;
 }
 
+.dwImg div.centred-img {
+    width: 100%;
+    height: 150px;
+    background-size: contain !important;
+}
+
 .dwDate
 {
     float: left;
@@ -460,7 +524,7 @@
 .dwLike p
 {
     color: #555555;
-    /*height: 30px; display: block;  */ 
+    /*height: 30px; display: block;  */
 }
 
 .dwIcoEye
@@ -522,7 +586,7 @@
 .modal-bottom {
       margin: 20px auto;
       width: 455px;
-      text-align: left; 
+      text-align: left;
 }
 
 .modal-bottom a {
@@ -553,3 +617,95 @@
     box-shadow: none; }
 .modal-bottom form textarea {
     width: 455px; }
+
+.empty_list{
+    width: auto !important;
+    display: block;
+    margin: 0px auto;
+}
+
+#transparent_button{
+    background-color: rgba(0,0,0,0.6);
+    position: absolute;
+    /*top: 80px;*/
+    top: 97px;
+    width: 160px;
+    height: 53px;
+    /*text-align: center;*/
+    padding-top: 10px;
+    padding-left: 5px;
+    display: none;
+    cursor: pointer;
+}
+
+#transparent_button img {
+    width: 30px;
+}
+
+#transparent_button a {
+    color: #f2f2f2 !important;
+    display: inline-block;
+    bottom: 10px;
+    position: relative;
+
+}
+
+#transparent_button a:hover {
+    text-decoration: none;
+}
+
+#profile_avatar img{
+    position: absolute;
+    bottom: 0px;
+}
+
+#choose_avatar_image a, #choose_background_image a{
+    text-decoration: none;
+}
+
+#choose_avatar_image img, #choose_background_image img{
+    border: 1px solid #333;
+    max-width: 160px;
+}
+
+#instructionWrap {
+    display: block;
+    line-height: 26px;
+    position: absolute;
+    text-align: center;
+    top: 70px;
+    width: 100%;
+    display: none;
+}
+
+.instructions {
+    background: #546185 url(../img/instructions_icon.png) 9px 8px no-repeat;
+    background-color: rgba(84, 97, 133, .4);
+    -webkit-border-radius: 2px;
+    -webkit-box-shadow: inset 0 1px 0 rgba(0, 0, 0, .12);
+    color: #fff;
+    display: inline;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 4px 9px 6px 29px;
+}
+
+.fullscreen-modal-dialog {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+}
+
+.fullscreen-modal-content {
+  min-height: 100% !important;
+  border-radius: 0 !important;
+}
+
+#enlarged-img-holder {
+    text-align: center;
+}
+
+#enlarged-img {
+    max-height: 100%;
+    max-width: 100%;
+}

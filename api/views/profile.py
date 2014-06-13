@@ -17,6 +17,10 @@ from mypinnings.database import connect_db
 from mypinnings.conf import settings
 from mypinnings.media import store_image_from_filename
 
+from api.models.user import User
+from api.models.album import Album
+from api.models.picture import Picture
+
 
 db = connect_db()
 
@@ -27,10 +31,10 @@ class BaseUserProfile(BaseAPI):
     """
     def __init__(self):
         self._fields = ['id', 'name', 'about', 'city', 'country', 'hometown',
-                        'about', 'email', 'pic', 'website', 'facebook',
-                        'twitter', 'getlist_privacy_level', 'private', 'bg',
+                        'about', 'email', 'pic_id', 'bg_id', 'website', 'facebook',
+                        'twitter', 'getlist_privacy_level', 'private',
                         'bgx', 'bgy', 'show_views', 'views', 'username', 'zip',
-                        'linkedin', 'gplus', 'bg_resized_url', 'headerbgy', 'headerbgx']
+                        'linkedin', 'gplus', 'headerbgy', 'headerbgx']
         self._birthday_fields = ['birthday_year', 'birthday_month',
                                  'birthday_day']
         self.required = ['csid_from_client', 'logintoken']
@@ -199,7 +203,8 @@ class GetProfileInfo(BaseUserProfile):
             return response_or_user
 
         response = {field: response_or_user[field] for field in self._fields}
-        response['resized_url'] = photo_id_to_url(response['pic'])
+        response['resized_url'] = photo_id_to_url(response['pic_id'])
+        response['bg_resized_url'] = photo_id_to_url(response['bg_id'])
         csid_from_client = request_data.pop('csid_from_client')
         csid_from_server = response_or_user['seriesid']
         self.format_birthday(response_or_user, response)
@@ -249,21 +254,20 @@ class ProfileInfo(BaseUserProfile):
         if not user:
             return api_response(data={}, status=405,
                                 error_code="User was not found")
-
         followers = UserProfile\
-            .query_followed_by(profile_owner=user["id"],
+            .query_followed_by(profile_owner=user.id,
                                current_user=response_or_user["id"])
-        user['follower_count'] = len(followers)
+        user.follower_count = len(followers)
 
         follow = UserProfile\
-            .query_following(profile_owner=user["id"],
+            .query_following(profile_owner=user.id,
                              current_user=response_or_user["id"])
-        user['follow_count'] = len(follow)
+        user.follow_count = len(follow)
 
         csid_from_client = request_data.pop('csid_from_client')
         csid_from_server = ""
 
-        return api_response(data=user,
+        return api_response(data=user.to_serializable_dict(),
                             csid_from_client=csid_from_client,
                             csid_from_server=csid_from_server)
 
@@ -551,20 +555,27 @@ class QueryBoards(BaseAPI):
 
         :param str csid_from_client: Csid string from client
         :param str user_id: id of the queried user
+        :param str current_user_id: id of current user
         :response_data: returns all boards of a given user as a list
         :to test: curl --data "user_id=2&csid_from_client=1" http://localhost:8080/api/profile/userinfo/boards
         """
         request_data = web.input()
         csid_from_client = request_data.get('csid_from_client')
         csid_from_server = ""
+        current_user_id = request_data.get('current_user_id', 0)
         user_id = request_data.get('user_id')
 
         if not user_id:
             return api_response(data={}, status=405,
                                 error_code="Missing user_id")
-        boards_tmp = db.select('boards',
-                           where='user_id=$user_id',
-                           vars={'user_id': user_id})
+        boards_query = """
+        SELECT b.id, b.name, b.description, bf.follower_id is not null
+        as is_following FROM boards b
+        LEFT JOIN boards_followers bf on bf.board_id = b.id
+        and bf.follower_id = $cid WHERE b.user_id=$uid;
+        """
+        boards_tmp = db.query(boards_query,
+                              vars={'uid': user_id, 'cid': current_user_id})
 
         boards = []
         for board in boards_tmp:
@@ -576,7 +587,6 @@ class QueryBoards(BaseAPI):
                 if pin_from_board['id'] not in board['pins_ids']:
                     board['pins_ids'].append(pin_from_board['id'])
             boards.append(board)
-
         return api_response(data=boards,
                             csid_from_server=csid_from_server,
                             csid_from_client=csid_from_client)
@@ -598,7 +608,7 @@ class QueryPins(BaseAPI):
         :to test: curl --data "user_id=78&csid_from_client=1" http://localhost:8080/api/profile/userinfo/pins
         """
         query = '''
-        select tags.tags, pins.*, users.pic as user_pic,
+        select tags.tags, pins.*, users.pic_id as user_pic,
         users.username as user_username, users.name as user_name,
         count(distinct p1) as repin_count,
         count(distinct l1) as like_count
@@ -710,10 +720,18 @@ class TestUsernameOrEmail(BaseAPI):
 
 
 class PicUpload(BaseAPI):
-    """ Upload profile picture and save it in database """
+    """
+    Upload profile picture and save it in database
+
+    :link: /api/profile/userinfo/upload_pic
+    """
     def POST(self):
         """
-        Picture upload main handler
+        :param str csid_from_client: Csid string from client
+        :param str logintoken: logintoken of user
+        :param file file: file for saving
+        :response data: returns id, original_url, resized_url of saved picture
+        :to test: curl -F "csid_from_client=1" -F "logintoken=AmWG6AhgPO" -F "file=@/image/for/test.jpg" http://localhost:8080/api/profile/userinfo/upload_pic
         """
         data = {}
         status = 200
@@ -738,27 +756,21 @@ class PicUpload(BaseAPI):
             return api_response(data={}, status=405,
                                 error_code="Required args are missing")
 
-        file_path = self.save_file(file_obj)
-        images_dict = store_image_from_filename(db,
-                                                file_path,
-                                                widths=[80])
+        album, album_created = self._get_or_create_album(user['id'], 'photos')
+        photo = self._save_in_database(file_obj, 160, album.id)
 
-        photo_kwargs = {
-            'original_url': images_dict[0]['url'],
-            'resized_url': images_dict.get(80, images_dict[0]).get('url', None),
-            'album_id': user['id']
-        }
+        user_to_update = web.ctx.orm.query(User)\
+            .filter(User.id == user['id'])\
+            .first()
 
-        pid = db.insert('photos', **photo_kwargs)
+        user_to_update.pic_obj = photo
+        if album_created:
+            album.cover = photo
+        web.ctx.orm.commit()
 
-        db.update('users',
-                  where='id = $id',
-                  vars={'id': user['id']},
-                  pic=pid)
-
-        data['pid'] = pid
-        data['original_url'] = photo_kwargs['original_url']
-        data['resized_url'] = photo_kwargs['resized_url']
+        data['id'] = photo.id
+        data['original_url'] = photo.original_url
+        data['resized_url'] = photo.resized_url
 
         response = api_response(data=data,
                                 status=status,
@@ -768,21 +780,53 @@ class PicUpload(BaseAPI):
 
         return response
 
-    def save_file(self, file_obj, upload_dir=None):
+    def _get_or_create_album(self, user_id, slug):
+        album = web.ctx.orm.query(Album).filter(Album.user_id == user_id,
+                                               Album.slug == slug).first()
+        created = False
+
+        if not album:
+            album = Album(user_id, slug)
+
+            web.ctx.orm.add(album)
+            web.ctx.orm.commit()
+            created = True
+
+        return album, created
+
+    def _save_in_database(self, file_obj, resized_size, album_id):
+        file_path = self._save_file(file_obj)
+        images_dict = store_image_from_filename(db,
+                                                file_path,
+                                                widths=[resized_size])
+
+        picture = Picture(
+            album_id,
+            images_dict[0]['url'],
+            images_dict.get(resized_size, images_dict[0])\
+                .get('url', None)
+        )
+
+        web.ctx.orm.add(picture)
+        web.ctx.orm.commit()
+
+        return picture
+
+    def _save_file(self, file_obj, upload_dir=None):
         """
         Saves uploaded file to a given upload dir.
         """
         if not upload_dir:
-            upload_dir = self.get_media_path()
+            upload_dir = self._get_media_path()
         filename = file_obj.filename
-        filename = self.get_file_name(filename, upload_dir)
+        filename = self._get_file_name(filename, upload_dir)
         filepath = os.path.join(upload_dir, filename)
         upload_file = open(filepath, 'w')
         upload_file.write(file_obj.file.read())
         upload_file.close()
         return filepath
 
-    def get_media_path(self):
+    def _get_media_path(self):
         """
         Returns or creates media directory.
         """
@@ -791,7 +835,7 @@ class PicUpload(BaseAPI):
             os.makedirs(media_path)
         return media_path
 
-    def get_file_name(self, filename, upload_dir):
+    def _get_file_name(self, filename, upload_dir):
         """
         Method responsible for avoiding duplicated filenames.
         """
@@ -803,11 +847,19 @@ class PicUpload(BaseAPI):
         return filename
 
 
-class BgUpload(BaseAPI):
-    """ Upload profile background and save it in database """
+class BgUpload(PicUpload):
+    """
+    Upload profile background and save it in database
+    
+    :link: /api/profile/userinfo/upload_bg
+    """
     def POST(self):
         """
-        Background upload main handler
+        :param str csid_from_client: Csid string from client
+        :param str logintoken: logintoken of user
+        :param file file: file for saving
+        :response data: returns id, original_url, resized_url of saved picture
+        :to test: curl -F "csid_from_client=1" -F "logintoken=AmWG6AhgPO" -F "file=@/image/for/test.jpg" http://localhost:8080/api/profile/userinfo/upload_bg
         """
         data = {}
         status = 200
@@ -826,32 +878,28 @@ class BgUpload(BaseAPI):
         csid_from_client = request_data.get("csid_from_client")
 
         file_obj = request_data.get('file')
-
+        
         # For some reason, FileStorage object treats itself as False
         if type(file_obj) == dict:
             return api_response(data={}, status=405,
                                 error_code="Required args are missing")
 
-        file_path = self.save_file(file_obj)
-        images_dict = store_image_from_filename(db,
-                                                file_path,
-                                                widths=[1100])
+        album, album_created = self._get_or_create_album(user['id'],
+                                                         'backgrounds')
+        photo = self._save_in_database(file_obj, 1100, album.id)
 
-        bg_kwargs = {
-            'bg_original_url': images_dict[0]['url'],
-            'bg_resized_url': images_dict.get(1100, images_dict[0]).get('url', None),
-            'bg': True,
-            'bgx': 0,
-            'bgy': 0
-        }
+        user_to_update = web.ctx.orm.query(User)\
+            .filter(User.id == user['id'])\
+            .first()
 
-        db.update('users',
-                  where='id = $id',
-                  vars={'id': user['id']},
-                  **bg_kwargs)
+        user_to_update.bg = photo
+        if album_created:
+            album.cover = photo
+        web.ctx.orm.commit()
 
-        data['bg_original_url'] = bg_kwargs['bg_original_url']
-        data['bg_resized_url'] = bg_kwargs['bg_resized_url']
+        data['id'] = photo.id
+        data['original_url'] = photo.original_url
+        data['resized_url'] = photo.resized_url
 
         response = api_response(data=data,
                                 status=status,
@@ -861,46 +909,22 @@ class BgUpload(BaseAPI):
 
         return response
 
-    def save_file(self, file_obj, upload_dir=None):
-        """
-        Saves uploaded file to a given upload dir.
-        """
-        if not upload_dir:
-            upload_dir = self.get_media_path()
-        filename = file_obj.filename
-        filename = self.get_file_name(filename, upload_dir)
-        filepath = os.path.join(upload_dir, filename)
-        upload_file = open(filepath, 'w')
-        upload_file.write(file_obj.file.read())
-        upload_file.close()
-        return filepath
 
-    def get_media_path(self):
-        """
-        Returns or creates media directory.
-        """
-        media_path = settings.MEDIA_PATH
-        if not os.path.exists(media_path):
-            os.makedirs(media_path)
-        return media_path
-
-    def get_file_name(self, filename, upload_dir):
-        """
-        Method responsible for avoiding duplicated filenames.
-        """
-        filepath = os.path.join(upload_dir, filename)
-        exists = os.path.isfile(filepath)
-        # Suggest uuid hex as a filename to avoid duplicates
-        if exists:
-            filename = "%s.%s" % (uuid.uuid4().hex[:10], filename)
-        return filename
-
-
-class GetProfilePictures(BaseAPI):
+class GetPictures(BaseAPI):
     """
     API method for get photos of user
+    
+    :link: /api/profile/userinfo/get_pictures
     """
     def POST(self):
+        """
+        :param str csid_from_client: Csid string from client
+        :param str logintoken: logintoken of user (is not required)
+        :param int user_id: id of user
+        :param str album_type: type of pictures (photos|backgrounds)
+        :response data: returns photos - list of pictures
+        :to test: curl --data "csid_from_client=1&user_id=93&album_type=photos" http://localhost:8080/api/profile/userinfo/get_pictures
+        """
         request_data = web.input()
 
         update_data = {}
@@ -911,113 +935,69 @@ class GetProfilePictures(BaseAPI):
 
         # Get data from request
         user_id = request_data.get("user_id")
+        album_type = request_data.get("album_type")
 
         csid_from_client = request_data.get('csid_from_client')
 
-        select_str = "0 AS self_like_count,"
-        join_str = ""
+        current_user_id = None
         logintoken = request_data.get('logintoken', None)
         if logintoken:
             user_status, user = self.authenticate_by_token(logintoken)
             if user_status:
-                select_str = "count(distinct l2) as self_like_count,"
-                join_str = "LEFT JOIN profile_photo_likes l2 \
-                            ON l2.photo_id = photos.id \
-                            AND l2.user_id = %s" % user['id']
-
-        if not user_id:
-            status = 400
-            error_code = "Invalid input data"
-
-        data['user_id'] = user_id
-
-        if status == 200:
-            photos = db.query("SELECT photos.*, users.id as user_id, \
-                        users.pic as user_pic, \
-                        " + select_str + " \
-                        count(distinct l1) as like_count \
-                        FROM photos \
-                        LEFT JOIN users ON photos.album_id = users.id \
-                        LEFT JOIN profile_photo_likes l1 \
-                        ON l1.photo_id = photos.id \
-                        " + join_str + " \
-                        WHERE photos.album_id=%s \
-                        GROUP BY photos.id, users.id \
-                        ORDER BY photos.id desc" % (user_id))\
-            .list()
-
-            data['photos'] = []
-            for photo in photos:
-                photo['comments'] = get_comments_to_photo(photo['id'])
-                data['photos'].append(photo)
-
-        response = api_response(data=data,
-                                status=status,
-                                error_code=error_code,
-                                csid_from_client=csid_from_client,
-                                csid_from_server=csid_from_server)
-        return response
+                current_user_id = user['id']
 
 
-class PicRemove(BaseAPI):
-    """ Remove profile picture and save changes in database """
-    def POST(self):
-        """
-        Picture remove main handler
-        """
-        data = {}
-        status = 200
-        csid_from_server = None
-        error_code = ""
+        album = web.ctx.orm.query(Album).filter(
+            Album.user_id == user_id,
+            Album.slug == album_type
+        ).first()
 
-        request_data = web.input()
-        logintoken = request_data.get('logintoken')
-        photo_id = request_data.get('photo_id')
+        data['photos'] = []
 
-        user_status, user = self.authenticate_by_token(logintoken)
-        # User id contains error code
-        if not user_status:
-            return user
+        if album:
+            pictures = web.ctx.orm.query(Picture).filter(
+                Picture.album_id == album.id
+            ).all()
 
-        csid_from_server = user['seriesid']
-        csid_from_client = request_data.get("csid_from_client")
+            for picture in pictures:
+                if not picture.resized_url:
+                    continue
 
-        photos = db.select('photos',
-                           where='id = $id and album_id = $album_id',
-                           vars={'id': photo_id, 'album_id': user['id']})
+                picture = picture.to_serializable_dict()
 
-        if len(photos) > 0:
-            db.delete('photos',
-                      where='id = $id',
-                      vars={'id': photo_id})
-            if str(user['pic']) == photo_id:
-                photos = db.select('photos',
-                                   where='album_id = $album_id',
-                                   vars={'album_id': user['id']})
-                if len(photos) > 0:
-                    pid = photos[0]['id']
+                picture['likes_count'] = len(picture['likes'])
+
+                if current_user_id:
+                    for like in picture['likes']:
+                        if like['user_id'] == current_user_id:
+                            picture['liked'] = True
+                            break
                 else:
-                    pid = None
-
-                db.update('users',
-                          where='id = $id',
-                          vars={'id': user['id']},
-                          pic=pid)
+                    picture['liked'] = False
+                
+                data['photos'].append(picture)
 
         response = api_response(data=data,
                                 status=status,
                                 error_code=error_code,
                                 csid_from_client=csid_from_client,
                                 csid_from_server=csid_from_server)
-
         return response
 
 
-class BgRemove(BaseAPI):
-    """ Remove profile picture and save changes in database """
+class PictureRemove(BaseAPI):
+    """
+    Remove picture and save changes in database
+    
+    :link: /api/profile/userinfo/remove_pic
+    """
     def POST(self):
         """
-        Picture remove main handler
+        :param str csid_from_client: Csid string from client
+        :param str logintoken: logintoken of user
+        :param int picture_id: id of photo that you wish to remove
+        :response data: no extra rsponse
+        :to test: curl --data "csid_from_client=1&picture_id=5&logintoken=XXXXXXX" http://localhost:8080/api/profile/userinfo/remove_pic
         """
         data = {}
         status = 200
@@ -1026,6 +1006,7 @@ class BgRemove(BaseAPI):
 
         request_data = web.input()
         logintoken = request_data.get('logintoken')
+        picture_id = request_data.get('picture_id')
 
         user_status, user = self.authenticate_by_token(logintoken)
         # User id contains error code
@@ -1035,18 +1016,7 @@ class BgRemove(BaseAPI):
         csid_from_server = user['seriesid']
         csid_from_client = request_data.get("csid_from_client")
 
-        bg_kwargs = {
-            'bg_original_url': None,
-            'bg_resized_url': None,
-            'bg': False,
-            'bgx': 0,
-            'bgy': 0
-        }
-
-        db.update('users',
-                  where='id = $id',
-                  vars={'id': user['id']},
-                  **bg_kwargs)
+        self._delete_picture(user['id'], picture_id)
 
         response = api_response(data=data,
                                 status=status,
@@ -1055,3 +1025,109 @@ class BgRemove(BaseAPI):
                                 csid_from_server=csid_from_server)
 
         return response
+
+    def _delete_picture(self, user_id, picture_id):
+        user_to_update = web.ctx.orm.query(User)\
+            .filter(User.id == user_id)\
+            .first()
+
+        picture = web.ctx.orm.query(Picture)\
+            .filter(Picture.id == picture_id)\
+            .first()
+
+        if picture:
+            album = web.ctx.orm.query(Album).filter(
+                Album.id == picture.album_id
+            ).first()
+
+            if album.user_id == user_to_update.id:
+                # if album.slug == "photos":
+                #     if user_to_update.pic_id == picture.id:
+                #         user_to_update.pic_obj = self._get_next_picture(album,
+                #                                                     picture)
+                # elif album.slug == "backgrounds":
+                #     if user_to_update.bg_id == picture.id:
+                #         user_to_update.bg = self._get_next_picture(album,
+                #                                                    picture)
+                #         user_to_update.bgx = 0
+                #         user_to_update.bgy = 0
+
+                if album.cover_id == picture.id:
+                    album.cover = self._get_next_picture(album,
+                                                         picture)
+
+                for comment in picture.comments:
+                    web.ctx.orm.delete(comment)
+
+                for like in picture.likes:
+                    web.ctx.orm.delete(like)
+
+                web.ctx.orm.delete(picture)
+                web.ctx.orm.commit()
+
+    def _get_next_picture(self, album, picture):
+        for pic in album.pictures:
+            if picture.id != pic.id:
+                return pic
+
+        return None
+
+
+class AlbumDefaultPic(BaseAPI):
+    """
+    Sets picture as default album cover
+    
+    :link: /api/profile/userinfo/album_default_picture
+    """
+    def POST(self):
+        """
+        :param str csid_from_client: Csid string from client
+        :param str logintoken: logintoken of user
+        :param int picture_id: id of photo that you wish tis set as xover
+        :response data: no extra rsponse
+        :to test: curl --data "csid_from_client=1&picture_id=5&logintoken=XXXXXXX" http://localhost:8080/api/profile/userinfo/album_default_picture
+        """
+        data = {}
+        status = 200
+        csid_from_server = None
+        error_code = ""
+
+        request_data = web.input()
+        logintoken = request_data.get('logintoken')
+        picture_id = request_data.get('picture_id')
+
+        user_status, user = self.authenticate_by_token(logintoken)
+        # User id contains error code
+        if not user_status:
+            return user
+
+        csid_from_server = user['seriesid']
+        csid_from_client = request_data.get("csid_from_client")
+
+        self._set_picture(user['id'], picture_id)
+
+        response = api_response(data=data,
+                                status=status,
+                                error_code=error_code,
+                                csid_from_client=csid_from_client,
+                                csid_from_server=csid_from_server)
+
+        return response
+
+    def _set_picture(self, user_id, picture_id):
+        user = web.ctx.orm.query(User)\
+            .filter(User.id == user_id)\
+            .first()
+
+        picture = web.ctx.orm.query(Picture)\
+            .filter(Picture.id == picture_id)\
+            .first()
+
+        if picture:
+            album = web.ctx.orm.query(Album).filter(
+                Album.id == picture.album_id
+            ).first()
+
+            if album.user_id == user.id:
+                album.cover = picture
+                web.ctx.orm.commit()

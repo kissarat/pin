@@ -7,9 +7,9 @@
       <a id="repinlink" onclick=repin_image_load(this) data-category="<%= category %>" data-description="<%= description %>" href='#' data-toggle="modal" data-target="#addToGetListModal"
         data-id="<%= id %>"
       imagesrc="<%= image_212_url %>" class='repinlink button small-pad'>Add to Your Getlist</a>
-      <a href='/share/<%= id %>' class='button small-pad'><i class='fa fa-share-square'></i></a>
+      <a href='/share/<%= id %>' target="_blank" class='button small-pad'><i class='fa fa-share-square'></i></a>
       <% if (link !== null) { %>
-        <a class='button small-pad' rel='nofollow' href='<%= link %>'><i class='fa fa-external-link-square'></i></a>
+        <a class='button small-pad' target="_blank" rel='nofollow' href='<%= link %>'><i class='fa fa-external-link-square'></i></a>
 	  <% } %>
     </div>
 	<div class="category_pin_image" pinid="<%= external_id %>">

@@ -1,5 +1,9 @@
+import web
 from mypinnings.database import connect_db
 from api.utils import photo_id_to_url
+from api.models.user import User
+
+from sqlalchemy import or_
 
 db = connect_db()
 
@@ -41,17 +45,28 @@ class UserProfile(object):
         """
         Returns all profile fields specified by fields section
         """
-        query = db.select('users', vars={'username': profile,
-                              'id': user_id},
-                              where="username=$username or id=$id")
-        if len(query) > 0:
-            user = query.list()[0]
-            user['pic'] = photo_id_to_url(user['pic'])
-        else:
+        # import ipdb; ipdb.set_trace()
+        # query = db.select('users', vars={'username': profile,
+        #                       'id': user_id},
+        #                       where="username=$username or id=$id")
+        # user = web.ctx.orm.query(User).filter(User.id == user_id).first()
+        user = web.ctx.orm.query(User).filter(
+            or_(User.id == user_id, User.username == profile)
+        ).first()
+
+        if not user:
             return False
-        response = {field: user.get(field) for field in UserProfile.fields}
-        response = UserProfile.format_birthday(user, response)
-        return response
+        # if len(query) > 0:
+        #     user = query.list()[0]
+        #     user['pic'] = photo_id_to_url(user['pic'])
+        # else:
+        #     return False
+        # import ipdb; ipdb.set_trace()
+        # response = {field: user.getattr(field) for field in UserProfile.fields}
+        # response = UserProfile.format_birthday(user, response)
+        # return response
+        
+        return user
 
     @staticmethod
     def query_following(profile_owner, current_user):
@@ -60,10 +75,10 @@ class UserProfile(object):
         """
         vars = {'id': profile_owner, 'user_id': current_user}
         query = '''
-        select %s, f2.follow <> 0 is_following from users
+        select *, f2.follow <> 0 is_following from users
         join      follows f1 on f1.follow = users.id
         left join follows f2 on f2.follow = users.id and f2.follower = $user_id
-        where f1.follower = $id; ''' % (UserProfile.prepare_fields())
+        where f1.follower = $id; '''  #% (UserProfile.prepare_fields())
 
         results = db.query(query, vars=vars).list()
 
@@ -77,10 +92,10 @@ class UserProfile(object):
         """
         vars = {'id': profile_owner, 'user_id': current_user}
         query = '''
-        select %s, f2.follower <> 0 is_following from users
+        select *, f2.follower <> 0 is_following from users
         join follows f1 on f1.follower = users.id
         left join follows f2 on f2.follow = users.id and f2.follower = $user_id
-        where f1.follow = $id;''' % (UserProfile.prepare_fields())
+        where f1.follow = $id;''' #% (UserProfile.prepare_fields())
 
         results = db.query(query, vars=vars).list()
         return results

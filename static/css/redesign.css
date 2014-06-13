@@ -1,7 +1,7 @@
 ﻿#mainPage
 {
     position: fixed;
-    top: 0;
+    /*top: 0;*/
     left: 0;
     right: 0;
     bottom: 0;
@@ -15,6 +15,9 @@
     /*display: none;*/
 }
 
+.block-100px-height {
+    height: 100px;
+}
 
 /*tmp*/
 
@@ -301,7 +304,7 @@
     color: rgba(0,0,0, 0);
     background: url('../img/header_logo.png') no-repeat;
     background-position: center -5px;
-    padding: 7px;
+    padding: 7px 65px;
 }
 
 .redimg a, .redimg span
@@ -404,12 +407,12 @@ a.signupgg:hover
 {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 9000;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
-    background: rgba( 255, 255, 255, .8 ) url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+    background: rgba( 255, 255, 255, .8 ) url('../img/loader.gif') 50% 50% no-repeat;
 }
 
 /* When the body has the loading class, we turn

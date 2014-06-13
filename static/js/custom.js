@@ -3,7 +3,7 @@
         if ($("#mainPage").length !== 0) {
 
             //$('#pin-box-wrapper').css({ 'display': 'none' });
-            setTimeout(function () {
+            /*setTimeout(function () {
                 var arrPin = [], pinsCount = 0, pinWidth = [], pinPostArr = [];
 
                 $('#pin-buf .pin').each(function () {
@@ -68,17 +68,17 @@
             $('#firstRow').animate({ left: ($('#firstRow').position().left - $('#firstRow').width()) + 'px' }, 50000);
             $('#secondRow').animate({ left: ($('#secondRow').position().left + $('#secondRow').width()) + 'px' }, 80000);
             $('#thirdRow').animate({ left: ($('#thirdRow').position().left - $('#thirdRow').width()) + 'px' }, 60000);
-            $('#fourthRow').animate({ left: ($('#fourthRow').position().left + $('#fourthRow').width()) + 'px' }, 50000);
+            $('#fourthRow').animate({ left: ($('#fourthRow').position().left + $('#fourthRow').width()) + 'px' }, 50000);*/
 
 
-            if ($("#inSess").length !== 0) {
-                //$("#mainPage").css({ 'display': 'none' });
-                $("#mainForm").css({ 'display': 'none' });
-                // $('#pin-box-wrapper').css({ 'display': 'block' });
-                $('#pin-box-wrapper').css({ 'display': 'none' });
-            } else {
-                $('#pin-box-wrapper').css({ 'display': 'none' });
-            }
+            // if ($("#inSess").length !== 0) {
+            //     //$("#mainPage").css({ 'display': 'none' });
+            //     $("#mainForm").css({ 'display': 'none' });
+            //     // $('#pin-box-wrapper').css({ 'display': 'block' });
+            //     $('#pin-box-wrapper').css({ 'display': 'none' });
+            // } else {
+            //     $('#pin-box-wrapper').css({ 'display': 'none' });
+            // }
         };
 
 

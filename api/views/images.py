@@ -9,6 +9,7 @@ import random
 from mypinnings import database
 from api.views.base import BaseAPI
 from api.utils import api_response, save_api_request, photo_id_to_url
+from api.utils import e_response
 from mypinnings.database import connect_db
 from mypinnings.conf import settings
 from mypinnings.media import store_image_from_filename
@@ -134,6 +135,59 @@ class ImageUpload(BaseAPI):
         return filename
 
 
+class QueryBoardInfo(BaseAPI):
+    """
+    Class responsible for getting all pins from a given board
+
+    :link: /api/image/query-board
+    """
+    def POST(self):
+        """ Returns pin id's of a given board
+
+        :param str csid_from_client: Csid string from client
+        :param str board_name: name of a queried board
+        :param username: name of the user who is being queried
+
+        :response: * img_ids - list of pins related to a given board
+                   * board_info - relevant board information
+
+        :to test: curl -d "username=olte" -d "board_name=Things to get" -d "csid_from_client=1" http://localhost:8080/api/image/query-board
+        """
+        request_data = web.input()
+        save_api_request(request_data)
+
+        username = request_data.get('username')
+        board_name = request_data.get('board_name')
+
+        csid_from_client = request_data.get("csid_from_client")
+        csid_from_server = ""
+
+        # Get user_id from username
+        user = db.select('users', where='username=$username',
+                            vars={'username': username}).list()
+
+        if len(user) == 0:
+            return e_response("Given user does not exist")
+        user_id = user[0].get("id")
+
+
+        # Get board by user_id and board_name
+        board = db.select('boards', where='user_id=$uid and name=$bname',
+                          vars = {'uid': user_id,
+                                  'bname': board_name}).list()
+        if len(board) == 0:
+            return e_response("Impossible to find board by name and user_id")
+        # Get pins by board.id
+        image_ids = db.select('pins', where='board_id=$bid',
+                              vars={'bid': board[0]['id']},
+                              what='id')
+        response = {}
+        response['img_ids'] = [img["id"] for img in image_ids.list()]
+        response['board'] = board
+        return api_response(data=response, csid_from_server=csid_from_server,
+                            csid_from_client=csid_from_client)
+
+
 class ImageQuery(BaseAPI):
     """
     Image query for getting information about image
@@ -176,7 +230,7 @@ class ImageQuery(BaseAPI):
         query = '''
             select
                 tags.tags, pins.*, categories.id as category,
-                categories.name as cat_name, photos.resized_url as user_pic,
+                categories.name as cat_name, pictures.resized_url as user_pic,
                 users.username as user_username, users.name as user_name,
                 users.id as user_id,
                 count(distinct p1) as repin_count,
@@ -186,13 +240,13 @@ class ImageQuery(BaseAPI):
                 left join pins p1 on p1.repin = pins.id
                 left join likes l1 on l1.pin_id = pins.id
                 left join users on users.id = pins.user_id
-                left join photos on users.pic = photos.id
+                left join pictures on users.pic_id = pictures.id
                 left join follows on follows.follow = users.id
                 left join pins_categories on pins.id=pins_categories.pin_id
                 left join categories
                 on pins_categories.category_id = categories.id
             where %s
-            group by tags.tags, categories.id, pins.id, users.id, photos.id
+            group by tags.tags, categories.id, pins.id, users.id, pictures.id
             order by timestamp desc''' % (where)
 
         images = db.query(query)
@@ -712,3 +766,48 @@ def _already_exists(id):
     for _ in results:
         return True
     return False
+
+
+class FollowOrUnfollowList(BaseAPI):
+    """
+    Allows to follow a given board if it was not already followed,
+    Removes follow in case follow was set before.
+    Works as toggle on/off
+
+    :link: /api/image/follow-list
+    """
+    def POST(self):
+        """
+        :param str board_id: id of the board to follow
+        :param str csid_from_client: CSID from client
+        :param str logintoken: logintoken of the user who follows the board
+
+        :response data: returns status:ok
+        :example usage: curl --data "csid_from_client=1&user_id=98&board_id=15" http://localhost:8080/api/image/follow-list
+        """
+        request_data = web.input()
+        csid_from_client = request_data.get('csid_from_client')
+        logintoken = request_data.get('logintoken')
+
+        user_status, user = self.authenticate_by_token(logintoken)
+        # User id contains error code
+        if not user_status:
+            return user
+
+        board_id = request_data.get('board_id')
+        is_following = db.select('boards_followers',
+                  where="follower_id=$uid and board_id=$bid",
+                  vars={'uid': user.id, 'bid': board_id})
+        # Checking if current user is already following the given board
+        if len(is_following.list()) > 0:
+            status = "unfollowed"
+            db.delete('boards_followers',
+                      where="follower_id=$uid and board_id=$bid",
+                      vars={'uid': user.id, 'bid': board_id})
+        else:
+            db.insert('boards_followers', follower_id=user.id,
+                      board_id=board_id)
+            status = "followed"
+        return api_response(data={"status": status},
+                            csid_from_client=csid_from_client,
+                            csid_from_server="")

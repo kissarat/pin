@@ -35,11 +35,10 @@ $("#set_as_profile_pic").click(function() {
 dragging_header_background = false;
 
 x = 0;
-
 y = 0;
-
+prev_x = 0;
+prev_y = 0;
 otherX = 0;
-
 otherY = 0;
 
 $("#header_background").mousedown(function(e) {
@@ -47,6 +46,8 @@ $("#header_background").mousedown(function(e) {
   _ref = void 0;
   x = e.pageX;
   y = e.pageY;
+  prev_x = e.pageX;
+  prev_y = e.pageY;
   _ref = $(this).css("background-position").split(" ");
   otherX = _ref[0];
   otherY = _ref[1];
@@ -54,34 +55,86 @@ $("#header_background").mousedown(function(e) {
 });
 
 $("body").mouseup(function() {
-  var tempX, tempY, _ref;
+  /*var tempX, tempY, _ref;
   tempX = void 0;
   tempY = void 0;
-  _ref = void 0;
+  _ref = void 0;*/
   if (dragging_header_background) {
     dragging_header_background = false;
-    _ref = $("#header_background").css("background-position").split(" ");
+    /*_ref = $("#header_background").css("background-position").split(" ");
     otherX = _ref[0];
     otherY = _ref[1];
     tempX = parseInt(otherX.slice(0, +(otherX.length - 2) + 1 || 9e9));
     tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
-    return $.post("/changebgpos", {
+    return $.ajax({
+      url: "/changebgpos",
+      data: {
       x: tempX,
-      y: tempY
-    });
+      y: tempY },
+      success: function(){},
+      beforeSend: function(){
+        $("body").removeClass('loading');
+      },
+      type: 'POST',
+    });*/
   }
 });
 
 $("#header_background").mousemove(function(e) {
-  var tempY, upload;
-  tempY = void 0;
+
+  var imageSrc = document.getElementById('header_background')
+                         .style
+                         .backgroundImage
+                         .replace(/url\((['"])?(.*?)\1\)/gi, '$2')
+                         .split(',')[0];
+
+  // I just broke it up on newlines for readability
+
+  var image = new Image();
+  image.src = imageSrc;
+
+  var width = image.width,
+      height = image.height;
+
+  height = Math.round(height * $('.profBack').width() / width);
+
+  var deltaY = 0;
+  var tempX, tempY;
+
+  var _ref = $(this).css("background-position").split(" ");
+  otherX = _ref[0];
+  otherY = _ref[1];
+
   if (dragging_header_background) {
-    upload = false;
-    tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
-    if (tempY + (e.pageY - y) < 0) {
-      return $(this).css("background-position", otherX + " " + (tempY + (e.pageY - y)) + "px");
+    prev_x = x;
+    prev_y = y;
+    x = e.pageX;
+    y = e.pageY;
+
+    deltaY = prev_y - y;
+
+    tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9)) - deltaY;
+    //console.log(($('.profBack').height() - height) + " " + tempY)
+    if(tempY <= 0 && tempY >= ($('.profBack').height() - height)) {
+      return $(this).css("background-position", otherX + " " + tempY + "px");
     }
   }
+
+  // var tempY, upload;
+  // tempY = void 0;
+  // if (dragging_header_background) {
+  //   upload = false;
+  //   tempY = parseInt(otherY.slice(0, +(otherY.length - 2) + 1 || 9e9));
+
+  //   console.log(otherY);
+
+  //   if (Math.abs(tempY) <= (height - $('.profBack').height())) {
+  //     if (tempY + (e.pageY - y) < 0) {
+  //       return $(this).css("background-position", otherX + " " + (tempY) + "px");
+  //     }
+  //   }
+  // }
+
 });
 
 $("#switch5_wrapper").mouseover(function() {
@@ -158,7 +211,7 @@ $('.profile_list_subtab').on('click', function(event) {
     return;
   }
   $.current_board = boardid;
-  get_more_items();
+  //get_more_items();
 });
 
 get_more_items = function(show_images) {
@@ -249,7 +302,15 @@ $(document).on('click', '.category_pin_image', function(event) {
 
 open_pin_detail = function(pinid) {
   $.get('/p/' + pinid + '?embed=true', function(data) {
+    console.log(data);
     var current_position;
+    $('#show_pin_layer_content').html(data);
+    current_position = $('#show_pin_layer_content').position();
+    current_position.top = $(window).scrollTop();
+    $('#show_pin_layer_content').css(current_position);
+    $('#show_pin_layer').width($(window).width());
+    $('#show_pin_layer').height($(window).height());
+    $('#show_pin_layer').show();
     try {
       if (window.history.state === null) {
         window.history.pushState(pinid, '', '/p/' + pinid);
@@ -260,13 +321,6 @@ open_pin_detail = function(pinid) {
       window.location.href = '/p/' + pinid;
       return;
     }
-    $('#show_pin_layer_content').html(data);
-    current_position = $('#show_pin_layer_content').position();
-    current_position.top = $(window).scrollTop();
-    $('#show_pin_layer_content').css(current_position);
-    $('#show_pin_layer').width($(window).width());
-    $('#show_pin_layer').height($(window).height());
-    $('#show_pin_layer').show();
     disable_scroll();
   });
 };
@@ -345,8 +399,8 @@ disableNormalScroll = function(e) {
 };
 
 $('#list-box-wrapper-link').on('click', function() {
-  get_more_items(true);
-  setTimeout(scrollToShowImages(), 200);
+  //get_more_items(true);
+  // setTimeout(scrollToShowImages(), 200);
 });
 
 scrollToShowImages = function() {
@@ -391,48 +445,9 @@ $('.send_comment').click(function() {
   }
   $( "#input_comment_" + photo_id ).val("")
 
-  $.post( url, { comment: comment }, 
+  $.post( url, { comment: comment },
     function( data ) {
       $( "#comments_" + photo_id ).append(data);
-    }
-  );
-  return false;
-});
-
-$('.dislike_bg, .like_bg').click(function() {
-  var url = $(this).attr("data-url");
-  var bg_id = $(this).attr("data-id");
-
-  if($(this).hasClass('like_bg')) {
-    $(this).hide();
-    $(this).parent().find('.dislike_bg').show();
-  }
-  if($(this).hasClass('dislike_bg')) {
-    $(this).hide();
-    $(this).parent().find('.like_bg').show();
-  }
-
-  $.get( url, function( data ) {
-    data = jQuery.parseJSON(data);
-    $( "#bg_likes_count_" + bg_id ).text(data.likes);
-  });
-  return false;
-});
-
-$('.send_comment_bg').click(function() {
-  var url = $(this).attr("data-url");
-  var bg_id = $(this).attr("data-id");
-  var comment = $( "#input_bg_comment_" + bg_id ).val()
-
-  if(comment == "") {
-    alert("Comment cannot be empty!");
-    return false;
-  }
-  $( "#input_bg_comment_" + bg_id ).val("")
-
-  $.post( url, { comment: comment }, 
-    function( data ) {
-      $( "#comments_bg_" + bg_id ).append(data);
     }
   );
   return false;

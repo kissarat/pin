@@ -18,7 +18,10 @@ import BeautifulSoup
 import cStringIO
 import urllib2
 
-from mypinnings.database import connect_db, dbget
+
+from mypinnings.database import connect_db, dbget, load_sqla
+from models import Like
+
 db = connect_db()
 
 from mypinnings import auth
@@ -70,7 +73,7 @@ urls = (
     '/lists', 'PageBoards',
     '/browse', 'PageBrowse',
     '/category/(.*)', 'mypinnings.category_listing.PageCategory',
-    '/new-list', 'PageNewBoard',
+    #'/new-list', 'PageNewBoard',
     '/newaddpin', 'NewPageAddPin',
     '/newaddpinform', 'NewPageAddPinForm',
 
@@ -89,10 +92,10 @@ urls = (
     '/newconvo/(\d*)', 'PageNewConvo',
     '/convo/(\d*)', 'PageConvo',
     '/follow/(\d*)', 'PageFollow',
+    '/follow-list/(\d+)', 'FollowList',
     '/addfriend/(\d*)', 'PageAddFriend',
     '/preview', 'PagePreview',
-    '/like/(\d*)', 'PageLike',
-    '/unlike/(\d*)', 'PageUnlike',
+    '/like-unlike/(\d*)', 'PinLikeUnlike',
     '/users', 'PageUsers',
     '/notifications', 'PageNotifications',
     '/notif/(\d*)', 'PageNotif',
@@ -116,19 +119,18 @@ urls = (
     '/.*?/photos', 'PagePhotos',
     '/photos', 'PagePhotos',
     '/newalbum', 'PageNewAlbum',
+    '/ajax_album', 'PageAlbumAJAX',
     '/album/(\d*)', 'PageAlbum',
     '/album/(\d*)/remove', 'PageAlbum',
     '/newpic/(\d*)', 'PageNewPicture',
     '/photo/(\d*)', 'PagePhoto',
-    '/photo/(\d*)/remove', 'PageRemovePhoto',
     '/photo/(\d*)/default', 'PageDefaultPhoto',
-    '/photo/(\d*)/like', 'PageLikePhoto',
-    '/photo/(\d*)/dislike', 'PageDislikePhoto',
-    '/photo/(\d*)/comment', 'PageCommentPhoto',
-    '/background/(\d*)/like', 'PageLikeBackground',
-    '/background/(\d*)/dislike', 'PageDislikeBackground',
-    '/background/(\d*)/comment', 'PageCommentBackground',
-    '/background/(\d*)/remove', 'PageRemoveBackground',
+    '/background/(\d*)/default', 'PageDefaultBackground',
+    '/picture/(\d*)/album_default', 'PageAlbumDefaultPicture',
+    '/picture/(\d*)/remove', 'PageRemovePicture',
+    '/picture/(\d*)/like', 'PageLikePicture',
+    '/picture/(\d*)/dislike', 'PageDislikePicture',
+    '/picture/(\d*)/comment', 'PageCommentPicture',
     '/setprofilepic/(\d*)', 'PageSetProfilePic',
     '/setprivacy/(\d*)', 'PageSetPrivacy',
 
@@ -167,12 +169,15 @@ urls = (
     '/pwreset/(\d*)/(\d*)/(.*)/', 'mypinnings.recover_password.PasswordReset',
     '/recover_password_complete/', 'mypinnings.recover_password.RecoverPasswordComplete',
     '/getuserpins/(.*?)', 'GetUserPins',
+    '/(.*?)/list/(.*?)', 'PageList',
     '/(.*?)', 'PageProfile2',
     '/(.*?)/(.*?)', 'PageConnect2',
 
 )
 
 app = web.application(urls, globals())
+app.add_processor(load_sqla)
+
 mypinnings.session.initialize(app)
 sess = mypinnings.session.sess
 mypinnings.template.initialize(directory='t')
@@ -451,27 +456,27 @@ class PageBoards:
         return ltpl('boards', boards, user)
 
 
-class PageNewBoard:
-    _form = form.Form(
-        form.Textbox('name'),
-        form.Textarea('description'),
-        #form.Checkbox('private'),
-        form.Button('create'),
-    )
+# class PageNewBoard:
+#     _form = form.Form(
+#         form.Textbox('name'),
+#         form.Textarea('description'),
+#         #form.Checkbox('private'),
+#         form.Button('create'),
+#     )
 
-    def GET(self):
-        force_login(sess)
-        form = self._form()
-        return ltpl('addboard', form)
+#     def GET(self):
+#         force_login(sess)
+#         form = self._form()
+#         return ltpl('addboard', form)
 
-    def POST(self):
-        form = self._form()
-        if not form.validates():
-            return 'you need to fill in everything'
+#     def POST(self):
+#         form = self._form()
+#         if not form.validates():
+#             return 'you need to fill in everything'
 
-        db.insert('boards', user_id=sess.user_id, name=form.d.name,
-                  description=form.d.description, public=False)
-        raise web.seeother('/lists')
+#         db.insert('boards', user_id=sess.user_id, name=form.d.name,
+#                   description=form.d.description, public=False)
+#         raise web.seeother('/lists')
 
 
 def make_tag(tag):
@@ -511,7 +516,9 @@ class NewPageAddPinForm:
 
         data = api_request("api/image/upload", "POST", data_to_send, files)
         if data['status'] == 200:
-            return '/p/%s' % data['data']['external_id']
+            # return '/p/%s' % data['data']['external_id']
+            redirect_url = "/profile/%s" % (sess.user_id)
+            return redirect_url
 
 
 class NewPageAddPin:
@@ -585,7 +592,9 @@ class PageAddPinUrl:
 
         data = api_request("api/image/upload", "POST", data, files)
         if data['status'] == 200:
-            return '/p/%s' % data['data']['external_id']
+            # return '/p/%s' % data['data']['external_id']
+            redirect_url = "/profile/%s" % (sess.user_id)
+            return redirect_url
 
 
 class PageRemoveRepin:
@@ -635,7 +644,7 @@ class PageRepin:
 
         data = {
             'csid_from_client': "",
-            'user_id': sess.user_id
+            'user_id': sess.user_id,
         }
 
         boards = api_request("/api/profile/userinfo/boards",
@@ -773,7 +782,7 @@ class PagePin:
 
         pin = db.query('''
             select
-                pins.*, users.name as user_name, users.pic as user_pic, users.username as user_username,
+                pins.*, users.name as user_name, pictures.resized_url as user_pic, users.username as user_username,
                 ''' + query1 + ''' as liked,
                 count(distinct l2) as likes,
                 count(distinct p1) as repin_count
@@ -783,8 +792,9 @@ class PagePin:
                 ''' + query2 + '''
                 left join likes l2 on l2.pin_id = pins.id
                 left join pins p1 on p1.repin = pins.id
+                left join pictures on pictures.id = users.pic_id
             where pins.external_id = $external_id
-            group by pins.id, users.id''', vars=qvars)
+            group by pins.id, users.id, pictures.id''', vars=qvars)
         if not pin:
             return 'pin not found'
 
@@ -802,9 +812,10 @@ class PagePin:
 
         comments = db.query('''
             select
-                comments.*, users.pic as user_pic, users.username as user_username, users.name as user_name
+                comments.*, pictures.resized_url as user_pic, users.username as user_username, users.name as user_name
             from comments
                 join users on users.id = comments.user_id
+                left join pictures on pictures.id = users.pic_id
             where pin_id = $id
             order by timestamp asc''', vars={'id': pin.id})
 
@@ -977,7 +988,7 @@ class PageProfile2:
         """
         Returns user profile information by username
         """
-        force_login(sess)
+        # force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
         data = {"csid_from_client": ""}
 
@@ -995,57 +1006,50 @@ class PageProfile2:
 
         photos_context = {
             "csid_from_client": "",
+            "album_type": "photos",
             "user_id": user['id']}
 
         if logintoken:
             photos_context['logintoken'] = logintoken
 
-        photos = api_request("/api/profile/userinfo/get_photos",
+        photos = api_request("/api/profile/userinfo/get_pictures",
                              data=photos_context)\
             .get("data", {}).get("photos", [])
 
         photos = [pin_utils.dotdict(photo) for photo in photos]
         user['photos'] = photos
 
-        likes_data = {
+        backgrounds_context = {
             "csid_from_client": "",
-            "bg_id": user['id']}
+            "album_type": "backgrounds",
+            "user_id": user['id']}
 
         if logintoken:
-            likes_data['logintoken'] = logintoken
+            backgrounds_context['logintoken'] = logintoken
 
-        likes_data = api_request("/api/social/background/get_likes",
-                             data=likes_data)\
-            .get("data", {})
-        user['bg_likes'] = pin_utils.dotdict(likes_data)
+        backgrounds = api_request("/api/profile/userinfo/get_pictures",
+                             data=backgrounds_context)\
+            .get("data", {}).get("photos", [])
 
-        comments_data = {
-            "csid_from_client": "",
-            "bg_id": user['id']}
-
-        if logintoken:
-            comments_data['logintoken'] = logintoken
-
-        comments_data = api_request("/api/social/background/get_comments",
-                             data=comments_data)\
-            .get("data", {})
-        user['bg_comments'] = pin_utils.dotdict(comments_data)
-
+        backgrounds = [pin_utils.dotdict(background) for background in backgrounds]
+        user['backgrounds'] = backgrounds
 
         user = pin_utils.dotdict(user)
 
         # Updating api_request data with user_id
         data['user_id'] = user.id
-
+        data['current_user_id'] = sess.user_id
         # Getting boards of a given user
         boards = api_request("/api/profile/userinfo/boards",
                              data=data).get("data", [])
 
+        # Getting pin ids from given boards
         pins_ids = []
         for board in boards:
             if len(board['pins_ids']) > 0:
                 pins_ids.append(board['pins_ids'][0])
 
+        # Getting pins from pin ids
         logintoken = convert_to_logintoken(sess.user_id)
         data_for_image_query = {
             "csid_from_client": '',
@@ -1055,16 +1059,13 @@ class PageProfile2:
         data_from_image_query = api_request("api/image/query",
                                             "POST",
                                             data_for_image_query)
-
         boards_first_pins = {}
         if data_from_image_query['status'] == 200:
             for pin in data_from_image_query['data']['image_data_list']:
                 boards_first_pins[pin['board_id']] = pin
 
-        boards_list = [pin_utils.dotdict(board) for board in boards]
-        # Takes only boards with pins
-        boards = [board for board in boards_list if len(board.get("pins_ids")) > 0]
 
+        boards = [pin_utils.dotdict(board) for board in boards]
 
         # Getting categories. Required in case when user
         # is editing own pins.
@@ -1123,7 +1124,6 @@ class PageProfile2:
             pins = data_from_image_query['data']['image_data_list']
 
         pins = [pin_utils.dotdict(pin) for pin in pins]
-
         # Handle ajax request to pins
         ajax = int(web.input(ajax=0).ajax)
         if ajax:
@@ -1161,6 +1161,22 @@ class PageFollow:
         except: pass
         raise web.seeother('/profile/%d' % user_id)
 
+
+class FollowList:
+    """
+    Site view which allows to follow list
+    """
+    def GET(self, board_id):
+        force_login(sess)
+        logintoken = convert_to_logintoken(sess.user_id)
+        url = "/api/image/follow-list"
+        ctx = {
+            "logintoken": logintoken,
+            "csid_from_client": '',
+            "board_id": board_id
+        }
+        result = api_request(url, data=ctx).get("data")
+        return result.get('status')
 
 class PageAddFriend:
     def GET(self, user_id):
@@ -1329,33 +1345,28 @@ class PagePreview:
             return json.dumps({'status': 'error'})
 
 
-class PageLike:
+class PinLikeUnlike:
     def GET(self, pin_id):
         force_login(sess)
         pin_id = int(pin_id)
-
-        try:
-            db.insert('likes', user_id=sess.user_id, pin_id=pin_id)
-        except:
-            pass
-        results = db.where(table='pins', id=pin_id)
-        for row in results:
-            external_id = row.external_id
+        logintoken = convert_to_logintoken(sess.user_id)
+        # Calling like API method.
+        url = "/api/social/pin/like-unlike"
+        context = {"csid_from_client": "",
+                   "logintoken": logintoken,
+                   "pin_id": pin_id}
+        api_request(url, data=context)
+        # Getting pin, to access external id
+        url = "/api/image/query"
+        context = {
+            "csid_from_client": "",
+            "logintoken": logintoken,
+            "query_params": pin_id
+        }
+        data = api_request(url, data=context).get("data")
+        pin = data.get("image_data_list")
+        external_id = pin[0].get("external_id")
         raise web.seeother('/p/%s' % external_id)
-
-
-class PageUnlike:
-    def GET(self, pin_id):
-        force_login(sess)
-        pin_id = int(pin_id)
-
-        db.delete('likes', where='user_id = $uid and pin_id = $pid',
-                  vars={'uid': sess.user_id, 'pid': pin_id})
-        results = db.where(table='pins', id=pin_id)
-        for row in results:
-            external_id = row.external_id
-        raise web.seeother('/p/%s' % external_id)
-
 
 class PageUsers:
     def GET(self):
@@ -1566,6 +1577,42 @@ class PageAlbum:
         return ltpl('album', user, photos, carousel)
 
 
+class PageAlbumAJAX:
+    def GET(self):
+        # force_login(sess)
+        logintoken = convert_to_logintoken(sess.user_id)
+        data = {"csid_from_client": ""}
+        album_type = web.input().get("request_type")
+
+        # Getting profile of a given user
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "adfasdf",
+            "id": web.input().get("user_id"),
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        if len(user) == 0:
+            return u"Profile was not found"
+
+        photos_context = {
+            "csid_from_client": "",
+            "album_type": album_type,
+            "user_id": user['id']}
+
+        if logintoken:
+            photos_context['logintoken'] = logintoken
+        # import ipdb; ipdb.set_trace()
+        photos = api_request("/api/profile/userinfo/get_pictures",
+                             data=photos_context)\
+            .get("data", {}).get("photos", [])
+
+        photos = [pin_utils.dotdict(photo) for photo in photos]
+        user['photos'] = photos
+        return tpl('album_details', user)
+
+
 class PageNewPicture:
     def upload_image(self, pid):
         image = web.input(pic={}).pic
@@ -1636,19 +1683,20 @@ class PagePhoto:
         return ltpl('photo', photo, user.pic == pid)
 
 
-class PageRemovePhoto:
+class PageRemovePicture:
     def GET(self, pid):
         force_login(sess)
         pid = int(pid)
         logintoken = convert_to_logintoken(sess.user_id)
 
-        photos_context = {
+        pictures_context = {
             "csid_from_client": "",
-            "photo_id": pid,
+            "picture_id": pid,
             "logintoken": logintoken}
 
         data = api_request("/api/profile/userinfo/remove_pic",
-                           data=photos_context)
+                           data=pictures_context)
+        # import ipdb; ipdb.set_trace()
 
         profile_url = "/api/profile/userinfo/info"
         profile_owner_context = {
@@ -1667,24 +1715,10 @@ class PageDefaultPhoto:
         pid = int(pid)
         logintoken = convert_to_logintoken(sess.user_id)
 
-        photos_context = {
-            "csid_from_client": "",
-            "user_id": sess.user_id}
-
-        photos = api_request("/api/profile/userinfo/get_photos",
-                             data=photos_context)\
-            .get("data", []).get("photos", [])
-
-        for photo in photos:
-            if photo['id'] == pid:
-                pass
-
-                break
-
         profile_update_url = "/api/profile/userinfo/update"
         profile_update_owner_context = {
             "csid_from_client": "",
-            "pic": pid,
+            "pic_id": pid,
             "logintoken": logintoken}
         api_request(profile_update_url,
                     data=profile_update_owner_context)
@@ -1700,28 +1734,77 @@ class PageDefaultPhoto:
         return web.redirect('/%s' % (user['username']))
 
 
-class PageLikePhoto:
+class PageDefaultBackground:
     def GET(self, pid):
-        return like_dislike_photo(pid, "like")
+        force_login(sess)
+        pid = int(pid)
+        logintoken = convert_to_logintoken(sess.user_id)
+
+        profile_update_url = "/api/profile/userinfo/update"
+        profile_update_owner_context = {
+            "csid_from_client": "",
+            "bg_id": pid,
+            "logintoken": logintoken}
+        api_request(profile_update_url,
+                    data=profile_update_owner_context)
+
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "",
+            "id": sess.user_id,
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        return web.redirect('/%s' % (user['username']))
 
 
-class PageDislikePhoto:
+class PageAlbumDefaultPicture:
     def GET(self, pid):
-        return like_dislike_photo(pid, "dislike")
+        pid = int(pid)
+        logintoken = convert_to_logintoken(sess.user_id)
+
+        update_url = "/api/profile/userinfo/album_default_picture"
+        update_context = {
+            "csid_from_client": "",
+            "picture_id": pid,
+            "logintoken": logintoken}
+        data = api_request(update_url,
+                           data=update_context)
+
+        profile_url = "/api/profile/userinfo/info"
+        profile_owner_context = {
+            "csid_from_client": "",
+            "id": sess.user_id,
+            "logintoken": logintoken}
+        user = api_request(profile_url, data=profile_owner_context)\
+            .get("data", [])
+
+        return web.redirect('/%s#photos_list' % (user['username']))
 
 
-def like_dislike_photo(pid, action):
+class PageLikePicture:
+    def GET(self, pid):
+        return like_dislike_picture(pid, "like")
+
+
+class PageDislikePicture:
+    def GET(self, pid):
+        return like_dislike_picture(pid, "dislike")
+
+
+def like_dislike_picture(pid, action):
     # force_login(sess)
     pid = int(pid)
     logintoken = convert_to_logintoken(sess.user_id)
 
     photos_context = {
         "csid_from_client": "",
-        "photo_id": pid,
+        "picture_id": pid,
         "logintoken": logintoken,
         "action": action}
 
-    data = api_request("/api/social/photo/like_dislike",
+    data = api_request("/api/social/picture/like_dislike",
                          data=photos_context)
 
     return_data = {}
@@ -1737,7 +1820,7 @@ def like_dislike_photo(pid, action):
     return json.dumps(return_data)
 
 
-class PageCommentPhoto:
+class PageCommentPicture:
     def POST(self, pid):
         comment = web.input(comment='').comment
 
@@ -1746,73 +1829,11 @@ class PageCommentPhoto:
 
         photo_comment_context = {
             "csid_from_client": "",
-            "photo_id": pid,
+            "picture_id": pid,
             "logintoken": logintoken,
             "comment": comment}
 
-        data = api_request("/api/social/photo/add_comment",
-                             data=photo_comment_context)
-
-        comment = None
-
-        if data['status'] == 200:
-            data = data.get('data', {})
-            comment = data.get('comment', None)
-
-        return tpl('comment', comment)
-
-
-class PageLikeBackground:
-    def GET(self, bg_id):
-        return like_dislike_background(bg_id, "like")
-
-
-class PageDislikeBackground:
-    def GET(self, bg_id):
-        return like_dislike_background(bg_id, "dislike")
-
-
-def like_dislike_background(bg_id, action):
-    # force_login(sess)
-    bg_id = int(bg_id)
-    logintoken = convert_to_logintoken(sess.user_id)
-
-    photos_context = {
-        "csid_from_client": "",
-        "bg_id": bg_id,
-        "logintoken": logintoken,
-        "action": action}
-
-    data = api_request("/api/social/background/like_dislike",
-                         data=photos_context)
-
-    return_data = {}
-
-    if data['status'] == 200:
-        data = data.get('data', {})
-        if data['count_likes'] > 0:
-            return_data['likes'] = str(data['count_likes']) + \
-                " like" + ('s' if data['count_likes'] != 1 else '')
-        else:
-            return_data['likes'] = ""
-
-    return json.dumps(return_data)
-
-
-class PageCommentBackground:
-    def POST(self, bg_id):
-        comment = web.input(comment='').comment
-
-        bg_id = int(bg_id)
-        logintoken = convert_to_logintoken(sess.user_id)
-
-        photo_comment_context = {
-            "csid_from_client": "",
-            "bg_id": bg_id,
-            "logintoken": logintoken,
-            "comment": comment}
-
-        data = api_request("/api/social/background/add_comment",
+        data = api_request("/api/social/picture/add_comment",
                              data=photo_comment_context)
 
         comment = None
@@ -1958,6 +1979,7 @@ class PageViewCategory:
             group by tags.tags, categories.id, pins.id, users.id order by timestamp desc limit %d offset %d''' % (PIN_COUNT, offset * PIN_COUNT)
 
         pins = list(db.query(query, vars={'cid': cid}))
+
         return ltpl('category', pins, category, name, offset, PIN_COUNT)
 
 
@@ -1991,23 +2013,69 @@ class PageChangeBG:
             "csid_from_client": '',
             "logintoken": logintoken
         }
-
         data = api_request("api/profile/userinfo/upload_bg",
                            "POST",
                            data_to_send,
                            files)
-
         if data['status'] == 200:
-            return True
+            return data
         return False
 
 
     def POST(self):
         force_login(sess)
-        self.upload_image()
+        data = self.upload_image()
+        web.header('Content-Type', 'application/json')
+        if data:
+            response_data = {
+                "status": "ok"
+            }
+            response_data.update(data.get("data", {}))
+        else:
+            response_data = {
+                "status": "error",
+                "message": "API error. Please email administrator"
+            }
+        return json.dumps(response_data)
 
-        db.update('users', where='id = $id', vars={'id': sess.user_id}, bg=True)
-        raise web.seeother('/profile/%d' % sess.user_id)
+
+# class PageChangeBG:
+#     def upload_image(self):
+#         file_data = web.input(file={}).file
+
+
+
+#         new_filename = os.path.join('static',
+#                                     'tmp',
+#                                     '{}'.format(file_data.filename))
+
+#         with open(new_filename, 'w') as f:
+#             f.write(file_data.file.read())
+
+#         files = {'file': open(new_filename)}
+
+#         logintoken = convert_to_logintoken(sess.user_id)
+
+#         data_to_send = {
+#             "csid_from_client": '',
+#             "logintoken": logintoken
+#         }
+
+#         data = api_request("api/profile/userinfo/upload_bg",
+#                            "POST",
+#                            data_to_send,
+#                            files)
+
+#         if data['status'] == 200:
+#             return True
+#         return False
+
+
+#     def POST(self):
+#         force_login(sess)
+#         self.upload_image()
+
+#         raise web.seeother('/profile/%d' % sess.user_id)
 
 
 class PageRemoveBg:
@@ -2307,6 +2375,32 @@ class PageSearchItems:
                 return json_pins(pins, 'horzpin')
         return ltpl('search', pins, orig or hashtag)
 
+class PageList(object):
+    """
+    This class is responsible for rendering list individual page
+    """
+    def GET(self, profile_name, board_name):
+        # force_login(sess)
+
+        # Getting board infor
+        url = "/api/image/query-board"
+        ctx = {"csid_from_client": "", "board_name": board_name,
+               "username": profile_name}
+        board_info = api_request(url, data=ctx).get("data")
+
+        # Getting images
+        url = "/api/image/query"
+        ctx = {"csid_from_client": "",
+               "query_params": board_info["img_ids"]}
+        pins_info = api_request(url, data=ctx).get("data")
+        pins = [pin_utils.dotdict(pin)
+                for pin in pins_info.get("image_data_list")]
+
+        ajax = int(web.input(ajax=0).ajax)
+        if ajax:
+            return tpl('list', pins, "horzpin3")
+
+        return ltpl('list', pins)
 
 class PageSearchPeople:
     def GET(self):
@@ -2344,5 +2438,4 @@ def csrf_protected(f):
     return decorated
 
 if __name__ == '__main__':
-
     app.run()

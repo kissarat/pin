@@ -1,8 +1,8 @@
 $def with (pin)
-$if pin.id and pin.category:
+$if pin.id:
   <div class='pin'>
     <div class='buttons'>
-      $if pin.repin == 0:
+      $if not pin.repin:
         <a href='/add-to-your-own-getlist/$pin.id' target='_blank' class='button small-pad'>Add to Getlist</a>
       $else:
         <a target='_blank' href='/add-to-your-own-getlist/$pin.repin' class='button small-pad'>Add to Getlist</a>
@@ -38,7 +38,7 @@ $if pin.id and pin.category:
             <img class='left' src='/static/default-avatar.png'/>
         </a>
         <div class='right'>
-          <p class='faded small'><a href='/profile/$pin.user_id'><b>$pin.user_name</b></a><br/>In <a href='/category/$pin.category'><b>$pin.cat_name</b></a></p>
+          <p class='faded small'><a href='/profile/$pin.user_id'><b>$pin.user_name</b></a><br/> <a href='/category/$pin.category'><b>$pin.cat_name</b></a></p>
         </div>
       </div>
       $if pin.tags:

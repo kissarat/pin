@@ -5,25 +5,26 @@ $if first_time is not None:
     <p class='pad-top'><button id='next'>Next</button> <button id='skip'>Skip</button></p>
   </div>  
   <script type='text/javascript' src='/static/firsttime.js'></script>
-$:tpl('pins', pins)
+$if 'user_id' in sess:
+    $:tpl('pins', pins)
 
-
+<div class="block-100px-height"></div>
 <div id="mainPage">
-        <div class="pinRoll">
-            <div id="firstRow">
-                <!--Roll Pins On Main Page-->
-            </div>
-            <div id="secondRow">
-                <!--Roll Pins On Main Page-->
-            </div>
-            <div id="thirdRow">
-                <!--Roll Pins On Main Page-->
-            </div>
-            <div id="fourthRow">
-                <!--Roll Pins On Main Page-->
-            </div>
-        </div>  
-         <div id="mainFooter">
+        $#<div class="pinRoll">
+        $#    <div id="firstRow">
+        $#        <!--Roll Pins On Main Page-->
+        $#    </div>
+        $#    <div id="secondRow">
+        $#        <!--Roll Pins On Main Page-->
+        $#    </div>
+        $#    <div id="thirdRow">
+        $#        <!--Roll Pins On Main Page-->
+        $#    </div>
+        $#    <div id="fourthRow">
+        $#        <!--Roll Pins On Main Page-->
+        $#    </div>
+        $#</div>
+    <div id="mainFooter">
         <p>
             <b>find the products you love, from the people and stores you find interesting.</b></p>
             <p>

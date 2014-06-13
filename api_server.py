@@ -11,7 +11,7 @@ import api.views.social
 import api.views.search
 import api.views.categories
 import api.views.websearch
-
+from mypinnings.database import load_sqla
 
 class redirect:
     """
@@ -38,11 +38,13 @@ urls = (
 
     # API to upload images
     "/image/upload", api.views.images.ImageUpload,
+    "/image/query-board", api.views.images.QueryBoardInfo,
     "/image/query", api.views.images.ImageQuery,
     "/image/mp", api.views.images.ManageProperties,
     "/image/categorize", api.views.images.Categorize,
     "/image/query/category", api.views.images.QueryCategory,
     "/image/query/hashtags", api.views.images.QueryHashtags,
+    "/image/follow-list", api.views.images.FollowOrUnfollowList,
     "/image/query/get_by_hashtags", \
         api.views.images.QueryGetByHashtags,
 
@@ -58,9 +60,9 @@ urls = (
     "/profile/test-username", api.views.profile.TestUsernameOrEmail,
     "/profile/userinfo/upload_pic", api.views.profile.PicUpload,
     "/profile/userinfo/upload_bg", api.views.profile.BgUpload,
-    "/profile/userinfo/get_photos", api.views.profile.GetProfilePictures,
-    "/profile/userinfo/remove_pic", api.views.profile.PicRemove,
-    "/profile/userinfo/remove_bg", api.views.profile.BgRemove,
+    "/profile/userinfo/get_pictures", api.views.profile.GetPictures,
+    "/profile/userinfo/remove_pic", api.views.profile.PictureRemove,
+    "/profile/userinfo/album_default_picture", api.views.profile.AlbumDefaultPic,
 
     # API to user profile: change user password
     "/profile/pwd", api.views.profile.ChangePassword,
@@ -75,23 +77,15 @@ urls = (
         api.views.social.SocialQueryMessages,
     "/social/query/conversations", \
         api.views.social.SocialQueryConversations,
-    "/social/photo/add_comment", \
-        api.views.social.AddCommentToPhoto,
-    "/social/photo/like_dislike", \
-        api.views.social.LikeDislikePhoto,
-    "/social/photo/get_comments", \
-        api.views.social.GetCommentsToPhoto,
-    "/social/photo/get_likes", \
-        api.views.social.GetLikesToPhoto,
-    "/social/background/add_comment", \
-        api.views.social.AddCommentToBackground,
-    "/social/background/like_dislike", \
-        api.views.social.LikeDislikeBackground,
-    "/social/background/get_comments", \
-        api.views.social.GetCommentsToBackground,
-    "/social/background/get_likes", \
-        api.views.social.GetLikesToBackground,
-
+    "/social/picture/add_comment", \
+        api.views.social.AddCommentToPicture,
+    "/social/picture/like_dislike", \
+        api.views.social.LikeDislikePicture,
+    # "/social/photo/get_comments", \
+    #     api.views.social.GetCommentsToPhoto,
+    # "/social/photo/get_likes", \
+    #     api.views.social.GetLikesToPhoto,
+    "/social/pin/like-unlike", api.views.social.LikeOrUnlikePin,
 
     # API for search: items and users
     "/search/items", api.views.search.SearchItems,
@@ -105,6 +99,7 @@ urls = (
     )
 web.config.debug = True
 api_app = web.application(urls, globals(), autoreload=True)
+api_app.add_processor(load_sqla)
 
 if __name__ == "__main__":
     api_app.run()
