@@ -4,6 +4,7 @@ import uuid
 import datetime
 import math
 import random
+import json
 
 from mypinnings import database
 from api.views.base import BaseAPI
@@ -205,3 +206,13 @@ def make_query(q):
         q = q.replace('  ', ' ')
 
     return q.replace(' ', ' | ')
+
+
+class SearchNames(BaseAPI):
+    def GET(self):
+        q = web.input().q
+        response = []
+        if q:
+            query = 'select username from users where username ilike $name order by username asc limit 10'
+            response = [user.username for user in db.query(query, vars={'name': q + '%'})]
+        return json.dumps(response)
