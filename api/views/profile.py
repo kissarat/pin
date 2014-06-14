@@ -633,7 +633,7 @@ class QueryPins(BaseAPI):
 
         pins = []
         current_row = None
-        pins_counter = len(results)
+        pins_counter = 0
         owned_pins_counter = 0
         for row in results:
             if not row.id:
@@ -654,6 +654,7 @@ class QueryPins(BaseAPI):
                 tag = row.tags
                 if tag not in current_row.tags:
                     current_row.tags.append(tag)
+            pins_counter += 1
 
         data = {
             "total": pins_counter,
