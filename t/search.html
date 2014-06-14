@@ -14,10 +14,11 @@ $def with (pins, query, hashtag)
         <div class='left horz-pins'>
             $:tpl('pins', pins, 'horzpin')
         </div>
-        <div class='content categories bold'>
-            <h1>Search for..</h1>
-            <a href='/search/items?q=$query'>Pins</a>
-            <a href='/search/people?q=$query'>People</a>
-    </div>
+        $if not hashtag:
+            <div class='content categories bold'>
+                <h1>Search for..</h1>
+                <a href='/search/items?q=$query'>Pins</a>
+                <a href='/search/people?q=$query'>People</a>
+            </div>
 </div>
 <!-- <script type='text/javascript' src='/static/category.js'></script> -->
