@@ -145,7 +145,10 @@ $(document).ready(function() {
 
     var fetch_images = function(evnt){
         evnt.preventDefault();
-        var url_input_to_fetch = $(this).parent().find(".fetch-url");
+        // var url_input_to_fetch = $(this).parent().find(".fetch-url");
+        var url_input_to_fetch = $("input[name=url]");
+        console.log(url_input_to_fetch.val());
+
         $.ajax({
             url: "/preview",
             data: { url: url_input_to_fetch.val(), },
@@ -158,7 +161,7 @@ $(document).ready(function() {
             complete: function(xhr) {
                var data = jQuery.parseJSON(xhr.responseText);
                if(data.status !== "error"){
-                    $(".progress").hide();
+                    $("body").removeClass("loading");
                     $("#websitelinkweb").val(url_input_to_fetch.val());
                     // $( "#web_getlist_form" ).clearForm();
                     url_input_to_fetch.attr("value", "");
