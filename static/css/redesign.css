@@ -212,7 +212,7 @@
 .header
 {
     position: relative;
-    z-index: 5;
+    z-index: 15;
     background-color: #02a4ef;
     padding: 0;
     border-top: 9px solid #02a4ef;
