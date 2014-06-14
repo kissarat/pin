@@ -4,8 +4,16 @@ $(document).ready(function() {
     function getMeta(url) {
         var img = new Image();
        img.src = url;
-       img.onerror = function(){gallery.loadError();}
-       img.onload = function(){gallery.setdata({url: url, w: this.width, h: this.height});}
+       img.onerror = function() {
+           gallery.loadError();
+       };
+       img.onload = function() {
+           gallery.setdata({
+               url: url,
+               w: this.width,
+               h: this.height
+           });
+       }
     }
     $( "#dialog-form" ).dialog({
 	        autoOpen: false,
@@ -148,32 +156,24 @@ $(document).ready(function() {
     $.ajax({
         url:"/preview",
         data:{
-        url: url_input_to_fetch.val(),
+        url: url_input_to_fetch.val()
         },
         beforeSend: function(xhr, opts) {
-            $(".loading").show();
+            $( "#getlist-from-web" ).dialog("close");
+            $(".block-loading").show();
         },
         success: function() {
-            $(".loading").show();
         },
 	    complete: function(xhr) {
-	       var data = jQuery.parseJSON(xhr.responseText);
-           if(data.status !== "error"){
-	            $(".progress").hide();
-	            $("#websitelinkweb").val(url_input_to_fetch.val());
-	            // $( "#web_getlist_form" ).clearForm();
-                url_input_to_fetch.attr("value", "");
-	            $( "#getlist-from-web" ).dialog("close");
-	            var percentVal = '100%';
-                barweb.width(percentVal)
-                percentweb.html(percentVal);
-                //$( "#addpindialogformweb" ).dialog("open");
-                //$("#commentsweb").focus();
-                initgallery(data);
-            }else{
+            var data = jQuery.parseJSON(xhr.responseText);
+            if ("error" == data.status) {
                 $("#statusweb").html("please provide a valid image url");
                 return false;
             }
+            if (1 != data.lengthTotal)
+                $("#websitelinkweb").val(url_input_to_fetch.val());
+            $("#getlist-from-web").clearForm();
+            initgallery(data);
 	    }
     })});
 
@@ -183,8 +183,8 @@ $(document).ready(function() {
             $('#controls-web').hide();
         else
             $('#controls-web').show();
-        gallery.data = new Array();
-        for(i=0; i<data["images"].length;i++){
+        gallery.data = [];
+        for(var i=0; i<data["images"].length; i++){
             getMeta(data["images"][i]);
         }
 
@@ -194,27 +194,27 @@ $(document).ready(function() {
 
     function getdata(){
         var data = {
-            'title':$("#title").val(),
-            'weblink':$("#weblink").val(),
-            'lists':$("#board").val(),
-            'comments':$("#comments").val(),
-            'fname':$("#fname").val(),
-            'hashtags':$("#hashtag").val()
+            'title':    $("#title").val(),
+            'weblink':  $("#weblink").val(),
+            'lists':    $("#board").val(),
+            'comments': $("#comments").val(),
+            'fname':    $("#fname").val(),
+            'hashtags': $("#hashtag").val()
         }
         return data
     }
 
     function getdataweb(){
         var data = {
-            'title':$("#titleweb").val(),
-            'link':$("#weblinkweb").val(),
+            'title':    $("#titleweb").val(),
+            'link':     $("#weblinkweb").val(),
             'description':$("#commentsweb").val(),
             'image_url':$("#image_urlweb").val(),
-            'list':$("#boardweb").val(),
-            'price':$("input:radio[name='price_range']:checked").val()||'',
+            'list':     $("#boardweb").val(),
+            'price':    $("input:radio[name='price_range']:checked").val() || '',
             'websiteurl':$("#websitelinkweb").val(),
             'board_name':'',
-            'hashtags':$("#hashtagweb").val()
+            'hashtags': $("#hashtagweb").val()
         }
         return data
     }
@@ -262,22 +262,22 @@ $(document).ready(function() {
         if(title.val()===""){
             errors.push(title);
         }else{
-            title.attr("style", "");
+            title.removeAttr("style");
         }
         if(weblink.val()===""){
             errors.push(weblink);
         }else{
-            weblink.attr("style", "");
+            weblink.removeAttr("style");
         }
         if(list.val()===""){
             errors.push(list);
         }else{
-            list.attr("style", "");
+            list.removeAttr("style");
         }
         if (errors.length>0){
             $("body").removeClass("loading");
-            for (i=0;i<errors.length;i++){
-                if(errors[i] instanceof jQuery){
+            for (var i=0 ;i<errors.length; i++) {
+                if (errors[i] instanceof jQuery) {
                     $.each(errors[i], function(i,v){
                         $(v).attr("style", "outline:1px solid red;");
                     });
@@ -304,12 +304,12 @@ $(document).ready(function() {
         if(title.val()===""){
             errors.push(title);
         }else{
-            title.attr("style", "");
+            title.removeAttr("style");
         }
         if(list.val()===""){
             errors.push(list);
         }else{
-            list.attr("style", "");
+            list.removeAttr("style");
         }
         if (errors.length>0){
             for (i=0;i<errors.length;i++){
@@ -333,31 +333,28 @@ $(document).ready(function() {
     }
 
     var gallery = {
-        data: new Array(),
+        data: [],
         element: $("#slide-imageweb"),
-        setdata: function(data){
-            this.lengthTotal = this.lengthTotal - 1;
-            if(data.w>200 ||data.h>200){
-                this.data.push(data);
-            }
-
+        show: function() {
             if(this.lengthTotal===0){
                 this.len = this.data.length;
+                $(".block-loading").hide();
                 $( "#addpindialogformweb" ).dialog("open");
                 $("#commentsweb").focus();
                 this.init();
                 this.showitem();
             }
         },
+        setdata: function(data){
+            this.lengthTotal = this.lengthTotal - 1;
+            if(data.w>200 ||data.h>200){
+                this.data.push(data);
+            }
+            this.show();
+        },
         loadError: function(){
             this.lengthTotal = this.lengthTotal - 1;
-            if(this.lengthTotal===0){
-                this.len = this.data.length;
-                $( "#addpindialogformweb" ).dialog("open");
-                $("#commentsweb").focus();
-                this.init();
-                this.showitem();
-            }
+            this.show();
         },
         next: function(){
             if (this.current<this.len-1){
@@ -426,6 +423,23 @@ $(document).ready(function() {
         $('#board_selection_layerweb').show();
     });
 
+    $('[list=search_names]').keyup(function() {
+        var request = new XMLHttpRequest();
+        request.onload = function() {
+            $('#search_names').empty();
+            var names = JSON.parse(request.responseText);
+            for(var i in names)
+                $('<option/>').val(names[i]).appendTo('#search_names');
+        };
+        request.open('GET', '/api/search/names?q=' + this.value);
+        request.send();
+//            $.getJSON('/api/search/names?q=' + this.value, function(names) {
+//                $('#search_names').empty();
+//                for(var i in names)
+//                    $('<option/>').val(names[i]).appendTo('#search_names');
+//            });
+    });
+
     });
 
 }).call(this);
@@ -435,7 +449,7 @@ function load_image_from_url(image, url, title) {
     $('#url').val(image);
     $("#websitelinkweb").val(url);
     $('#titleweb').val(title);
-    $('#web_getlist_link').click();
+    //$('#web_getlist_link').click();
     $('#fetch-images').click();
 }
 

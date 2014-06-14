@@ -1,9 +1,15 @@
-$def with (pins, query)
+$def with (pins, query, hashtag)
 <h1>Search results for items: "$query"</h1>
 <hr>
 <div class='clearfix category-disp'>
-    <div id="search_results"></div>
-    <button id="more_results" onclick="websearch_add_images()">More results</button>
+    $if not hashtag:
+        <div id="search_results"></div>
+        <button id="more_results" onclick="websearch_add_images()">More results</button>
+        <script type="text/javascript">
+            var query = '$query';
+            query = query.replace(/[ \t"'#&%=]+/g, '+');
+            jQuery(websearch_add_images);
+    </script>
     $if None != pins:
         <div class='left horz-pins'>
             $:tpl('pins', pins, 'horzpin')
@@ -12,11 +18,6 @@ $def with (pins, query)
             <h1>Search for..</h1>
             <a href='/search/items?q=$query'>Pins</a>
             <a href='/search/people?q=$query'>People</a>
-        </div>
+    </div>
 </div>
 <!-- <script type='text/javascript' src='/static/category.js'></script> -->
-<script type="text/javascript">
-    var query = '$query';
-    query = query.replace(/[ \t"'#&%=]+/g, '+');
-    jQuery(websearch_add_images);
-</script>
