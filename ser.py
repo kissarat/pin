@@ -2338,7 +2338,7 @@ class PageSearchItems:
             return web.seeother('/' + orig)
 
         hashtag = web.input(h='').h
-        if SEARCH_PINS:
+        if hashtag or SEARCH_PINS:
             offset = int(web.input(offset=1).offset)
             ajax = int(web.input(ajax=0).ajax)
 
