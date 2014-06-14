@@ -147,7 +147,9 @@ $(document).ready(function() {
         evnt.preventDefault();
         // var url_input_to_fetch = $(this).parent().find(".fetch-url");
         var url_input_to_fetch = $("input[name=url]");
-        console.log(url_input_to_fetch.val());
+        if (url_input_to_fetch.val().length == 0 ){
+            var url_input_to_fetch = $("input[name=url]").eq(1);
+        }
 
         $.ajax({
             url: "/preview",
