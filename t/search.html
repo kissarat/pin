@@ -1,5 +1,8 @@
 $def with (pins, query, hashtag)
-<h1>Search results for items: "$query"</h1>
+$if hashtag:
+    <h1>Search results for items with tag #$hashtag</h1>
+$else:
+    <h1>Search results for items: "$query"</h1>
 <hr>
 <div class='clearfix category-disp'>
     $if not hashtag:

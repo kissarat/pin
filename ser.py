@@ -2337,7 +2337,7 @@ class PageSearchItems:
         if 1 == users_found[0].c:
             return web.seeother('/' + orig)
 
-        hashtag = web.input(h='').h
+        hashtag = orig[1:] if orig.startswith('#') else web.input(h='').h
         if hashtag or SEARCH_PINS:
             offset = int(web.input(offset=1).offset)
             ajax = int(web.input(ajax=0).ajax)
@@ -2379,6 +2379,7 @@ class PageSearchItems:
                 return json_pins(pins, 'horzpin')
         return ltpl('search', pins, orig, hashtag)
 
+
 class PageList(object):
     """
     This class is responsible for rendering list individual page
@@ -2405,6 +2406,7 @@ class PageList(object):
             return tpl('list', pins, "horzpin3")
 
         return ltpl('list', pins)
+
 
 class PageSearchPeople:
     def GET(self):
