@@ -12,10 +12,10 @@ $def with (user)
                 <a href="#" class="album_details" data-id="photos" data-userid="$user.id">
                   $if user.photos[0]['album_cover']:
                     <!-- <img src="$user.photos[0]['album_cover']" /> -->
-                    <div class="centred-img" style="background:url($user.photos[0]['album_cover']) no-repeat center center;"></div>
+                    <div class="centred-img" style="background-image:url($user.photos[0]['album_cover']);"></div>
                   $else:
                     <!-- <img src="$user.photos[0]['resized_url']" /> -->
-                    <div class="centred-img" style="background:url($user.photos[0]['resized_url']) no-repeat center center;"></div>
+                    <div class="centred-img" style="background-image:url($user.photos[0]['resized_url']);"></div>
                 </a>
               $else:
                 <img class="empty_list" src="/static/img/empty_list.png" />

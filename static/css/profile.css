@@ -8,27 +8,37 @@
 {
     position: relative;
     height: 150px;
+    border: 3px solid white;
+}
+.userPic .headingImg {
+    background-position: center center;
+    height: 100%;
+    width: 160px;
+
 }
 
 .otherPics
 {
-/*    position: absolute;
-    left: 160px;
-    bottom: 0;
-    padding-left: 3px;*/
-    /*display: none;*/
     position: absolute;
     margin-left: 165px;
     width: 400px;
     top: 115px;
 }
 
-.otherPics img
-{
+.otherPics .imgHolder{
     width: 60px;
+    float: left;
+    margin-left: 5px;
 }
 
-.otherPics img:hover
+.otherPics .img
+{
+    background-position: center center;
+    width: 60px;
+    height: 60px;
+}
+
+.otherPics .img:hover
 {
     border: 3px solid #7bc2f4;
     cursor: pointer;
@@ -457,10 +467,14 @@
     width: 100%;
 }
 
+
 .dwImg div.centred-img {
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100%;
     width: 100%;
-    height: 150px;
-    background-size: contain !important;
+    background-position: center center;
+
 }
 
 .dwDate

@@ -1,6 +1,6 @@
 $def with (user, hashed, edit_profile=None, edit_profile_done=None)
 <div class="profCoverBackground"
-  $if user.bg: 
+  $if user.bg:
     data-target="#showPhotoModal$(user.bg['id'])" data-toggle="modal"
 >
 </div>
@@ -70,9 +70,9 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
         <div class="userPic">
             $if user.pic_obj:
               <a href="#" id="profile_avatar" data-toggle="modal" data-target="#showPhotoModal$(user.pic_obj['id'])">
-                <div style="overflow:hidden !important; dislpay: block;">
-                <img src="$(user.pic_obj['resized_url'])" />
-                </div>
+                <div class="headingImg" style="background-image:url($(user.pic_obj['resized_url']));"></div>
+
+
               </a>
               <!-- <div id="transparent_button" data-target="#uploadImageModal" data-toggle="modal"> -->
             $else:
@@ -110,7 +110,11 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
           $ photos_qty = 1
           $for photo in user.photos:
             $if not user.pic_obj or (photo.id != user.pic_obj['id'] and photo.resized_url and photos_qty <=3):
-              <a href="#" data-toggle="modal" data-target="#showPhotoModal$photo.id"><img src="$(photo.resized_url)" /></a>
+              <div class="imgHolder">
+                  <a href="#" data-toggle="modal" data-target="#showPhotoModal$photo.id">
+                     <div class="img" style="background-image: url($(photo.resized_url))"> </div>
+                  </a>
+              </div>
               $ photos_qty = photos_qty + 1
         </div>
         <p class="userName">
@@ -261,4 +265,3 @@ $for i, photo in enumerate(user.backgrounds):
 
   $if photo.resized_url:
     $:tpl('profile_bg_modal', photo, user, prev_photo, next_photo)
-

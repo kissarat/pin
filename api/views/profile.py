@@ -758,7 +758,7 @@ class PicUpload(BaseAPI):
                                 error_code="Required args are missing")
 
         album, album_created = self._get_or_create_album(user['id'], 'photos')
-        photo = self._save_in_database(file_obj, 160, album.id)
+        photo = self._save_in_database(file_obj, 300, album.id)
 
         user_to_update = web.ctx.orm.query(User)\
             .filter(User.id == user['id'])\
@@ -851,7 +851,7 @@ class PicUpload(BaseAPI):
 class BgUpload(PicUpload):
     """
     Upload profile background and save it in database
-    
+
     :link: /api/profile/userinfo/upload_bg
     """
     def POST(self):
@@ -879,7 +879,7 @@ class BgUpload(PicUpload):
         csid_from_client = request_data.get("csid_from_client")
 
         file_obj = request_data.get('file')
-        
+
         # For some reason, FileStorage object treats itself as False
         if type(file_obj) == dict:
             return api_response(data={}, status=405,
@@ -914,7 +914,7 @@ class BgUpload(PicUpload):
 class GetPictures(BaseAPI):
     """
     API method for get photos of user
-    
+
     :link: /api/profile/userinfo/get_pictures
     """
     def POST(self):
@@ -975,7 +975,7 @@ class GetPictures(BaseAPI):
                             break
                 else:
                     picture['liked'] = False
-                
+
                 data['photos'].append(picture)
 
         response = api_response(data=data,
@@ -989,7 +989,7 @@ class GetPictures(BaseAPI):
 class PictureRemove(BaseAPI):
     """
     Remove picture and save changes in database
-    
+
     :link: /api/profile/userinfo/remove_pic
     """
     def POST(self):
@@ -1077,7 +1077,7 @@ class PictureRemove(BaseAPI):
 class AlbumDefaultPic(BaseAPI):
     """
     Sets picture as default album cover
-    
+
     :link: /api/profile/userinfo/album_default_picture
     """
     def POST(self):
