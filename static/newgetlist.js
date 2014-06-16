@@ -431,26 +431,58 @@ $(document).ready(function() {
         $('#board_selection_layerweb').show();
     });
 
-    $('[list=search_names]').keyup(function() {
-        var request = new XMLHttpRequest();
-        request.onload = function() {
-            $('#search_names').empty();
-            var names = JSON.parse(request.responseText);
-            for(var i in names)
-                $('<option/>').val(names[i]).appendTo('#search_names');
-        };
-        request.open('GET', '/api/search/names?q=' + this.value);
-        request.send();
-//            $.getJSON('/api/search/names?q=' + this.value, function(names) {
-//                $('#search_names').empty();
-//                for(var i in names)
-//                    $('<option/>').val(names[i]).appendTo('#search_names');
-//            });
-    });
+    var usernames_request;
+    var suggest_request;
+    var suggestion_query;
 
+    function request_suggestion(q) {
+        if (usernames_request)
+            usernames_request.abort();
+        if (suggest_request)
+            suggest_request.abort();
+        $('#suggestions').empty();
+
+        if (q.match(/^\w+$/))
+            usernames_request = $.getJSON('/api/search/names?q=' + q,
+                function(names) {
+                    for(var i in names) {
+                        var name = names[i];
+                        $('<option/>')
+                            .val(name[0])
+                            .html(name[1])
+                            .prependTo('#suggestions');
+                    }
+                });
+/*
+        suggest_request = $.ajax({
+            url:'http://suggestqueries.google.com/complete/search?' +
+                'client=firefox&output=jsonp&jsonp=suggest&q=' + q,
+            dataType: 'jsonp',
+            jsonp: false
+        });
+*/
+    }
+
+    var keyup_timeout_id;
+    $('[list=suggestions]').keyup(function() {
+        var q = this.value;
+        q = $.trim(q);
+        q = q.replace(/ +/g, ' ');
+        if (!q || suggestion_query == q)
+            return;
+        suggestion_query = q;
+        clearTimeout(keyup_timeout_id);
+        keyup_timeout_id = setTimeout(request_suggestion.bind(this, q), 200);
+    });
     });
 
 }).call(this);
+
+function suggest(values) {
+    values = values[1];
+    for(var i in values)
+        $('<option/>').val(values[i]).appendTo('#suggestions');
+}
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {

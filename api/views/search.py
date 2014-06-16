@@ -213,6 +213,6 @@ class SearchNames(BaseAPI):
         q = web.input().q
         response = []
         if q:
-            query = 'select username from users where username ilike $name order by username asc limit 10'
-            response = [user.username for user in db.query(query, vars={'name': q + '%'})]
+            query = 'select username, "name" from users where username ilike $name order by username asc limit 10'
+            response = [[user.username, user.name] for user in db.query(query, vars={'name': q + '%'})]
         return json.dumps(response)
