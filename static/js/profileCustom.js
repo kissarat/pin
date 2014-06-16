@@ -60,6 +60,16 @@
             evnt.preventDefault();
             $("#uploadImageModal #uploadimageform #file").click();
         });
+        $("#upload_bgimage_button").click(function(evnt){
+            console.log("Clicked")
+            evnt.preventDefault();
+            $("#uploadBackgroundImageModal #uploadimageform #file").click();
+        });
+
+        $("#uploadBackgroundImageModal #uploadimageform #file").change(function(evnt){
+            $("#uploadBackgroundImageModal #uploadimageform").submit();
+        });
+
         $("#uploadImageModal #uploadimageform #file").change(function(evnt){
             $("#uploadImageModal #uploadimageform").submit();
         });
