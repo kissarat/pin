@@ -22,7 +22,8 @@ $def with(categories)
 			<th>Category</th>
 			<td>
 				<select id="category">
-					<option value="">Any</option>
+					<option value="any">Any</option>
+					<option value="uncategorized">Uncategorized</option>
 				$for category in categories:
 					<option value="$category.id">$category.name</option>
 				</select>
@@ -40,10 +41,12 @@ $def with(categories)
 			<th>Img</th>
 			<th>Title</th>
 			<th>Description</th>
+			<th>Username</th>
 			<th>Date</th>
 			<th></th>
 		</thead>
 		<tbody>
+			<td></td>
 			<td></td>
 			<td></td>
 			<td></td>
@@ -67,7 +70,7 @@ $$(document).ready(
 			url: '/admin/pins/search/pagination',
 			initialLoad: true,
 			height: 600,
-			colWidths: [60, 200, 500, 100, 100],
+			colWidths: [60, 200, 500, 100, 100, 100],
 			colSortParams: ['pins.image_url', 'pins.name', 'pins.description', 'pins.timestamp'],
 			sortedCol: 'pins.timestamp',
 			sortedColDir: 'desc',
