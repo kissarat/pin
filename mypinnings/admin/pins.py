@@ -81,9 +81,13 @@ class SearchPagination(object):
     
     def find_within_a_category(self):
         db = database.get_db()
+        if self.category == 'uncategorized':
+            query_where = 'pins.id not in (select pin_id from pins_categories)'
+        else:
+            query_where = 'pins.id=pins_categories.pin_id and pins_categories.category_id=$catid'
         results = db.select(tables=['pins, pins_categories'],
                            what='distinct pins.*',
-                           where='pins.id=pins_categories.pin_id and pins_categories.category_id=$catid',
+                           where=query_where,
                            order='{} {}'.format(self.sort, self.sort_direction),
                            vars={'catid': self.category},
                            limit=PAGE_SIZE, offset=(PAGE_SIZE * self.page))

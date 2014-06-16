@@ -23,6 +23,7 @@ $def with(categories)
 			<td>
 				<select id="category">
 					<option value="">Any</option>
+					<option value="uncategorized">Uncategorized</option>
 				$for category in categories:
 					<option value="$category.id">$category.name</option>
 				</select>
