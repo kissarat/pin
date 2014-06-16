@@ -158,38 +158,44 @@ $(document).ready(function() {
     var url_input_to_fetch = $(this).parent().find(".fetch-url");
     $.ajax({
         url:"/preview",
+        dataType: 'json',
         data:{
-        url: url_input_to_fetch.val()
+            url: url_input_to_fetch.val()
         },
-        beforeSend: function(xhr, opts) {
-            $( "#getlist-from-web" ).dialog("close");
+
+        beforeSend: function() {
+            $("#getlist-from-web").dialog("close");
             $(".block-loading").show();
         },
-        success: function() {
-        },
-	    complete: function(xhr) {
-            var data = jQuery.parseJSON(xhr.responseText);
+        success: function(data) {
             if ("error" == data.status) {
                 $("#statusweb").html("please provide a valid image url");
                 return false;
             }
-            if (1 != data.lengthTotal)
+            if (1 != data.images.length)
                 $("#websitelinkweb").val(url_input_to_fetch.val());
+            if (!$('#titleweb').val())
+                $('#titleweb').val(data.title);
             $("#getlist-from-web").clearForm();
-            initgallery(data);
+            initgallery(data.images);
+        },
+	    error: function(xhr, status, error) {
+            $("#statusweb").html(status  + ' ' + error);
+            $(".block-loading").hide();
+            $("#getlist-from-web").dialog("open");
 	    }
     })
     });
 
     function initgallery(data){
-        gallery.lengthTotal = data["images"].length;
+        gallery.lengthTotal = data.length;
         if (1 == gallery.lengthTotal)
             $('#controls-web').hide();
         else
             $('#controls-web').show();
         gallery.data = [];
-        for(var i=0; i<data["images"].length; i++){
-            getMeta(data["images"][i]);
+        for(var i=0; i<data.length; i++){
+            getMeta(data[i]);
         }
 
         //gallery.init();
@@ -198,26 +204,26 @@ $(document).ready(function() {
 
     function getdata() {
         return {
-            'title':    $("#title").val(),
-            'weblink':  $("#weblink").val(),
-            'lists':    $("#board").val(),
-            'comments': $("#comments").val(),
-            'fname':    $("#fname").val(),
-            'hashtags': $("#hashtag").val()
+            title:    $("#title").val(),
+            weblink:  $("#weblink").val(),
+            lists:    $("#board").val(),
+            comments: $("#comments").val(),
+            fname:    $("#fname").val(),
+            hashtags: $("#hashtag").val()
         };
     }
 
     function getdataweb() {
         return {
-            'title':    $("#titleweb").val(),
-            'link':     $("#weblinkweb").val(),
-            'description':$("#commentsweb").val(),
-            'image_url':$("#image_urlweb").val(),
-            'list':     $("#boardweb").val(),
-            'price':    $("input:radio[name='price_range']:checked").val() || '',
-            'websiteurl':$("#websitelinkweb").val(),
-            'board_name':'',
-            'hashtags': $("#hashtagweb").val()
+            title:      $("#titleweb").val(),
+            link:       $("#weblinkweb").val(),
+            description:$("#commentsweb").val(),
+            image_url:  $("#image_urlweb").val(),
+            list:       $("#boardweb").val(),
+            price:      $("input:radio[name='price_range']:checked").val() || '',
+            websiteurl: $("#websitelinkweb").val(),
+            board_name: '',
+            hashtags:   $("#hashtagweb").val()
         };
     }
 
@@ -300,34 +306,31 @@ $(document).ready(function() {
     }
 
     function validate_from_web(formData, jqForm, options) {
-
         var title = $("#titleweb");
         var list = $("#boardweb");
 
         var errors = [];
-        if(!title.val()){
+        if(!title.val())
             errors.push(title);
-        }else{
+        else
             title.removeAttr("style");
-        }
-        if(!list.val()){
-            errors.push(list);
-        }else{
-            list.removeAttr("style");
-        }
-        if (errors.length>0){
-            for (i=0;i<errors.length;i++){
-                if(errors[i] instanceof jQuery){
-                    $.each(errors[i], function(i,v){
-                        $(v).attr("style", "outline:1px solid red;");
-                    });
-                }else{
-                    errors[i].attr("style", "border:1px solid red;");
-                }
 
-            }
-            return false;
+        if(!list.val())
+            errors.push(list);
+        else
+            list.removeAttr("style");
+
+        for (var i in errors) {
+            if(errors[i] instanceof jQuery)
+                $.each(errors[i], function(_, v){
+                    $(v).attr("style", "outline:1px solid red;");
+                });
+            else
+                errors[i].attr("style", "border:1px solid red;");
         }
+        if (errors.length>0)
+            return false;
+
         $("#addfancyweb").prop("disabled", true);
         var spanelememnt = $("#addtogetlist");
         spanelememnt.empty();
@@ -340,7 +343,7 @@ $(document).ready(function() {
         data: [],
         element: $("#slide-imageweb"),
         show: function() {
-            if(this.lengthTotal===0){
+            if(0 == this.lengthTotal) {
                 this.len = this.data.length;
                 $(".block-loading").hide();
                 $( "#addpindialogformweb" ).dialog("open");
@@ -351,9 +354,8 @@ $(document).ready(function() {
         },
         setdata: function(data){
             this.lengthTotal--;
-            if(data.w>200 || data.h>200) {
+            if(data.w * data.h > 200*200)
                 this.data.push(data);
-            }
             this.show();
         },
         loadError: function(){
@@ -361,15 +363,13 @@ $(document).ready(function() {
             this.show();
         },
         next: function(){
-            if (this.current < this.len-1) {
+            if (this.current < this.len-1)
                 this.current++;
-            }
             this.showitem();
         },
         prev: function(){
-            if (this.current>0){
+            if (this.current > 0)
                 this.current--;
-            }
             this.showitem();
         },
         showitem : function(){

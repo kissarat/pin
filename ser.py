@@ -1292,7 +1292,7 @@ class PageConvo:
 
 
 def get_base_url(url):
-    return url[:url.rfind('/') + 1]
+    return re.search(r'https?://[^/]+', url).group(0)
 
 
 MAX_IMAGES = 100
@@ -1307,13 +1307,10 @@ def get_url_info(contents, base_url):
     if len(links) > MAX_IMAGES:
         links = random.sample(links, MAX_IMAGES)
 
-    info = {'images': links}
-
-    title = re.findall(r'<title>(.*?)</title>', contents, re.DOTALL)
-    if title:
-        parser = HTMLParser.HTMLParser()
-        info['title'] = parser.unescape(title[0])
-    return info
+    return {
+        'title': soup.title.string,
+        'images': links
+    }
 
 
 class PagePreview:

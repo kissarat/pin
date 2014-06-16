@@ -6,7 +6,7 @@ $ options = options or {}
       $if user.pic:
         <img class='left' src='$(user.pic)' alt=''/>
       $else:
-        <img class='left' src='/static/default-avatar.png' alt=''/>
+        <img class='left' src='/static/img/default-avatar.png' alt=''/>
       <div class='left bold'>
         <p><a href='/profile/$user.id'>$user.name</a></p>
         $if 'show_follow' in options and options['show_follow']:
