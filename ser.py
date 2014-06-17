@@ -169,6 +169,7 @@ urls = (
     '/recover_password_complete/', 'mypinnings.recover_password.RecoverPasswordComplete',
     '/getuserpins/(.*?)', 'GetUserPins',
     '/(.*?)/ajax-album/(.*?)', 'PageAlbumAJAX',
+    '/favicon.ico', 'PageFavicon',
     '/(.*?)/list/(.*?)', 'PageList',
     '/(.*?)', 'PageProfile2',
     '/(.*?)/(.*?)', 'PageConnect2',
@@ -398,6 +399,11 @@ class PageCheckPassword:
     def GET(self):
         p = web.input(p='').p
         return pw_hash(p)
+
+
+class PageFavicon:
+    def GET(self):
+        pass
 
 
 class PageCheckEmail:
@@ -988,8 +994,6 @@ class PageProfile2:
         """
         Returns user profile information by username
         """
-        if 'favicon' in username:
-            return
         force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
 
@@ -1181,24 +1185,14 @@ class FollowList:
     def GET(self, board_id):
         force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
-<<<<<<< HEAD
-        url = "/api/image/follow-list"
-        ctx = {
-            "logintoken": logintoken,
-=======
         url = "/api/image/follow-board"
         ctx = {
             "user_id": sess.user_id,
->>>>>>> Refs #403 Allowed to follow boards
             "csid_from_client": '',
             "board_id": board_id
         }
         result = api_request(url, data=ctx).get("data")
-<<<<<<< HEAD
-        return result.get('status')
-=======
         return result
->>>>>>> Refs #403 Allowed to follow boards
 
 class PageAddFriend:
     def GET(self, user_id):
