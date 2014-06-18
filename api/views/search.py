@@ -173,7 +173,8 @@ class SearchPeople(BaseAPI):
 
         query = """
             select
-                users.*, ts_rank_cd(users.tsv, query) as rank,
+                id, username, name,
+                ts_rank_cd(users.tsv, query) as rank,
                 count(distinct f1) <> 0 as is_following
             from users
                 join to_tsquery('""" + query + """') query on true

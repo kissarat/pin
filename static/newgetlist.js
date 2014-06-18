@@ -429,6 +429,8 @@ $(document).ready(function() {
         $('#board_selection_layerweb').show();
     });
 
+    $('#tabs').tabs();
+
     var usernames_request;
     var suggest_request;
     var suggestion_query;
