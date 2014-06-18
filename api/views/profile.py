@@ -938,6 +938,12 @@ class GetPictures(BaseAPI):
         user_id = request_data.get("user_id")
         album_type = request_data.get("album_type")
 
+        # This if is a monkeypatch, which allows to map
+        # photos to any other non background slug
+        # TODO: replace this code
+        if album_type != "backgrounds":
+            album_type = "photos"
+
         csid_from_client = request_data.get('csid_from_client')
 
         current_user_id = None

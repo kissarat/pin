@@ -119,7 +119,6 @@ urls = (
     '/.*?/photos', 'PagePhotos',
     '/photos', 'PagePhotos',
     '/newalbum', 'PageNewAlbum',
-    '/ajax_album', 'PageAlbumAJAX',
     '/album/(\d*)', 'PageAlbum',
     '/album/(\d*)/remove', 'PageAlbum',
     '/newpic/(\d*)', 'PageNewPicture',
@@ -169,6 +168,7 @@ urls = (
     '/pwreset/(\d*)/(\d*)/(.*)/', 'mypinnings.recover_password.PasswordReset',
     '/recover_password_complete/', 'mypinnings.recover_password.RecoverPasswordComplete',
     '/getuserpins/(.*?)', 'GetUserPins',
+    '/(.*?)/ajax-album/(.*?)', 'PageAlbumAJAX',
     '/(.*?)/list/(.*?)', 'PageList',
     '/(.*?)', 'PageProfile2',
     '/(.*?)/(.*?)', 'PageConnect2',
@@ -1588,17 +1588,16 @@ class PageAlbum:
 
 
 class PageAlbumAJAX:
-    def GET(self):
-        # force_login(sess)
+    def GET(self, username, album_type):
+
         logintoken = convert_to_logintoken(sess.user_id)
         data = {"csid_from_client": ""}
-        album_type = web.input().get("request_type")
 
         # Getting profile of a given user
         profile_url = "/api/profile/userinfo/info"
         profile_owner_context = {
-            "csid_from_client": "adfasdf",
-            "id": web.input().get("user_id"),
+            "csid_from_client": "",
+            "username": username,
             "logintoken": logintoken}
         user = api_request(profile_url, data=profile_owner_context)\
             .get("data", [])
@@ -1613,7 +1612,7 @@ class PageAlbumAJAX:
 
         if logintoken:
             photos_context['logintoken'] = logintoken
-        # import ipdb; ipdb.set_trace()
+
         photos = api_request("/api/profile/userinfo/get_pictures",
                              data=photos_context)\
             .get("data", {}).get("photos", [])
@@ -2390,8 +2389,6 @@ class PageList(object):
     This class is responsible for rendering list individual page
     """
     def GET(self, profile_name, board_name):
-        # force_login(sess)
-
         # Getting board infor
         url = "/api/image/query-board"
         ctx = {"csid_from_client": "", "board_name": board_name,

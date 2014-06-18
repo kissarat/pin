@@ -1,7 +1,7 @@
 $def with (user, active_tab="")
 
 <div
-   $if active_tab == 'photos_list':
+   $if active_tab == 'photos-list':
       class="tab-pane active in fade"
    $else:
       class="tab-pane fade"
@@ -15,7 +15,7 @@ $def with (user, active_tab="")
               $if len(user.photos) > 0:
                 <!-- <a href="javascript:void(0)" data-target="#showPhotoModal$(user.photos[0]['id'])"
                 data-toggle="modal"> -->
-                <a href="#" class="album_details" data-id="photos" data-userid="$user.id">
+                <a href="#" class="album_details" rel="profile" data-username="$user.username">
                   $if user.photos[0]['album_cover']:
                     <!-- <img src="$user.photos[0]['album_cover']" /> -->
                     <div class="centred-img" style="background-image:url($user.photos[0]['album_cover']);"></div>
@@ -43,7 +43,7 @@ $def with (user, active_tab="")
                 $if len(user.backgrounds) > 0:
                   <!-- <a href="javascript:void(0);" data-target="#showPhotoModal$(user.backgrounds[0]['id'])"
                   data-toggle="modal"> -->
-                  <a href="#" class="album_details" data-id="backgrounds" data-userid="$user.id">
+                  <a href="#" class="album_details" rel="backgrounds" data-username="$user.username">
                       $if user.backgrounds[0]['album_cover']:
                         <!-- <img src="$user.backgrounds[0]['album_cover']" /> -->
                         <div class="centred-img" style="background:url($user.backgrounds[0]['album_cover']) no-repeat center center;"></div>

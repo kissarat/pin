@@ -1,25 +1,37 @@
 ﻿
 function parseUrl(){
     var url = window.location.pathname;
-    var splitted_url = url.split("/")
-    if (url.search('/lists/') != -1){
-        var board_name = splitted_url[3]
-        // Avoid making requests is list name is not provided
-        if (board_name.length < 3)
-        {
-            return;
+
+
+    // Auto open lists tab
+    if (url.search('/lists') != -1){
+        var splitted_url = url.split("/lists/")
+        if (splitted_url.length == 1){
+            return
         }
+        var board_name = splitted_url[1]
         var request_url = url.replace('lists', 'list') + "?ajax=1"
         $.get(request_url, function(data){
             $("#list-box-wrapper").html(data);
         });
-        console.log(board_name)
     }
+
+    // Auto open photos list
+    if (url.search('/photos-list') != -1){
+        var splitted_url = url.split("/photos-list/")
+        if (splitted_url.length == 1){
+            return
+        }
+        var request_url = url.replace('photos-list', 'ajax-album')
+        $.get(request_url, function(data){
+            $("#photos_list").html(data);
+        });
+    }
+
 }
 
 jQuery(function ($) {
     $(document).ready(function (){
-        console.log('loaded')
         parseUrl();
         $("#myTab li a").click(function(event){
             var data_url = $(this).attr('data-url');
@@ -28,14 +40,13 @@ jQuery(function ($) {
             }
         });
         $(".album_details").click(function(evnt){
-
-            var request_type = $(this).attr("data-id");
-            var user_id = $(this).attr("data-userid");
-            var data = {
-                "user_id": user_id,
-                "request_type": request_type
-            }
-            $.get("/ajax_album", data, function(data){
+            var album_name = $(this).attr("rel")
+            var new_url = window.location.href + "/" + album_name
+            history.pushState({}, album_name, new_url);
+            var username = $(this).attr("data-username");
+            request_url = "/" + username + "/ajax-album/" + album_name
+            console.log(request_url)
+            $.get(request_url, function(data){
 
                 $("#photos_list").html(data);
 
@@ -45,7 +56,6 @@ jQuery(function ($) {
             });
         });
         $(".boardlink").click(function(event){
-
             event.preventDefault();
             var board_name = $(this).attr("rel")
             var new_url = window.location.href + "/" + board_name
