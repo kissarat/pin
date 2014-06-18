@@ -1,5 +1,11 @@
-$def with (user)
-<div class="tab-pane fade" id="albums_list">
+$def with (user, active_tab="")
+
+<div
+   $if active_tab == 'photos_list':
+      class="tab-pane active in fade"
+   $else:
+      class="tab-pane fade"
+   id="photos_list">
     <div class="greyLine">
         <!--<a href='/new-list' class="button"><b>Add A List</b></a>-->
     </div>

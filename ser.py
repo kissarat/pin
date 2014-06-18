@@ -990,6 +990,14 @@ class PageProfile2:
         """
         # force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
+
+        username_and_tab = username.split("/")
+
+        username = username_and_tab[0]
+        active_tab = ''
+        if len(username_and_tab) > 1:
+            active_tab = username_and_tab[1]
+
         data = {"csid_from_client": ""}
 
         # Getting profile of a given user
@@ -1140,9 +1148,11 @@ class PageProfile2:
                 edit_profile = True
                 if get_input['editprofile']:
                     edit_profile_done = True
+
             return ltpl('profile', user, pins, offset, PIN_COUNT, hashed,
                         edit_profile, edit_profile_done, boards,
-                        categories_to_select, boards_first_pins, total, total_owned)
+                        categories_to_select, boards_first_pins, total,
+                        total_owned, active_tab)
         return ltpl('profile', user, pins, offset, PIN_COUNT, hashed)
 
 

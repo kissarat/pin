@@ -1,6 +1,13 @@
 ﻿jQuery(function ($) {
     $(document).ready(function (){
+        $("#myTab li a").click(function(event){
+            var data_url = $(this).attr('data-url');
+            if (data_url){
+                window.location.href = $(this).attr('data-url');
+            }
+        });
         $(".album_details").click(function(evnt){
+
             var request_type = $(this).attr("data-id");
             var user_id = $(this).attr("data-userid");
             var data = {
@@ -8,13 +15,14 @@
                 "request_type": request_type
             }
             $.get("/ajax_album", data, function(data){
-                $("#albums_list").html(data);
+                $("#photos_list").html(data);
 
                 $( ".link_with_loading" ).click(function() {
                     $("body").addClass("loading");
                 });
 
-                $("#photos_list").attr("onclick", "window.location.hash='#photos_list';window.location.reload(true);")
+                //
+
             });
         });
         $(".boardlink").click(function(event){
@@ -29,7 +37,7 @@
                     $("body").addClass("loading");
                 });
 
-                $("#list-box-wrapper-link").attr("onclick", "window.location.hash='#list-box-wrapper-link';window.location.reload(true);")
+                //$("#list-box-wrapper-link").attr("onclick", "window.location.hash='#list-box-wrapper-link';window.location.reload(true);")
             });
 
         });
@@ -126,12 +134,5 @@
                 });
             }
         });
-
-        /*$('.enlarge').click(function() {
-            $('#enlarged-img').attr('src', $(this).attr('data-src'));
-            $('#enlargeImage').modal('show');
-
-            return false;
-        });*/
     });
 });

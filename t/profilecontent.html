@@ -1,4 +1,4 @@
-$def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards={}, categories_to_select={}, boards_first_pins={}, total=0, total_owned=0)
+$def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards={}, categories_to_select={}, boards_first_pins={}, total=0, total_owned=0, active_tab='')
 
 <div class="profile-tab-navigation">
     <ul id="myTab" class="nav nav-tabs">
@@ -24,23 +24,35 @@ $def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards
             </a>
         </li>
       $else:
-        <li class="active">
+        <li
+          $if active_tab=='' or active_tab=='pin-not-added':
+             class="active"
+         >
             <a id="pin-not-added" href="#pin-box-wrapper" data-toggle="tab" class="profile_tabs_link">
                 My Get List <span>$total</span>
             </a>
         </li>
-        <li class="">
+        <li
+          $if active_tab=='pin-added':
+             class="active"
+          >
             <a id="pin-added" href="#pin-box-wrapper" data-toggle="tab" class="profile_tabs_link">
                 Added <span>$total_owned</span>
             </a>
         </li>
-        <li class="">
-            <a id="list-box-wrapper-link" href="#list-box-wrapper" data-toggle="tab" class="profile_tabs_link">
+        <li
+          $if active_tab=='lists':
+             class="active"
+          >
+            <a href="#" data-url="/$user.username/lists" class="profile_tabs_link">
                 Lists <span>$len(boards)</span>
             </a>
         </li>
-        <li class="">
-            <a id="photos_list" href="#albums_list" data-toggle="tab" class="profile_tabs_link">
+        <li
+          $if active_tab=='photos_list':
+             class="active"
+          >
+            <a href="#" data-url="/$user.username/photos_list">
                 Photo Albums
             </a>
         </li>
@@ -48,10 +60,10 @@ $def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards
     </ul>
 
     <div class="tab-content">
-        $:tpl('profileinfo', user, hashed, edit_profile, edit_profile_done)
-        $:tpl('pins', pins, 'horzpin3', None, edit_profile, boards, categories_to_select, user)
-        $:tpl('my_lists', boards, user, boards_first_pins)
-        $:tpl('my_photos', user)
+        $:tpl('profileinfo', user, hashed, edit_profile, edit_profile_done, active_tab)
+        $:tpl('pins', pins, 'horzpin3', None, edit_profile, boards, categories_to_select, user, active_tab)
+        $:tpl('my_lists', boards, user, boards_first_pins, active_tab)
+        $:tpl('my_photos', user, active_tab)
     </div>
 
 </div>

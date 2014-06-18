@@ -1,13 +1,24 @@
-$def with (pins, template=None, options=None, edit_profile=None, boards=None, categories_to_select=None, user=None)
+$def with (pins, template=None, options=None, edit_profile=None, boards=None, categories_to_select=None, user=None, active_tab='')
+
 
 $ options = options or {}
 $ template = template or 'onepin'
 $ pins = list(pins)
 
 $if edit_profile:
-    <div id='pin-box-wrapper' class='tab-pane fade'>
+    <div id='pin-box-wrapper'
+    $if active_tab == '':
+      class="tab-pane active fade in"
+    $else:
+      class="tab-pane fade"
+     >
 $else:
-    <div id='pin-box-wrapper' class='tab-pane fade active in'>
+    <div id='pin-box-wrapper'
+      $if active_tab == '':
+          class="tab-pane active fade in"
+      $else:
+          class="tab-pane fade"
+       >
 
 $if user and 'logged_in' in sess and user.id == sess.user_id:
    <div class="greyLine">
