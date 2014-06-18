@@ -2330,9 +2330,9 @@ class PageSearchItems:
         pins = None
 
         orig = web.input(q='').q
-        users_found = db.query('select count(*) as c from users where username=$name', vars={'name': orig})
-        if 1 == users_found[0].c:
-            return web.seeother('/' + orig)
+        # users_found = db.query('select count(*) as c from users where username=$name', vars={'name': orig})
+        # if 1 == users_found[0].c:
+        #     return web.seeother('/' + orig)
 
         hashtag = orig[1:] if orig.startswith('#') else web.input(h='').h
         if hashtag or SEARCH_PINS:
@@ -2374,7 +2374,12 @@ class PageSearchItems:
 
             if ajax:
                 return json_pins(pins, 'horzpin')
-        return ltpl('search', pins, orig, hashtag)
+
+        users = PageSearchPeople.search(orig) if not hashtag else None
+        if hashtag or not users:
+            return ltpl('searchitems', pins, orig, hashtag)
+        else:
+            return ltpl('search', orig, pins, users)
 
 
 class PageList(object):
@@ -2410,8 +2415,11 @@ class PageSearchPeople:
         force_login(sess)
 
         orig = web.input(q='').q
-        q = make_query(orig)
+        users = self.search(orig)
+        return ltpl('searchpeople', users, orig)
 
+    @classmethod
+    def search(cls, orig):
         logintoken = convert_to_logintoken(sess.get('user_id'))
         data = {
             "csid_from_client": '',
@@ -2423,9 +2431,7 @@ class PageSearchPeople:
         if data['status'] == 200:
             users = data['data']['users']
 
-        users = [pin_utils.dotdict(user) for user in users]
-
-        return ltpl('searchpeople', users, orig)
+        return [pin_utils.dotdict(user) for user in users]
 
 
 def csrf_protected(f):
