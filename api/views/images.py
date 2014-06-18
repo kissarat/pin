@@ -172,9 +172,10 @@ class QueryBoardInfo(BaseAPI):
 
 
         # Get board by user_id and board_name
-        board = db.select('boards', where='user_id=$uid and name=$bname',
+        board = db.select('boards',
+                          where='user_id=$uid and name like $bname',
                           vars = {'uid': user_id,
-                                  'bname': board_name}).list()
+                                  'bname': board_name + '%'}).list()
         if len(board) == 0:
             return e_response("Impossible to find board by name and user_id")
         # Get pins by board.id

@@ -1,5 +1,26 @@
-﻿jQuery(function ($) {
+﻿
+function parseUrl(){
+    var url = window.location.pathname;
+    var splitted_url = url.split("/")
+    if (url.search('/lists/') != -1){
+        var board_name = splitted_url[3]
+        // Avoid making requests is list name is not provided
+        if (board_name.length < 3)
+        {
+            return;
+        }
+        var request_url = url.replace('lists', 'list') + "?ajax=1"
+        $.get(request_url, function(data){
+            $("#list-box-wrapper").html(data);
+        });
+        console.log(board_name)
+    }
+}
+
+jQuery(function ($) {
     $(document).ready(function (){
+        console.log('loaded')
+        parseUrl();
         $("#myTab li a").click(function(event){
             var data_url = $(this).attr('data-url');
             if (data_url){
@@ -15,21 +36,21 @@
                 "request_type": request_type
             }
             $.get("/ajax_album", data, function(data){
+
                 $("#photos_list").html(data);
 
                 $( ".link_with_loading" ).click(function() {
                     $("body").addClass("loading");
                 });
-
-                //
-
             });
         });
         $(".boardlink").click(function(event){
 
             event.preventDefault();
+            var board_name = $(this).attr("rel")
+            var new_url = window.location.href + "/" + board_name
             var link = $(this).attr("href") + "?ajax=1";
-
+            history.pushState({}, board_name, new_url);
             $.get(encodeURI(link), function(data){
                 $("#list-box-wrapper").html(data);
 
