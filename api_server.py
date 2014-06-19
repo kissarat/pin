@@ -90,7 +90,7 @@ urls = (
     # API for search: items and users
     "/search/items", api.views.search.SearchItems,
     "/search/people", api.views.search.SearchPeople,
-    "/search/names", api.views.search.SearchNames,
+    "/search/suggest", api.views.search.SearchSuggestions,
 
     # API for categories: get categories list
     "/categories/get", api.views.categories.GetCategories,

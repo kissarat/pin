@@ -209,7 +209,7 @@ def make_query(q):
     return q.replace(' ', ' | ')
 
 
-class SearchNames(BaseAPI):
+class SearchSuggestions(BaseAPI):
     def GET(self):
         q = web.input().q
         response = []

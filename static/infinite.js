@@ -90,4 +90,4 @@ $(document).ready(function() {
         return $box.masonry('layout');
     }), 100);
 
-}).call(this);
+});
