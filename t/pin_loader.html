@@ -188,6 +188,7 @@ $def with (form, result_info, categories, number_of_items_added, preselected_cat
 				<tr>
 					<th>Category</th>
 					<th>Img</th>
+					<th>Size</th>
 					<th>Title</th>
 					<th>Description</th>
 					<th>Source URL</th>
@@ -202,6 +203,7 @@ $def with (form, result_info, categories, number_of_items_added, preselected_cat
 			<tbody>
 				<tr>
 					<td>Loading...</td>
+					<td></td>
 					<td></td>
 					<td></td>
 					<td></td>
@@ -394,7 +396,15 @@ $$(document).ready( function() {
 		height: 600,
 		sorting: false,
 		recordsPerPage: 100,
-		colWidths: [12, 6, 12, 19, 14, 14, 11, 6, 5, 5, 7],
+		colWidths: [8, 6, 5, 12, 19, 14, 14, 11, 4, 4, 5, 7],
+		pageChanged: function(p){
+		  var rows=$.pagination_grid.g.getRows();
+		  var img;
+		  for(var i=0;i<rows.length;i++){
+		    img=$(rows[i]).find('img');
+		    rows[i].cells[2].innerHTML=img.naturalWidth+'x'+img.naturalHeight;
+		  }
+		}
 	});
 $if result_info:
 	$for ri in result_info:
