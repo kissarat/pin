@@ -61,9 +61,12 @@ $if not [x for x in pins if x.id]:
   <center>No pins to see here!</center>
   <center><br><a class='button' href='/browse'>Browse pins by category</a></center>
 $else:
-  <!-- <div class='backnext'><button id='button-more'>More Items</button></div> -->
+   <!--<div class='backnext'><button id='button-more'>More Items</button></div>-->
 
-
+<div id="small_loading_image" style="display: none; text-align: center">
+	<hr>
+	<div style="margin-top: -25px"><img src="/static/img/loading_small.gif"></div>
+</div>
 
 <link rel="stylesheet" href="/static/css/pin_loader.css" />
 <script type='text/javascript' src='/static/addpin.js'></script>

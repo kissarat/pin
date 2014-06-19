@@ -431,20 +431,17 @@ $(document).ready(function() {
 
     $('#tabs').tabs();
 
-    var usernames_request;
-    var suggest_request;
+    var suggestion_services = [];
     var suggestion_query;
 
     function request_suggestion(q) {
-        if (usernames_request)
-            usernames_request.abort();
-        if (suggest_request)
-            suggest_request.abort();
+        for(var service; service = suggestion_services.pop();)
+            service.abort();
         $('#suggestions').empty();
 
         //Users name request
         if (q.match(/^\w+$/))
-            usernames_request = $.getJSON('/api/search/names?q=' + q,
+            suggestion_services.push($.getJSON('/api/search/names?q=' + q,
                 function(names) {
                     for(var i in names) {
                         var name = names[i];
@@ -453,15 +450,15 @@ $(document).ready(function() {
                             .html(name[1])
                             .prependTo('#suggestions');
                     }
-                });
+                }));
 
         //Google suggestions request
-        suggest_request = $.ajax({
+        /*suggestion_services.push($.ajax({
             url:'http://suggestqueries.google.com/complete/search?' +
                 'client=firefox&output=jsonp&jsonp=suggest&q=' + q,
             dataType: 'jsonp',
             jsonp: false
-        });
+        }));*/
     }
 
     var keyup_timeout_id;
@@ -478,11 +475,11 @@ $(document).ready(function() {
 });
 
 //Google suggestions callback
-function suggest(values) {
+/*function suggest(values) {
     values = values[1];
     for(var i in values)
         $('<option/>').val(values[i]).appendTo('#suggestions');
-}
+}*/
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {
