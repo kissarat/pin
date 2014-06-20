@@ -155,10 +155,10 @@ $(document).ready(function() {
             url: "/preview",
             data: { url: url_input_to_fetch.val(), },
             beforeSend: function(xhr, opts) {
-                $(".loading").show();
+                $("body").addClass("loading");
             },
             success: function() {
-                $(".loading").show();
+                $("body").addClass("loading");
             },
             complete: function(xhr) {
                var data = jQuery.parseJSON(xhr.responseText);
