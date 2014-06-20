@@ -342,7 +342,7 @@ jQuery.fn.ingrid = function(o){
 		var pload	= jQuery('<div />').addClass(cfg.pageLoadingClass).addClass(cfg.pageLoadingDoneClass);
 		
 		// page field & form
-		var pfld  = jQuery('<input type="text" style="width:15px;" value="' + cfg.pageNumber + '"/>').addClass(cfg.pageInputClass);
+		var pfld  = jQuery('<input type="text" style="width:2em;" value="' + cfg.pageNumber + '"/>').addClass(cfg.pageInputClass);
 		var pinfo = jQuery('<div />')
 			.addClass(cfg.pageInfoClass)
 			.append(pfld);
@@ -581,7 +581,7 @@ jQuery.fn.ingrid = function(o){
 			var outer_w = h.width() + cfg.scrollbarW;
 			b.width(outer_w);
 
-			if (p) p.width(outer_w);
+			//if (p) p.width(outer_w);
 			
 			if (gap) {
 				var pos = h.offset();

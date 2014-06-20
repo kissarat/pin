@@ -216,7 +216,7 @@ Paging Control Styles
 	border: 1px inset;	
 }
 #added table.datagrid td {white-space:normal;}
-#added table.datagrid td>div {overflow-y:auto;max-height:12em;}
+#added table.datagrid td>div {overflow-y:auto;max-height:10em;}
 button.button_pin_edit,button.button_pin_delete {padding:0.6em 1.2em;}
 div.grid-page-info input.grid-page-input {padding:1px 0;text-align:center;}
 input#page_size_field {padding:2px 4px;font-size:11px;margin-left:1em;}
