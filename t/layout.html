@@ -62,7 +62,8 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
             </div>
             &nbsp;
             <form method='get' action='/search/items' class='nav-item search'>
-              <input list="suggestions" name='q' placeholder='Search Projects, Posts, and More&hellip;'/>
+              <input list="suggestions" name='q' autocomplete="off"
+                     placeholder='Search Projects, Posts, and More&hellip;'/>
                 <datalist id="suggestions"></datalist>
             </form>
           </div>

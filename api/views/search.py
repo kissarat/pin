@@ -209,11 +209,13 @@ def make_query(q):
     return q.replace(' ', ' | ')
 
 
-class SearchNames(BaseAPI):
+class SearchSuggestions(BaseAPI):
     def GET(self):
         q = web.input().q
         response = []
         if q:
-            query = 'select username, "name" from users where username ilike $name order by username asc limit 10'
-            response = [[user.username, user.name] for user in db.query(query, vars={'name': q + '%'})]
+            sql = 'select username, "name" from users where username ilike $q order by username asc limit 10'
+            response = [[user.username, user.name] for user in db.query(sql, vars={'q': q + '%'})]
+            sql = 'select string from queries where string ilike $q group by string limit 10'
+            response += [query.string for query in db.query(sql, vars={'q': q + '%'})]
         return json.dumps(response)

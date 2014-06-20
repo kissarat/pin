@@ -431,37 +431,38 @@ $(document).ready(function() {
 
     $('#tabs').tabs();
 
-    var usernames_request;
-    var suggest_request;
+    var suggestion_services = [];
     var suggestion_query;
 
     function request_suggestion(q) {
-        if (usernames_request)
-            usernames_request.abort();
-        if (suggest_request)
-            suggest_request.abort();
+        for(var service; service = suggestion_services.pop();)
+            service.abort();
         $('#suggestions').empty();
 
         //Users name request
         if (q.match(/^\w+$/))
-            usernames_request = $.getJSON('/api/search/names?q=' + q,
+            suggestion_services.push($.getJSON('/api/search/suggest?q=' + q,
                 function(names) {
                     for(var i in names) {
                         var name = names[i];
-                        $('<option/>')
-                            .val(name[0])
-                            .html(name[1])
-                            .prependTo('#suggestions');
+                        var $option = $('<option/>');
+                        if ('string' == typeof name)
+                            $option.val(name);
+                        else
+                            $option
+                                .val(name[0])
+                                .html(name[1]);
+                        $option.appendTo('#suggestions');
                     }
-                });
+                }));
 
         //Google suggestions request
-        suggest_request = $.ajax({
+        /*suggestion_services.push($.ajax({
             url:'http://suggestqueries.google.com/complete/search?' +
                 'client=firefox&output=jsonp&jsonp=suggest&q=' + q,
             dataType: 'jsonp',
             jsonp: false
-        });
+        }));*/
     }
 
     var keyup_timeout_id;
@@ -478,11 +479,11 @@ $(document).ready(function() {
 });
 
 //Google suggestions callback
-function suggest(values) {
+/*function suggest(values) {
     values = values[1];
     for(var i in values)
         $('<option/>').val(values[i]).appendTo('#suggestions');
-}
+}*/
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {
@@ -493,28 +494,61 @@ function load_image_from_url(image, url, title) {
     $('#fetch-images').click();
 }
 
-var image_search_offset = 0;
-function websearch_add_images() {
-    $.getJSON('/api/websearch/images?q=' + query + '&offset=' + image_search_offset)
-        .success(function(results) {
-            var row;
-            for(var i=0; i < results.length; i++) {
-                if (i%4 == 0)
-                    row = $('<div></div>').appendTo('#search_results');
-                var result = results[i];
-                $('<div></div>')
-                    .append($('<img/>').attr('src', result.thumb))
-                    .append($('<div></div>').html(result.title))
-                    .append($('<div></div>').html(result.desc))
-                    .click(load_image_from_url.bind(this,
-				    result.image,
-				    result.url,
-				    decodeHTMLEntities(result.title)))
+var websearch = {
+    offset: 0,
+    buffer: [],
+    length: 0,
+    count: 12,
+
+    addImages: function(results) {
+        var row;
+        for(var i = 0, result;
+            $('#search_results img').length < websearch.length
+                && (result = results.shift());
+                    i++) {
+            if (i%4 == 0)
+                row = $('<div></div>').appendTo('#search_results');
+                var thumb = $('<img/>')
+                    .attr('src', result.thumb)
+                    .attr('data-src', result.image)
+                    .load(function() {
+                        var img = new Image();
+                        img.src = this.getAttribute('data-src');
+                        var self = this;
+                        img.onload = function() {
+                            self.src = this.src;
+                        }
+                    });
+            $('<div></div>')
+                .append(thumb)
+                .append($('<div></div>').html(result.title))
+                .append($('<div></div>').html(result.desc))
+                .click(load_image_from_url.bind(this,
+                    result.image,
+                    result.url,
+                    decodeHTMLEntities(result.title)))
                 .appendTo(row);
-            }
-            image_search_offset += results.length;
-        });
-}
+            websearch.offset++;
+        }
+        return websearch.offset < websearch.length;
+    },
+
+    loadImages: function() {
+        websearch.length = websearch.offset + websearch.count;
+        if (websearch.addImages(websearch.buffer))
+                websearch.request();
+    },
+
+    request: function() {
+        $.getJSON('/api/websearch/images?q=' + query + '&offset=' + websearch.offset,
+            function(results) {
+                if (websearch.addImages(results))
+                    websearch.request();
+                else
+                    websearch.buffer = results;
+            });
+    }
+};
 
 function inverse(obj) {
 	var result = {};
@@ -523,11 +557,16 @@ function inverse(obj) {
 }
 
 function decodeHTMLEntities(str) {
+    if (!str) {
+        console.error('Invalid string for decodeHTMLEntities');
+        return '';
+    }
+
 	str = str.replace(/(&#\d+;)/g, function(entity) {
 		entity = entity.slice(2, -1);
 		entity = parseInt(entity);
 		if (entity < 0 || entity >= 65536) {
-			console.log('HTML entity code is out of range ' + entity);
+			console.error('HTML entity code is out of range ' + entity);
 			return '';
 		}
 		return String.fromCharCode(entity);
@@ -536,7 +575,7 @@ function decodeHTMLEntities(str) {
 		entity = entity.slice(1, -1);
 		var entityCode = htmlEntityCodes[entity];
 		if ('number' != typeof entityCode) {
-			console.log('Invalid HTML entity &' + entity + ';');
+			console.error('Invalid HTML entity &' + entity + ';');
 			return '';
 		}
 		return String.fromCharCode(entityCode);
