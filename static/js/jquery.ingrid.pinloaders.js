@@ -289,7 +289,6 @@ jQuery.fn.ingrid = function(o){
 		var p = jQuery('<div />')
 			.addClass(cfg.pageToolbarClass)
 			.height(cfg.pageToolbarHeight)
-			.width(b.width())
 			.extend({										
 					setPage : function(p){
 						var input = this.find('input.' + cfg.pageInputClass);
@@ -632,11 +631,11 @@ jQuery.fn.ingrid = function(o){
 				// setup column IDs & classes on rows' cells
 				jQuery(this).find('td').each(function(i){
 					// column IDs & width
-					// wrap the cell text in a div with overflow hidden, so cells aren't stretched wider by long text
+					// wrap the cell text in a div (with overflow hidden:removed), so cells aren't stretched wider by long text
 					var txt = jQuery(this).html();
 					jQuery(this).attr(cfg.columnIDAttr, i)
 						.css('width', colWidths[i] + '%')
-						.html( jQuery('<div />').html(txt).css('overflow', 'hidden') );
+						.html( jQuery('<div />').html(txt) );
 					// column colors
 					if (cfg.colClasses.length > 0) {
 						if (cfg.colClasses[i] != '') {
