@@ -392,19 +392,12 @@ $for tag in tagcloud:
 $$(document).ready( function() {
 	$$.pagination_grid = $$("#pins_container").ingrid({ 
 		url: '/admin/input/list',
+		totalRecords: $number_of_items_added,
 		initialLoad: true,
 		height: 600,
 		sorting: false,
 		recordsPerPage: 100,
 		colWidths: [8, 6, 5, 12, 19, 14, 14, 11, 4, 4, 5, 7],
-		pageChanged: function(p){
-		  var rows=$.pagination_grid.g.getRows();
-		  var img;
-		  for(var i=0;i<rows.length;i++){
-		    img=$(rows[i]).find('img');
-		    rows[i].cells[2].innerHTML=img.naturalWidth+'x'+img.naturalHeight;
-		  }
-		}
 	});
 $if result_info:
 	$for ri in result_info:
