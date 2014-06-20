@@ -218,12 +218,12 @@ $def with (form, result_info, categories, number_of_items_added, preselected_cat
 			<tbody>
 		</table>
 		<div>
-			<form id="page_size_form" style="padding:0px;box-shadow:0px;">
+			<form id="page_size_form" style="padding:0px;box-shadow:none;">
 				<input type="text" name="page_size_field" id="page_size_field" placeholder="page size" style="width:70px;" title="# of items to show at a time"/>
 				<input type="submit" value="Change"/>
 			</form>
 			|
-			<form id="category_filter_form" style="padding:0px;box-shadow:0px;">
+			<form id="category_filter_form" style="padding:0px;box-shadow:none;">
 				<select name="category_filter_field" id="category_filter_field">
 					<option value="">Filter by category</option>
 					<option value="">All</option>
@@ -392,19 +392,13 @@ $for tag in tagcloud:
 $$(document).ready( function() {
 	$$.pagination_grid = $$("#pins_container").ingrid({ 
 		url: '/admin/input/list',
+		totalRecords: $number_of_items_added,
 		initialLoad: true,
 		height: 600,
 		sorting: false,
 		recordsPerPage: 100,
-		colWidths: [8, 6, 5, 12, 19, 14, 14, 11, 4, 4, 5, 7],
-		pageChanged: function(p){
-		  var rows=$.pagination_grid.g.getRows();
-		  var img;
-		  for(var i=0;i<rows.length;i++){
-		    img=$(rows[i]).find('img');
-		    rows[i].cells[2].innerHTML=img.naturalWidth+'x'+img.naturalHeight;
-		  }
-		}
+		colWidths: [7, 6, 5, 12, 16, 12, 12, 11, 4, 4, 6, 5],
+		pageToolbarHeight: 30,
 	});
 $if result_info:
 	$for ri in result_info:
