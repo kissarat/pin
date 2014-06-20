@@ -12,7 +12,7 @@ $(document).ready(function() {
         transitionDuration: 0
     });
 
-    $button = $('#button-more');
+    //$button = $('#button-more');
 
     $buffer = $('#pin-buf');
 
@@ -23,7 +23,9 @@ $(document).ready(function() {
     });
 
     addItem = function(box, item) {
-        return box.append(item).masonry('appended', item).masonry('layout');
+        return box.append(item)
+            .masonry('appended', item);
+//            .masonry('layout');
     };
 
     numPins = 0;
@@ -62,29 +64,29 @@ $(document).ready(function() {
             $loading.css('display', 'none');
             count = 0;
             if (data.length > 0) {
-                $button.prop('disabled', false);
+                //$button.prop('disabled', false);
                 for (var i in data)
                     appendPin($(data[i]));
             } else {
-                $button[0].outerHTML = 'No more items to show!';
+                //$button[0].outerHTML = 'No more items to show!';
             }
         });
     };
-
+/*
     $button.click(function() {
         $button.prop('disabled', true);
         if ('none' == $loading.css('display')) {
             return getMorePosts();
         }
     });
-
+*/
     $(window).scroll(function() {
         if (((document.body.scrollHeight - innerHeight) - scrollY) < 240
                 && 'none' == $loading.css('display'))
             getMorePosts();
     });
 
-    $button.prop('disabled', false);
+    //$button.prop('disabled', false);
 
     setInterval((function() {
         return $box.masonry('layout');

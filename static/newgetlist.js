@@ -445,10 +445,14 @@ $(document).ready(function() {
                 function(names) {
                     for(var i in names) {
                         var name = names[i];
-                        $('<option/>')
-                            .val(name[0])
-                            .html(name[1])
-                            .prependTo('#suggestions');
+                        var $option = $('<option/>');
+                        if ('string' == typeof name)
+                            $option.val(name);
+                        else
+                            $option
+                                .val(name[0])
+                                .html(name[1]);
+                        $option.appendTo('#suggestions');
                     }
                 }));
 

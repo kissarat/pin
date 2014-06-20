@@ -1,30 +1,18 @@
 #!/usr/local/bin/python2.7
 from __future__ import division
-import web
-from web import form
+import BeautifulSoup
+import json
 import hashlib
-import random
-import urllib
+import logging
 import os
 from PIL import Image
-import requests
 import re
-import json
-import subprocess
-import HTMLParser
-import logging
-import decimal
-import BeautifulSoup
-import cStringIO
-import urllib2
+import random
+import requests
+import urllib
+import web
+from web import form
 
-
-from mypinnings.database import connect_db, dbget, load_sqla
-from models import Like
-
-db = connect_db()
-
-from mypinnings import auth
 from mypinnings.auth import authenticate_user_email, force_login, logged_in, \
     authenticate_user_username, login_user, username_exists, email_exists, \
     logout_user, generate_salt
@@ -41,13 +29,12 @@ from mypinnings.register import valid_email
 import mypinnings.pin
 import mypinnings.profile_settings
 import admin
-import glob
 import api_server
 from settings import SEARCH_PINS
+from mypinnings.api import api_request, convert_to_logintoken
+from mypinnings.database import connect_db, dbget, load_sqla
 
-from mypinnings.api import api_request, convert_to_id, convert_to_logintoken
-
-# #
+db = connect_db()
 
 web.config.debug = True
 
@@ -183,12 +170,9 @@ sess = mypinnings.session.sess
 mypinnings.template.initialize(directory='t')
 cached_models.initialize(db)
 from mypinnings.cached_models import all_categories
-
+logger = logging.getLogger('ser')
 
 PIN_COUNT = 20
-
-
-logger = logging.getLogger('ser')
 
 
 class AttrDict(dict):
@@ -203,8 +187,6 @@ def hash(data):
 
 def rs():
     return hash(str(random.randint(1, 10000)))
-
-
 
 
 def make_notif(user_id, msg, url, fr_id=None):
@@ -349,6 +331,7 @@ class PageIndex:
         form = self._form()
         return ltpl('index', pins, first_time, form)
 
+
 class PageLogin:
     _form = form.Form(
         form.Textbox('email', description='Email/Username', id='email'),
@@ -387,6 +370,7 @@ class PageLogin:
             if row.is_pin_loader:
                 raise web.seeother('/admin/input/', absolute=True)
         raise web.seeother('/dashboard')
+
 
 class PageCheckUsername:
     def GET(self):
@@ -542,6 +526,7 @@ class NewPageAddPin:
 class MyOpener(urllib.FancyURLopener):
     version = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11'
 
+
 class PageAddPinUrl:
     def upload_image(self, url):
         fname = generate_salt()
@@ -613,7 +598,6 @@ class PageRemoveRepin:
                 #just return the info with error set to True
                 logger.error('Could not delete pin', exc_info=True)
         return json.dumps(info)
-
 
 
 class PageRepin:
@@ -1178,6 +1162,7 @@ class FollowList:
         result = api_request(url, data=ctx).get("data")
         return result.get('status')
 
+
 class PageAddFriend:
     def GET(self, user_id):
         force_login(sess)
@@ -1364,6 +1349,7 @@ class PinLikeUnlike:
         pin = data.get("image_data_list")
         external_id = pin[0].get("external_id")
         raise web.seeother('/p/%s' % external_id)
+
 
 class PageUsers:
     def GET(self):
@@ -1949,6 +1935,7 @@ category_table = [
     'wine-and-champagne',
 ]
 
+
 class PageViewCategory:
     def GET(self, name):
         try:
@@ -2335,6 +2322,8 @@ class PageSearchItems:
         #     return web.seeother('/' + orig)
 
         hashtag = orig[1:] if orig.startswith('#') else web.input(h='').h
+        if orig and not hashtag:
+            db.insert('queries', string=orig)
         if hashtag or SEARCH_PINS:
             offset = int(web.input(offset=1).offset)
             ajax = int(web.input(ajax=0).ajax)
