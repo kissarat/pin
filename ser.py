@@ -115,8 +115,6 @@ urls = (
     '/cancelfr/(\d*)', 'PageUnfriend',
     '/acceptfr/(\d*)', 'PageAcceptFR',
     '/unfollow/(\d*)', 'PageUnfollow',
-
-    '/.*?/photos', 'PagePhotos',
     '/photos', 'PagePhotos',
     '/newalbum', 'PageNewAlbum',
     '/album/(\d*)', 'PageAlbum',

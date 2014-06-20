@@ -157,7 +157,7 @@ class QueryBoardInfo(BaseAPI):
         save_api_request(request_data)
 
         username = request_data.get('username')
-        board_name = request_data.get('board_name')
+        board_name = request_data.get('board_name') + '%'
 
         csid_from_client = request_data.get("csid_from_client")
         csid_from_server = ""
@@ -173,9 +173,9 @@ class QueryBoardInfo(BaseAPI):
 
         # Get board by user_id and board_name
         board = db.select('boards',
-                          where='user_id=$uid and name like $bname',
+                          where='user_id=$uid and LOWER(name) like $bname',
                           vars = {'uid': user_id,
-                                  'bname': board_name + '%'}).list()
+                                  'bname': board_name.lower()}).list()
         if len(board) == 0:
             return e_response("Impossible to find board by name and user_id")
         # Get pins by board.id

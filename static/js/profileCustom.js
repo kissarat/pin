@@ -17,12 +17,12 @@ function parseUrl(){
     }
 
     // Auto open photos list
-    if (url.search('/photos-list') != -1){
-        var splitted_url = url.split("/photos-list/")
+    if (url.search('/photos') != -1){
+        var splitted_url = url.split("/photos/")
         if (splitted_url.length == 1){
             return
         }
-        var request_url = url.replace('photos-list', 'ajax-album')
+        var request_url = url.replace('photos', 'ajax-album')
         $.get(request_url, function(data){
             $("#photos_list").html(data);
         });
@@ -37,8 +37,10 @@ jQuery(function ($) {
             var data_url = $(this).attr('data-url');
             if (data_url){
                 window.location.href = $(this).attr('data-url');
+                $("body").addClass("loading");
             }
         });
+
         $(".album_details").click(function(evnt){
             var album_name = $(this).attr("rel")
             var new_url = window.location.href + "/" + album_name

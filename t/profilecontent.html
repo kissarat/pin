@@ -28,7 +28,7 @@ $def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards
           $if active_tab=='' or active_tab=='pin-not-added':
              class="active"
          >
-            <a id="pin-not-added" href="#pin-box-wrapper" data-toggle="tab" class="profile_tabs_link">
+            <a id="pin-not-added" href="/$user.username#pin-box-wrapper" data-toggle="tab" class="profile_tabs_link" data-url="/$user.username">
                 My Get List <span>$total</span>
             </a>
         </li>
@@ -52,7 +52,7 @@ $def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards
           $if active_tab=='photos-list':
              class="active"
           >
-            <a href="#" data-url="/$user.username/photos-list">
+            <a href="" data-url="/$user.username/photos">
                 Photo Albums
             </a>
         </li>

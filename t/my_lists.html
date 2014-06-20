@@ -13,7 +13,7 @@ $def with (boards, user, boards_first_pins={}, active_tab='')
     $if boards:
         $for board in boards:
             $ board_url = "/" + user.username + "/list/" + board.name
-            $ board_slug = board.name.split(" ")[0]
+            $ board_slug = board.name.split(" ")[0].lower()
             <div class="dwItem inlineB small" id="horz-pin$board.id">
 
                 <div class="dwImg">
