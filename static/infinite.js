@@ -13,11 +13,11 @@ $(document).ready(function() {
     });
     
     var ww = window.innerWidth;
-    if (ww<1000) $(body).addClass('small');
-    else if (ww<1200) $(body).addClass('medium');
-    else if (ww<1600) $(body).addClass('normal');
-    else if (ww<1900) $(body).addClass('big');
-    else $(body).addClass('large');
+    if (ww<1000) $('body').addClass('small');
+    else if (ww<1200) $('body').addClass('medium');
+    else if (ww<1600) $('body').addClass('normal');
+    else if (ww<1900) $('body').addClass('big');
+    else $('body').addClass('large');
 
     //$button = $('#button-more');
 
