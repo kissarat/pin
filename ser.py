@@ -272,8 +272,8 @@ class PageIndex:
             data_to_send = {
                 'csid_from_client': '',
                 'page': offset,
-                # 'items_per_page': PIN_COUNT
-                'items_per_page': 100
+                'items_per_page': PIN_COUNT
+                # 'items_per_page': 100
             }
 
             # if logged_in(sess):
