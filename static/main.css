@@ -284,13 +284,13 @@ textarea, .input {
         background-color: #446688;
         border-radius: 4px; }
 
-#pin-buf {background:url(../img/getlist-load.gif) no-repeat center top;}
-#pin-buf>* {opacity:0.4;}
-#pin-buf .pin {width:202px;float:left;margin-left:16px;}
-#pin-buf .pin>div {display:none;}
-#pin-buf .pin img {width:100%;} 
+#pin-box-wrapper>#pin-buf {background:url(../img/getlist-load.gif) no-repeat center top;}
+#pin-box-wrapper>#pin-buf>div.pin {opacity:0.4;}
+#pin-box-wrapper>#pin-buf>div.pin {width:202px;float:left;margin:8px;max-height:202px;}
+#pin-box-wrapper>#pin-buf>div.pin>div {display:none;}
+#pin-box-wrapper>#pin-buf>div.pin img {width:100%;} 
 .content {
-  width: 1140px;
+  width: 1100px;
   margin: 20px auto;}
 body.tiny .content {width:872px;}
 body.tiny .content .pins .pin {width:202px;}
