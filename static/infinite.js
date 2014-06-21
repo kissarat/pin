@@ -98,6 +98,6 @@ $(document).ready(function() {
 
     setInterval((function() {
         return $box.masonry('layout');
-    }), 1000);
+    }), 600);
 
 });

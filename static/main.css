@@ -355,6 +355,8 @@ body.large .content .pins .pin {width:360px;}
         display: block; }
       .content .pins .pin .info {
         padding: 10px; }
+      .content .pins .pin .info>p {
+        max-height:15em;overflow:auto; }
         .content .pins .pin .info .user .left {
           width: 40px;
           border: solid 1px #888888;
