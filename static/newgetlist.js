@@ -156,22 +156,33 @@ $(document).ready(function() {
 
     $('#fetch-images, #fetch-images-profile').click(function(){
     var url_input_to_fetch = $(this).parent().find(".fetch-url");
-    $.ajax({
+
+    function show_fetch_images_error(error) {
+        $("#statusweb").html(error);
+        $(".block-loading").hide();
+        $("#getlist-from-web").dialog("open");
+        return false;
+    }
+
+    var url = url_input_to_fetch.val();
+    if (/(\.jpg|\.jpeg|\.png|\.gif)$/.test(url))
+        initgallery([url]);
+    else $.ajax({
         url:"/preview",
         dataType: 'json',
-        data:{
-            url: url_input_to_fetch.val()
+        data: {
+            url: url
         },
 
         beforeSend: function() {
             $("#getlist-from-web").dialog("close");
             $(".block-loading").show();
         },
+
         success: function(data) {
-            if ("error" == data.status) {
-                $("#statusweb").html("please provide a valid image url");
-                return false;
-            }
+            if ('error' == data.status)
+                return show_fetch_images_error(data.error);
+//                $("#statusweb").html("please provide a valid image url");
             if (1 != data.images.length)
                 $("#websitelinkweb").val(url_input_to_fetch.val());
             if (!$('#titleweb').val())
@@ -179,10 +190,9 @@ $(document).ready(function() {
             $("#getlist-from-web").clearForm();
             initgallery(data.images);
         },
+
 	    error: function(xhr, status, error) {
-            $("#statusweb").html(status  + ' ' + error);
-            $(".block-loading").hide();
-            $("#getlist-from-web").dialog("open");
+            show_fetch_images_error(status  + ' ' + error);
 	    }
     })
     });
@@ -269,31 +279,30 @@ $(document).ready(function() {
         var list = $("#board");
 
         var errors = [];
-        if(!title.val()){
+        if(!title.val())
             errors.push(title);
-        }else{
+        else
             title.removeAttr("style");
-        }
-        if(!weblink.val()){
+
+        if(!weblink.val())
             errors.push(weblink);
-        }else{
+        else
             weblink.removeAttr("style");
-        }
-        if(!list.val()){
+
+        if(!list.val())
             errors.push(list);
-        }else{
+        else
             list.removeAttr("style");
-        }
+
         if (errors.length>0){
             $("body").removeClass("loading");
             for (var i=0 ;i<errors.length; i++) {
-                if (errors[i] instanceof jQuery) {
-                    $.each(errors[i], function(i,v){
+                if (errors[i] instanceof jQuery)
+                    $.each(errors[i], function(_, v) {
                         $(v).attr("style", "outline:1px solid red;");
                     });
-                }else{
+                else
                     errors[i].attr("style", "border:1px solid red;");
-                }
             }
             return false;
         }
@@ -505,20 +514,26 @@ var websearch = {
         for(var i = 0, result;
             $('#search_results img').length < websearch.length
                 && (result = results.shift());
-                    i++) {
+                i++) {
             if (i%4 == 0)
                 row = $('<div></div>').appendTo('#search_results');
-                var thumb = $('<img/>')
-                    .attr('src', result.thumb)
-                    .attr('data-src', result.image)
-                    .load(function() {
-                        var img = new Image();
-                        img.src = this.getAttribute('data-src');
-                        var self = this;
-                        img.onload = function() {
-                            self.src = this.src;
-                        }
-                    });
+            var thumb = $('<img/>')
+                .attr('src', result.thumb)
+                .attr('data-src', result.image)
+                .load(function() {
+                    var img = new Image();
+                    img.src = this.getAttribute('data-src');
+                    var self = this;
+                    img.onload = function() {
+                        self.src = this.src;
+                    };
+                    img.onerror = function(cell) {
+                        self.src = '/static/img/unavailable.png';
+                        $(self.parentNode)
+                            .addClass('unavailable')
+                            .off('click');
+                    };
+                });
             $('<div></div>')
                 .append(thumb)
                 .append($('<div></div>').html(result.title))
