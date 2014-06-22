@@ -167,7 +167,7 @@ class Pin(object):
         categories1 = categories[:size]
         categories2 = categories[size:2*size]
         categories3 = categories[2*size:]
-        return template.admin.pin_edit_form(pin, selected_categories, tags, categories1, categories2, categories3)
+        return web.template.frender('t/admin/pin_edit_form.html')(pin, selected_categories, tags, categories1, categories2, categories3)
 
     @login_required
     def POST(self, pin_id):
@@ -191,15 +191,6 @@ class Pin(object):
                                              category_id_list=categories)
         if data.image_url:
             filename, _ = urllib.urlretrieve(data.image_url)
-            pin_utils.update_pin_images(db=db,
-                                        pin_id=pin_id,
-                                        user_id=pin.user_id,
-                                        image_filename=filename)
-        elif data['image_file'].filename:
-            filename = os.path.split(data['image_file'].filename)[-1]
-            filename = os.path.join('static', 'tmp', filename)
-            with open(filename, 'w') as f:
-                f.write(data['image_file'].file.read())
             pin_utils.update_pin_images(db=db,
                                         pin_id=pin_id,
                                         user_id=pin.user_id,

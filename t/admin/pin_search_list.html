@@ -8,7 +8,7 @@ $def with(pins, date)
 			<td>$pin.description</td>
 			<td><a href="/$pin.username" target="_blank">$pin.username</a></td>
 			<td>$(date.isoformat(date.fromtimestamp(pin.timestamp)))</td>
-			<td><a class="btn" href="/admin/pin/$pin.id" target="_blank" role="button">Edit</a></td>
+			<td><button class="btn edit_button" pinid="$pin.id">Edit</button></td>
 		</tr>
 	</tbody>
 </table>
