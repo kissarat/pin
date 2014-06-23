@@ -7,13 +7,13 @@ $if pin.id and pin.category:
         data-id="$pin.id"
       $else:
         data-id="$pin.repin"
-      class='repinlink button small-pad' imagesrc="$pin.image_202_url">Add to Your Getlist</a>
+      class='repinlink button small-pad' imagesrc="$pin.image_url">Add to Your Getlist</a>
       <a href='/share/$pin.id' class='button small-pad'><i class='fa fa-share-square'></i></a>
       $if pin.link:
         <a class='button small-pad' rel='nofollow' href='$pin.link'><i class='fa fa-external-link-square'></i></a>
     </div>
     <a href='/p/$pin.external_id'>
-      <img src='$pin.image_202_url' alt=''/>
+      <img src='$pin.image_url' alt=''/>
     </a>
     <div class='info'>
       $if pin.description:
