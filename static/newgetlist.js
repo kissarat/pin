@@ -62,12 +62,9 @@ $(document).ready(function() {
 	        modal: true
 	        });
     function validate(){
-        if ($("#image").val() === ''){
-            $("#status").html("please choose a file");
-            return false;
-        }else{
-            return true
-        }
+        return !!$("#status")
+            .html("please choose a file")
+            .val();
     }
     var bar = $('.bar');
     var percent = $('.percent');
@@ -75,40 +72,15 @@ $(document).ready(function() {
     $('#upload_form').ajaxForm({
         beforeSend: function(xhr, opts) {
             $(".loading").show();
-            if  (!validate()){
-                xhr.abort();
-            }else{
+            if (validate())
                 return true;
-            }
+            xhr.abort();
         },
+
         success: function() {
             $(".loading").show();
         },
-        // beforeSend: function(xhr, opts) {
 
-        //     $(".progress").show();
-        //     var percentVal = '0%';
-        //     bar.width(percentVal)
-        //     percent.html(percentVal);
-        //     if  (!validate()){
-        //         xhr.abort();
-        //     }else{
-        //         return true
-        //     }
-
-        // },
-        // uploadProgress: function(event, position, total, percentComplete) {
-        //     $(".progress").show();
-        //     var percentVal = percentComplete + '%';
-        //     bar.width(percentVal)
-        //     percent.html(percentVal);
-        // },
-        // success: function() {
-        //     $(".progress").show();
-        //     var percentVal = '100%';
-        //     bar.width(percentVal)
-        //     percent.html(percentVal);
-        // },
 	    complete: function(xhr) {
 	       $(".progress").hide();
 	        $( "#dialog-form" ).clearForm();
@@ -134,22 +106,17 @@ $(document).ready(function() {
             alert('error in load');
         };
         img.onload = function() {
-            element.empty();
-            element.append(img);
-            var imgElement = $("#uploadimage");
-            if(this.width > this.height){
-                imgElement.attr("class", "img-width");
-            }else{
-                imgElement.attr("class", "img-height");
-            }
+            element.empty()
+                .append(img);
+            $("#uploadimage").attr("class", this.width > this.height
+                ? "img-width" : "img-height");
         }
     }
 
-    var barweb = $('.bar');
-    var percentweb = $('.percent');
     $("#gallerynextweb").click(function() {
         gallery.next();
     });
+
     $("#galleryprevweb").click(function() {
         gallery.prev();
     });
@@ -344,7 +311,7 @@ $(document).ready(function() {
 
         for (var i in errors) {
             if(errors[i] instanceof jQuery)
-                $.each(errors[i], function(_, v){
+                $.each(errors[i], function(_, v) {
                     $(v).attr("style", "outline:1px solid red;");
                 });
             else
@@ -509,6 +476,8 @@ $(document).ready(function() {
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {
+    while (image != decodeURIComponent(image))
+        image = decodeURIComponent(image);
     $('#url').val(image);
     $("#websitelinkweb").val(url);
     $('#titleweb').val(title);
@@ -517,7 +486,7 @@ function load_image_from_url(image, url, title) {
 }
 
 function is_image_url(url) {
-    return /(\.jpg|\.jpeg|\.png|\.gif)$/.test(url);
+    return /(\.jpg|\.jpeg|\.png|\.gif|\.bmp)$/.test(url);
 }
 
 var websearch = {
@@ -546,12 +515,12 @@ var websearch = {
                     img.onload = function() {
                         self.src = this.src;
                     };
-                    img.onerror = function() {
+                    /*img.onerror = function() {
                         self.src = '/static/img/unavailable.png';
                         $(self.parentNode)
                             .addClass('unavailable')
                             .off('click');
-                    };
+                    };*/
                 });
             $('<div></div>')
                 .append(thumb)
