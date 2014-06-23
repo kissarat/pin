@@ -71,14 +71,12 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
             $if user.pic_obj:
               <a href="#" id="profile_avatar" data-toggle="modal" data-target="#showPhotoModal$(user.pic_obj['id'])">
                 <div class="headingImg" style="background-image:url($(user.pic_obj['resized_url']));"></div>
-
-
               </a>
               <!-- <div id="transparent_button" data-target="#uploadImageModal" data-toggle="modal"> -->
             $else:
               <!-- <a id="profile_avatar" href='#' id="" data-toggle="modal" data-target="#uploadImageModal"> -->
               <a id="profile_avatar" href='#'>
-                <img src='/static/default-avatar.png' alt='' />
+                <div class="headingImg" style="background-image:url('/static/img/default-avatar-160.png'); width: 160px;"></div>
               </a>
             <div id="transparent_button" data-toggle="dropdown">
               <img src="https://fbstatic-a.akamaihd.net/rsrc.php/v2/yt/r/ErjpFSQWdpX.png">
