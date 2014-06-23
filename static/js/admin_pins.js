@@ -58,16 +58,45 @@ jQuery(function() {
       }
     });
   });
-  $('#delete_pin_button').on('click', function(event) {
+  $('body').on('click', '#delete_pin_button', function(event) {
     var pinid;
     event.preventDefault();
     event.stopPropagation();
     pinid = $(this).attr('pinid');
     $.ajax({
+      url: '/admin/pin/' + pinid,
       method: 'delete',
       success: function() {
-        window.location.href = '/admin/pins/search';
+        $.pagination_grid.g.load();
+        $('#pin_edit_dialog').dialog('close');
       }
     });
+  });
+  $('body').on('click', '.edit_button', function(event) {
+    var pinid;
+    pinid = $(this).attr('pinid');
+    $('#pin_edit_dialog').load('/admin/pin/' + pinid);
+    $('#pin_edit_dialog').dialog('open');
+  });
+  $('body').on('submit', '#pin_edit_form', function(event) {
+    $(this).ajaxSubmit({
+      data: $(this).serialize(),
+      success: function() {
+        $('#pin_edit_dialog').dialog('close');
+        $.pagination_grid.g.load();
+        return false;
+      }
+    });
+    return false;
+  });
+  $('#pin_edit_dialog').dialog({
+    autoOpen: false,
+    position: {
+      my: "center top",
+      at: "center top",
+      of: window
+    },
+    height: 'auto',
+    width: 1000
   });
 });

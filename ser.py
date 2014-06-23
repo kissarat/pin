@@ -285,8 +285,8 @@ class PageIndex:
             data_to_send = {
                 'csid_from_client': '',
                 'page': offset,
-                # 'items_per_page': PIN_COUNT
-                'items_per_page': 100
+                'items_per_page': PIN_COUNT
+                # 'items_per_page': 100
             }
 
             # if logged_in(sess):
@@ -1330,7 +1330,7 @@ class PagePreview:
         try:
             url = web.input(url=None).url
             if url is None:
-                return 'url needed'
+                raise Exception('url needed')
 
             if url.replace('https://', '').replace('http://', '').find('/') == -1:
                 url += '/'
@@ -1339,10 +1339,9 @@ class PagePreview:
             if not '://' in url:
                 url = 'http://' + url
 
-            info = {}
-
             print url
-            r = requests.get(url)
+            r = requests.get(url,
+                timeout=5, allow_redirects=False, verify=False, stream=False)
             if 'image' in r.headers['content-type']:
                 info = {'images': [url]}
             else:
@@ -1350,8 +1349,11 @@ class PagePreview:
                 info = get_url_info(r.text, base_url)
 
             return json.dumps(info)
-        except IOError:
-            return json.dumps({'status': 'error'})
+        except Exception as ex:
+            return json.dumps({
+                'status': 'error',
+                'error': str(ex)
+            })
 
 
 class PinLikeUnlike:

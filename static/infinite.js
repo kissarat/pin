@@ -8,9 +8,17 @@ $(document).ready(function() {
     $box = $('#pin-box');
 
     $box.masonry({
-        gutter: 20,
+        gutter: 16,
         transitionDuration: 0
     });
+    
+    var ww = window.innerWidth;
+    if (ww<1000) $('body').addClass('tiny');
+    else if (ww<1200) $('body').addClass('small');
+    else if (ww<1366) $('body').addClass('normal');
+    else if (ww<1600) $('body').addClass('medium');
+    else if (ww<1900) $('body').addClass('big');
+    else $('body').addClass('large');
 
     //$button = $('#button-more');
 
@@ -90,6 +98,6 @@ $(document).ready(function() {
 
     setInterval((function() {
         return $box.masonry('layout');
-    }), 100);
+    }), 600);
 
 });
