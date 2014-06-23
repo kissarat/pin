@@ -12,7 +12,7 @@ import api.views.search
 import api.views.categories
 from mypinnings.database import load_sqla
 import api.views.websearch
-
+from mypinnings.database import load_sqla
 
 class redirect:
     """
@@ -91,6 +91,7 @@ urls = (
     # API for search: items and users
     "/search/items", api.views.search.SearchItems,
     "/search/people", api.views.search.SearchPeople,
+    "/search/suggest", api.views.search.SearchSuggestions,
 
     # API for categories: get categories list
     "/categories/get", api.views.categories.GetCategories,

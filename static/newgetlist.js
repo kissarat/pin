@@ -1,11 +1,17 @@
-(function() {
-var imagedata = new Array();
 $(document).ready(function() {
     function getMeta(url) {
         var img = new Image();
-       img.src = url;
-       img.onerror = function(){gallery.loadError();}
-       img.onload = function(){gallery.setdata({url: url, w: this.width, h: this.height});}
+        img.src = url;
+        img.onerror = function() {
+            gallery.loadError();
+        };
+        img.onload = function() {
+            gallery.setdata({
+                url: url,
+                w: this.width,
+                h: this.height
+            });
+        }
     }
     $( "#dialog-form" ).dialog({
 	        autoOpen: false,
@@ -107,7 +113,7 @@ $(document).ready(function() {
 	       $(".progress").hide();
 	        $( "#dialog-form" ).clearForm();
 	        var percentVal = '0%';
-            bar.width(percentVal)
+            bar.width(percentVal);
             percent.html(percentVal);
             var obj = jQuery.parseJSON( xhr.responseText );
             $("#fname").val(obj.fname);
@@ -123,23 +129,25 @@ $(document).ready(function() {
     function loadImage(url, element){
         var img = new Image();
         img.src = url;
-        img.id = "uploadimage"
-        img.onerror = function(){alert('error in load');}
-        img.onload = function(){
+        img.id = "uploadimage";
+        img.onerror = function() {
+            alert('error in load');
+        };
+        img.onload = function() {
             element.empty();
             element.append(img);
-            imgElement = $("#uploadimage");
-            if(this.width>this.height){
+            var imgElement = $("#uploadimage");
+            if(this.width > this.height){
                 imgElement.attr("class", "img-width");
             }else{
                 imgElement.attr("class", "img-height");
             }
-
         }
     }
 
     var barweb = $('.bar');
     var percentweb = $('.percent');
+
     $("#gallerynextweb").on("click",(function(){gallery.next();}));
     $("#galleryprevweb").on("click",(function(){gallery.prev();}));
 
@@ -165,13 +173,14 @@ $(document).ready(function() {
                if(data.status !== "error"){
                     $("body").removeClass("loading");
                     $("#websitelinkweb").val(url_input_to_fetch.val());
-                    // $( "#web_getlist_form" ).clearForm();
+                    //$( "#web_getlist_form" ).clearForm();
                     url_input_to_fetch.attr("value", "");
                     $( "#getlist-from-web" ).dialog("close");
                     var percentVal = '100%';
                     barweb.width(percentVal)
                     percentweb.html(percentVal);
                     initgallery(data);
+                   console.log("Fetch called");
                 }else{
                     $("#statusweb").html("please provide a valid image url");
                     return false;
@@ -193,36 +202,31 @@ $(document).ready(function() {
         for(i=0; i<data["images"].length;i++){
             getMeta(data["images"][i]);
         }
+    }x
 
-        //gallery.init();
-
+    function getdata() {
+        return {
+            title:    $("#title").val(),
+            weblink:  $("#weblink").val(),
+            lists:    $("#board").val(),
+            comments: $("#comments").val(),
+            fname:    $("#fname").val(),
+            hashtags: $("#hashtag").val()
+        };
     }
 
-    function getdata(){
-        var data = {
-            'title':$("#title").val(),
-            'weblink':$("#weblink").val(),
-            'lists':$("#board").val(),
-            'comments':$("#comments").val(),
-            'fname':$("#fname").val(),
-            'hashtags':$("#hashtag").val()
-        }
-        return data
-    }
-
-    function getdataweb(){
-        var data = {
-            'title':$("#titleweb").val(),
-            'link':$("#weblinkweb").val(),
-            'description':$("#commentsweb").val(),
-            'image_url':$("#image_urlweb").val(),
-            'list':$("#boardweb").val(),
-            'price':$("input:radio[name='price_range']:checked").val()||'',
-            'websiteurl':$("#websitelinkweb").val(),
-            'board_name':'',
-            'hashtags':$("#hashtagweb").val()
-        }
-        return data
+    function getdataweb() {
+        return {
+            title:      $("#titleweb").val(),
+            link:       $("#weblinkweb").val(),
+            description:$("#commentsweb").val(),
+            image_url:  $("#image_urlweb").val(),
+            list:       $("#boardweb").val(),
+            price:      $("input:radio[name='price_range']:checked").val() || '',
+            websiteurl: $("#websitelinkweb").val(),
+            board_name: '',
+            hashtags:   $("#hashtagweb").val()
+        };
     }
 
     function successcall(data){
@@ -242,9 +246,10 @@ $(document).ready(function() {
     $('#ajaxpinform').submit(function() {
         // submit the form
         $(this).ajaxSubmit({
-        beforeSubmit: validate_from_upload,
-        data:getdata(),
-        success: successcall});
+            beforeSubmit: validate_from_upload,
+            data:getdata(),
+            success: successcall
+        });
         // return false to prevent normal browser submit and page navigation
         return false;
     });
@@ -252,9 +257,10 @@ $(document).ready(function() {
     $('#ajaxpinformweb').submit(function() {
         // submit the form
         $(this).ajaxSubmit({
-        beforeSubmit: validate_from_web,
-        data:getdataweb(),
-        success: successcall});
+            beforeSubmit: validate_from_web,
+            data:getdataweb(),
+            success: successcall
+        });
         // return false to prevent normal browser submit and page navigation
         return false;
     });
@@ -264,21 +270,21 @@ $(document).ready(function() {
         var weblink = $("#weblink");
         var list = $("#board");
 
-        var errors = new Array();
-        if(title.val()===""){
+        var errors = [];
+        if(!title.val()){
             errors.push(title);
         }else{
-            title.attr("style", "");
+            title.removeAttr("style");
         }
-        if(weblink.val()===""){
+        if(!weblink.val()){
             errors.push(weblink);
         }else{
-            weblink.attr("style", "");
+            weblink.removeAttr("style");
         }
-        if(list.val()===""){
+        if(!list.val()){
             errors.push(list);
         }else{
-            list.attr("style", "");
+            list.removeAttr("style");
         }
         if (errors.length>0){
             $("body").removeClass("loading");
@@ -302,34 +308,31 @@ $(document).ready(function() {
     }
 
     function validate_from_web(formData, jqForm, options) {
-
         var title = $("#titleweb");
         var list = $("#boardweb");
 
-        var errors = new Array();
-        if(title.val()===""){
+        var errors = [];
+        if(!title.val())
             errors.push(title);
-        }else{
-            title.attr("style", "");
-        }
-        if(list.val()===""){
-            errors.push(list);
-        }else{
-            list.attr("style", "");
-        }
-        if (errors.length>0){
-            for (i=0;i<errors.length;i++){
-                if(errors[i] instanceof jQuery){
-                    $.each(errors[i], function(i,v){
-                        $(v).attr("style", "outline:1px solid red;");
-                    });
-                }else{
-                    errors[i].attr("style", "border:1px solid red;");
-                }
+        else
+            title.removeAttr("style");
 
-            }
-            return false;
+        if(!list.val())
+            errors.push(list);
+        else
+            list.removeAttr("style");
+
+        for (var i in errors) {
+            if(errors[i] instanceof jQuery)
+                $.each(errors[i], function(_, v){
+                    $(v).attr("style", "outline:1px solid red;");
+                });
+            else
+                errors[i].attr("style", "border:1px solid red;");
         }
+        if (errors.length>0)
+            return false;
+
         $("#addfancyweb").prop("disabled", true);
         var spanelememnt = $("#addtogetlist");
         spanelememnt.empty();
@@ -339,52 +342,47 @@ $(document).ready(function() {
     }
 
     var gallery = {
-        data: new Array(),
+        data: [],
         element: $("#slide-imageweb"),
-        setdata: function(data){
-            this.lengthTotal = this.lengthTotal - 1;
-            if(data.w>200 ||data.h>200){
-                this.data.push(data);
-            }
-
-            if(this.lengthTotal===0){
+        show: function() {
+            if(0 == this.lengthTotal) {
                 this.len = this.data.length;
+                $(".block-loading").hide();
                 $( "#addpindialogformweb" ).dialog("open");
                 $("#commentsweb").focus();
                 this.init();
                 this.showitem();
             }
+        },
+        setdata: function(data){
+            this.lengthTotal--;
+            if(data.w * data.h > 200*200)
+                this.data.push(data);
+            this.show();
         },
         loadError: function(){
-            this.lengthTotal = this.lengthTotal - 1;
-            if(this.lengthTotal===0){
-                this.len = this.data.length;
-                $( "#addpindialogformweb" ).dialog("open");
-                $("#commentsweb").focus();
-                this.init();
-                this.showitem();
-            }
+            this.lengthTotal--;
+            this.show();
         },
         next: function(){
-            if (this.current<this.len-1){
-                this.current += 1;
-            }
+            if (this.current < this.len-1)
+                this.current++;
             this.showitem();
         },
         prev: function(){
-            if (this.current>0){
-                this.current -= 1;
-            }
+            if (this.current > 0)
+                this.current--;
             this.showitem();
         },
         showitem : function(){
-            this.element.attr("src", this.data[this.current].url);
-            if(this.data[this.current].w>this.data[this.current].h){
+            var current = this.data[this.current];
+            this.element.attr("src", current.url);
+            if(current.w > current.h){
                 this.element.attr("class", "img-width");
             }else{
                 this.element.attr("class", "img-height");
             }
-            $("#image_urlweb").attr("value", this.data[this.current].url);
+            $("#image_urlweb").val(current.url);
             this.showstatus();
             this.showsize();
         },
@@ -394,79 +392,165 @@ $(document).ready(function() {
         showsize: function(){
             var elem = $("#imagesize");
             elem.empty();
-            elem.append("<span >"+this.data[this.current].w+ "  x  "+this.data[this.current].h+"</span>")
+            $('<span/>')
+                .html(this.data[this.current].w + ' x ' + this.data[this.current].h)
+                .appendTo(elem);
         },
         init: function(){
             this.element = $("#slide-imageweb");
             this.current = 0;
-            this.element.attr("src","");
+            this.element.removeAttr("src");
         }
+    };
 
-    }
-
-    $('#button_add_board').on('click', function(event) {
+    $('#button_add_board').click(function(event) {
     	event.preventDefault();
     	$('#board').val('');
     	$('#board_selection_layer').hide();
     	$('#board_creation_layer').show();
     });
 
-    $('#button_select_board').on('click', function(event) {
+    $('#button_select_board').click(function(event) {
     	event.preventDefault();
     	$('#board_name').val('');
     	$('#board_creation_layer').hide();
     	$('#board_selection_layer').show();
     });
 
-    $('#button_add_boardweb').on('click', function(event) {
+    $('#button_add_boardweb').click(function(event) {
         event.preventDefault();
         $('#board').val('');
         $('#board_selection_layerweb').hide();
         $('#board_creation_layerweb').show();
     });
 
-    $('#button_select_boardweb').on('click', function(event) {
+    $('#button_select_boardweb').click(function(event) {
         event.preventDefault();
         $('#board_name').val('');
         $('#board_creation_layerweb').hide();
         $('#board_selection_layerweb').show();
     });
 
-    });
+    $('#tabs').tabs();
 
-}).call(this);
+    var suggestion_services = [];
+    var suggestion_query;
+
+    function request_suggestion(q) {
+        for(var service; service = suggestion_services.pop();)
+            service.abort();
+        $('#suggestions').empty();
+
+        //Users name request
+        if (q.match(/^\w+$/))
+            suggestion_services.push($.getJSON('/api/search/suggest?q=' + q,
+                function(names) {
+                    for(var i in names) {
+                        var name = names[i];
+                        var $option = $('<option/>');
+                        if ('string' == typeof name)
+                            $option.val(name);
+                        else
+                            $option
+                                .val(name[0])
+                                .html(name[1]);
+                        $option.appendTo('#suggestions');
+                    }
+                }));
+
+        //Google suggestions request
+        /*suggestion_services.push($.ajax({
+            url:'http://suggestqueries.google.com/complete/search?' +
+                'client=firefox&output=jsonp&jsonp=suggest&q=' + q,
+            dataType: 'jsonp',
+            jsonp: false
+        }));*/
+    }
+
+    var keyup_timeout_id;
+    $('[list=suggestions]').keyup(function() {
+        var q = this.value;
+        q = $.trim(q);
+        q = q.replace(/ +/g, ' ');
+        if (!q || suggestion_query == q)
+            return;
+        suggestion_query = q;
+        clearTimeout(keyup_timeout_id);
+        keyup_timeout_id = setTimeout(request_suggestion.bind(this, q), 200);
+    });
+});
+
+//Google suggestions callback
+/*function suggest(values) {
+    values = values[1];
+    for(var i in values)
+        $('<option/>').val(values[i]).appendTo('#suggestions');
+}*/
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {
     $('#url').val(image);
     $("#websitelinkweb").val(url);
     $('#titleweb').val(title);
-    $('#web_getlist_link').click();
+    //$('#web_getlist_link').click();
     $('#fetch-images').click();
 }
 
-var image_search_offset = 0;
-function websearch_add_images() {
-    $.getJSON('/api/websearch/images?q=' + query + '&offset=' + image_search_offset)
-        .success(function(results) {
-            var row;
-            for(var i=0; i < results.length; i++) {
-                if (i%4 == 0)
-                    row = $('<div></div>').appendTo('#search_results');
-                var result = results[i];
-                $('<div></div>')
-                    .append($('<img/>').attr('src', result.thumb))
-                    .append($('<div></div>').html(result.title))
-                    .append($('<div></div>').html(result.desc))
-                    .click(load_image_from_url.bind(this,
-				    result.image,
-				    result.url,
-				    decodeHTMLEntities(result.title)))
+var websearch = {
+    offset: 0,
+    buffer: [],
+    length: 0,
+    count: 12,
+
+    addImages: function(results) {
+        var row;
+        for(var i = 0, result;
+            $('#search_results img').length < websearch.length
+                && (result = results.shift());
+                    i++) {
+            if (i%4 == 0)
+                row = $('<div></div>').appendTo('#search_results');
+                var thumb = $('<img/>')
+                    .attr('src', result.thumb)
+                    .attr('data-src', result.image)
+                    .load(function() {
+                        var img = new Image();
+                        img.src = this.getAttribute('data-src');
+                        var self = this;
+                        img.onload = function() {
+                            self.src = this.src;
+                        }
+                    });
+            $('<div></div>')
+                .append(thumb)
+                .append($('<div></div>').html(result.title))
+                .append($('<div></div>').html(result.desc))
+                .click(load_image_from_url.bind(this,
+                    result.image,
+                    result.url,
+                    decodeHTMLEntities(result.title)))
                 .appendTo(row);
-            }
-            image_search_offset += results.length;
-        });
-}
+            websearch.offset++;
+        }
+        return websearch.offset < websearch.length;
+    },
+
+    loadImages: function() {
+        websearch.length = websearch.offset + websearch.count;
+        if (websearch.addImages(websearch.buffer))
+                websearch.request();
+    },
+
+    request: function() {
+        $.getJSON('/api/websearch/images?q=' + query + '&offset=' + websearch.offset,
+            function(results) {
+                if (websearch.addImages(results))
+                    websearch.request();
+                else
+                    websearch.buffer = results;
+            });
+    }
+};
 
 function inverse(obj) {
 	var result = {};
@@ -475,11 +559,16 @@ function inverse(obj) {
 }
 
 function decodeHTMLEntities(str) {
+    if (!str) {
+        console.error('Invalid string for decodeHTMLEntities');
+        return '';
+    }
+
 	str = str.replace(/(&#\d+;)/g, function(entity) {
 		entity = entity.slice(2, -1);
 		entity = parseInt(entity);
 		if (entity < 0 || entity >= 65536) {
-			console.log('HTML entity code is out of range ' + entity);
+			console.error('HTML entity code is out of range ' + entity);
 			return '';
 		}
 		return String.fromCharCode(entity);
@@ -488,7 +577,7 @@ function decodeHTMLEntities(str) {
 		entity = entity.slice(1, -1);
 		var entityCode = htmlEntityCodes[entity];
 		if ('number' != typeof entityCode) {
-			console.log('Invalid HTML entity &' + entity + ';');
+			console.error('Invalid HTML entity &' + entity + ';');
 			return '';
 		}
 		return String.fromCharCode(entityCode);

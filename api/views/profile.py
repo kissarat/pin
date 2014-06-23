@@ -1076,7 +1076,6 @@ class PictureRemove(BaseAPI):
         for pic in album.pictures:
             if picture.id != pic.id:
                 return pic
-
         return None
 
 

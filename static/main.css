@@ -295,8 +295,7 @@ textarea, .input {
       width: 202px;
       margin-bottom: 20px;
       box-shadow: 0 0 5px #446688; }
-      .content .pins .pin.horz-pin {
-        width: 400px; }
+      /*.content .pins .pin.horz-pin { width: 400px; }*/
         .content .pins .pin.horz-pin .info {
           padding: 20px; }
       .content .pins .pin.horz-pin2 {
@@ -590,8 +589,9 @@ textarea, .input {
     font-weight: bold; }
 
 .category-disp .horz-pins {
-  width: 854px;
-  padding-right: 10px; }
+  width: 100%;
+  padding-right: 10px;
+}
 .category-disp .categories {
   padding-left: 10px;
   width: 210px; }

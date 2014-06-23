@@ -40,7 +40,7 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
           </ul>
       </div>
     $else:
-      <a class="button" id="upload_bgimage_button" href="javascript:void(0);" style="left: 660px; position: absolute;"> Upload background photo</a>
+      <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#" style="    left: 660px; position: absolute;"> Upload background photo</a>
 
 </div>
 
@@ -195,6 +195,7 @@ $#        </p>
       </div>
     </div>
 
+
       <div class="modal fade" id="choose_background_image">
         <div class="modal-dialog">
           <div class="modal-content">
@@ -239,8 +240,6 @@ $for i, photo in enumerate(user.photos):
       $ prev_index = len(user.photos) - 1
 
     $ prev_photo = user.photos[prev_index]
-
-
   $if photo.resized_url:
     $:tpl('profile_photo_modal', photo, user, prev_photo, next_photo)
 

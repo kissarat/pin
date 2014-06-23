@@ -44,10 +44,10 @@ import admin
 import glob
 import api_server
 from settings import SEARCH_PINS
+from mypinnings.api import api_request, convert_to_logintoken
 
-from mypinnings.api import api_request, convert_to_id, convert_to_logintoken
 
-# #
+db = connect_db()
 
 web.config.debug = True
 
@@ -117,6 +117,7 @@ urls = (
     '/unfollow/(\d*)', 'PageUnfollow',
     '/photos', 'PagePhotos',
     '/newalbum', 'PageNewAlbum',
+    '/ajax_album', 'PageAlbumAJAX',
     '/album/(\d*)', 'PageAlbum',
     '/album/(\d*)/remove', 'PageAlbum',
     '/newpic/(\d*)', 'PageNewPicture',
@@ -182,12 +183,9 @@ sess = mypinnings.session.sess
 mypinnings.template.initialize(directory='t')
 cached_models.initialize(db)
 from mypinnings.cached_models import all_categories
-
+logger = logging.getLogger('ser')
 
 PIN_COUNT = 20
-
-
-logger = logging.getLogger('ser')
 
 
 class AttrDict(dict):
@@ -202,8 +200,6 @@ def hash(data):
 
 def rs():
     return hash(str(random.randint(1, 10000)))
-
-
 
 
 def make_notif(user_id, msg, url, fr_id=None):
@@ -348,6 +344,7 @@ class PageIndex:
         form = self._form()
         return ltpl('index', pins, first_time, form)
 
+
 class PageLogin:
     _form = form.Form(
         form.Textbox('email', description='Email/Username', id='email'),
@@ -386,6 +383,7 @@ class PageLogin:
             if row.is_pin_loader:
                 raise web.seeother('/admin/input/', absolute=True)
         raise web.seeother('/dashboard')
+
 
 class PageCheckUsername:
     def GET(self):
@@ -546,6 +544,7 @@ class NewPageAddPin:
 class MyOpener(urllib.FancyURLopener):
     version = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11'
 
+
 class PageAddPinUrl:
     def upload_image(self, url):
         fname = generate_salt()
@@ -617,7 +616,6 @@ class PageRemoveRepin:
                 #just return the info with error set to True
                 logger.error('Could not delete pin', exc_info=True)
         return json.dumps(info)
-
 
 
 class PageRepin:
@@ -992,7 +990,7 @@ class PageProfile2:
         """
         Returns user profile information by username
         """
-        force_login(sess)
+        # force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
 
         username_and_tab = username.split("/")
@@ -1306,7 +1304,7 @@ class PageConvo:
 
 
 def get_base_url(url):
-    return url[:url.rfind('/') + 1]
+    return re.search(r'https?://[^/]+', url).group(0)
 
 
 MAX_IMAGES = 100
@@ -1321,13 +1319,10 @@ def get_url_info(contents, base_url):
     if len(links) > MAX_IMAGES:
         links = random.sample(links, MAX_IMAGES)
 
-    info = {'images': links}
-
-    title = re.findall(r'<title>(.*?)</title>', contents, re.DOTALL)
-    if title:
-        parser = HTMLParser.HTMLParser()
-        info['title'] = parser.unescape(title[0])
-    return info
+    return {
+        'title': soup.title.string,
+        'images': links
+    }
 
 
 class PagePreview:
@@ -1965,6 +1960,7 @@ category_table = [
     'wine-and-champagne',
 ]
 
+
 class PageViewCategory:
     def GET(self, name):
         try:
@@ -2346,8 +2342,14 @@ class PageSearchItems:
         pins = None
 
         orig = web.input(q='').q
-        hashtag = web.input(h='').h
-        if SEARCH_PINS:
+        # users_found = db.query('select count(*) as c from users where username=$name', vars={'name': orig})
+        # if 1 == users_found[0].c:
+        #     return web.seeother('/' + orig)
+
+        hashtag = orig[1:] if orig.startswith('#') else web.input(h='').h
+        if orig and not hashtag:
+            db.insert('queries', string=orig)
+        if hashtag or SEARCH_PINS:
             offset = int(web.input(offset=1).offset)
             ajax = int(web.input(ajax=0).ajax)
 
@@ -2386,7 +2388,40 @@ class PageSearchItems:
 
             if ajax:
                 return json_pins(pins, 'horzpin')
-        return ltpl('search', pins, orig or hashtag)
+
+        users = PageSearchPeople.search(orig) if not hashtag else None
+        if hashtag or not users:
+            return ltpl('searchitems', pins, orig, hashtag)
+        else:
+            return ltpl('search', orig, pins, users)
+
+
+class PageList(object):
+    """
+    This class is responsible for rendering list individual page
+    """
+    def GET(self, profile_name, board_name):
+        # force_login(sess)
+
+        # Getting board infor
+        url = "/api/image/query-board"
+        ctx = {"csid_from_client": "", "board_name": board_name,
+               "username": profile_name}
+        board_info = api_request(url, data=ctx).get("data")
+
+        # Getting images
+        url = "/api/image/query"
+        ctx = {"csid_from_client": "",
+               "query_params": board_info["img_ids"]}
+        pins_info = api_request(url, data=ctx).get("data")
+        pins = [pin_utils.dotdict(pin)
+                for pin in pins_info.get("image_data_list")]
+
+        ajax = int(web.input(ajax=0).ajax)
+        if ajax:
+            return tpl('list', pins, "horzpin3")
+
+        return ltpl('list', pins)
 
 class PageList(object):
     """
@@ -2417,8 +2452,11 @@ class PageSearchPeople:
         force_login(sess)
 
         orig = web.input(q='').q
-        q = make_query(orig)
+        users = self.search(orig)
+        return ltpl('searchpeople', users, orig)
 
+    @classmethod
+    def search(cls, orig):
         logintoken = convert_to_logintoken(sess.get('user_id'))
         data = {
             "csid_from_client": '',
@@ -2431,9 +2469,7 @@ class PageSearchPeople:
         if data['status'] == 200:
             users = data['data']['users']
 
-        users = [pin_utils.dotdict(user) for user in users]
-
-        return ltpl('searchpeople', users, orig)
+        return [pin_utils.dotdict(user) for user in users]
 
 
 def csrf_protected(f):

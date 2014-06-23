@@ -16,12 +16,23 @@
     width: 100%;
 }
 
-/*.loading {
-    width: 100%;
+.block-loading {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.6);
+    z-index: 5;
     display: none;
     text-align: center;
-    margin-top: 2mm;
-}*/
+    vertical-align: middle;
+}
+
+.block-loading > img {
+    margin-top: 200px;
+    max-width: 150px;
+}
 
 .c1
 {
@@ -75,7 +86,7 @@
 }
 
 #search_results img {
-    max-width: 200px;
+    width: 180px;
     padding: 1mm 0;
 }
 

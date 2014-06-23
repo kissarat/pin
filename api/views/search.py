@@ -4,6 +4,7 @@ import uuid
 import datetime
 import math
 import random
+import json
 
 from mypinnings import database
 from api.views.base import BaseAPI
@@ -172,7 +173,8 @@ class SearchPeople(BaseAPI):
 
         query = """
             select
-                users.*, ts_rank_cd(users.tsv, query) as rank,
+                id, username, name,
+                ts_rank_cd(users.tsv, query) as rank,
                 count(distinct f1) <> 0 as is_following
             from users
                 join to_tsquery('""" + query + """') query on true
@@ -205,3 +207,15 @@ def make_query(q):
         q = q.replace('  ', ' ')
 
     return q.replace(' ', ' | ')
+
+
+class SearchSuggestions(BaseAPI):
+    def GET(self):
+        q = web.input().q
+        response = []
+        if q:
+            sql = 'select username, "name" from users where username ilike $q order by username asc limit 10'
+            response = [[user.username, user.name] for user in db.query(sql, vars={'q': q + '%'})]
+            sql = 'select string from queries where string ilike $q group by string limit 10'
+            response += [query.string for query in db.query(sql, vars={'q': q + '%'})]
+        return json.dumps(response)
