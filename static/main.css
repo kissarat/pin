@@ -607,7 +607,7 @@ body.large .content .pins .pin {width:360px;}
 
 .category-disp .horz-pins {
   width: 100%;
-  padding-right: 10px;
+  /*padding-right: 10px;*/
 }
 .category-disp .categories {
   padding-left: 10px;

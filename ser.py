@@ -1320,7 +1320,7 @@ def get_url_info(contents, base_url):
         links = random.sample(links, MAX_IMAGES)
 
     return {
-        'title': soup.title.string,
+        'title': soup.title.string if soup.title else None,
         'images': links
     }
 
