@@ -288,15 +288,9 @@ $(document).ready(function() {
 
         if (errors.length>0){
             $("body").removeClass("loading");
-<<<<<<< HEAD
-            for (i=0;i<errors.length;i++){
-                if(errors[i] instanceof jQuery){
-                    $.each(errors[i], function(i,v){
-=======
             for (var i=0 ;i<errors.length; i++) {
                 if (errors[i] instanceof jQuery)
                     $.each(errors[i], function(_, v) {
->>>>>>> 365f740efeed2106f5b43886b2f5238dcdd9ad81
                         $(v).attr("style", "outline:1px solid red;");
                     });
                 else
