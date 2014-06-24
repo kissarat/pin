@@ -528,9 +528,9 @@ class NewPageAddPin:
         image = web.input(image={}).image
         fname = generate_salt()
         ext = os.path.splitext(image.filename)[1].lower()
-        new_filename = os.path.join('static', 'tmp', '{}{}'.format(fname, ext))
+        new_filename = os.path.join('static', 'tmp', fname + ext)
 
-        with open(new_filename, 'w') as f:
+        with open(new_filename, 'w+') as f:
             f.write(image.file.read())
 
         return new_filename, image.filename
@@ -549,14 +549,13 @@ class PageAddPinUrl:
     def upload_image(self, url):
         fname = generate_salt()
         ext = os.path.splitext(url)[1].lower()
-        fname = os.path.join('static', 'tmp', '{}{}'.format(fname, ext))
+        fname = os.path.join('static', 'tmp', fname + ext)
         opener = MyOpener()
         opener.retrieve(url, fname)
-        if ext.strip() == '':
+        if not ext.strip():
             im = Image.open(fname)
-            new_filename = '{}{}'.format(fname, '.png')
-            im.save(new_filename)
-            return new_filename
+            fname += '.png'
+            im.save(fname)
         return fname
 
     def POST(self):

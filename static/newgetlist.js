@@ -62,9 +62,12 @@ $(document).ready(function() {
 	        modal: true
 	        });
     function validate(){
-        return !!$("#status")
-            .html("please choose a file")
-            .val();
+        if ($("#image").val())
+            return true;
+        else {
+            $("#status").html("please choose a file");
+            return false;
+        }
     }
     var bar = $('.bar');
     var percent = $('.percent');
@@ -113,64 +116,87 @@ $(document).ready(function() {
         }
     }
 
-    var barweb = $('.bar');
-    var percentweb = $('.percent');
+    $("#gallerynextweb").click(function() {
+        gallery.next();
+    });
 
-    $("#gallerynextweb").on("click",(function(){gallery.next();}));
-    $("#galleryprevweb").on("click",(function(){gallery.prev();}));
+    $("#galleryprevweb").click(function() {
+        gallery.prev();
+    });
 
-     var fetch_images = function(evnt){
-        evnt.preventDefault();
-        // var url_input_to_fetch = $(this).parent().find(".fetch-url");
-        var url_input_to_fetch = $("input[name=url]");
-        if (url_input_to_fetch.val().length == 0 ){
-            var url_input_to_fetch = $("input[name=url]").eq(1);
-        }
+    function show_fetch_images_error(error) {
+        $("#statusweb").html(error);
+        $(".block-loading").hide();
+        $("#getlist-from-web").dialog("open");
+        return false;
+    }
 
-        $.ajax({
-            url: "/preview",
-            data: { url: url_input_to_fetch.val(), },
-            beforeSend: function(xhr, opts) {
-                $("body").addClass("loading");
-            },
-            success: function() {
-                $("body").addClass("loading");
-            },
-            complete: function(xhr) {
-               var data = jQuery.parseJSON(xhr.responseText);
-               if(data.status !== "error"){
-                    $("body").removeClass("loading");
-                    $("#websitelinkweb").val(url_input_to_fetch.val());
-                    //$( "#web_getlist_form" ).clearForm();
-                    url_input_to_fetch.attr("value", "");
-                    $( "#getlist-from-web" ).dialog("close");
-                    var percentVal = '100%';
-                    barweb.width(percentVal)
-                    percentweb.html(percentVal);
-                    initgallery(data);
-                   console.log("Fetch called");
-                }else{
-                    $("#statusweb").html("please provide a valid image url");
-                    return false;
-                }
+    $('#fetch-images, #fetch-images-profile').click(function(){
+        var url_input_to_fetch = $(this).parent().find(".fetch-url");
+
+        var url = url_input_to_fetch.val();
+        if (is_image_url(url))
+            initgallery([url]);
+        else {
+            function abort_preview(e) {
+                if (KeyCodes.ESC != e.keyCode)
+                    return;
+                request.abort();
+                request = null;
             }
-        });
-    };
 
-    $('#fetch-images, #fetch-images-profile').click(fetch_images);
-    $("#getlist-from-web").submit(fetch_images);
+            var request = $.ajax({
+                url: "/preview",
+                dataType: 'json',
+                timeout: 80000,
+                cache: true,
+                data: { url: url },
 
+                beforeSend: function() {
+                    $("#getlist-from-web").dialog("close");
+                    $(window).keyup(abort_preview);
+                    $(".block-loading").show();
+                },
+
+                success: function(data) {
+                    if ('error' == data.status)
+                        return show_fetch_images_error(data.error);
+//                $("#statusweb").html("please provide a valid image url");
+                    if (1 != data.images.length)
+                        $("#websitelinkweb").val(url_input_to_fetch.val());
+                    if (!$('#titleweb').val())
+                        $('#titleweb').val(data.title);
+                    $("#getlist-from-web").clearForm();
+                    $(".block-loading").hide();
+                    $("#addpindialogformweb").dialog("open");
+                    initgallery(data.images);
+                },
+
+                error: function(xhr, status, error) {
+                    show_fetch_images_error(error);
+                },
+
+                complete: function(xhr, status) {
+                    $(window).unbind('keyup', abort_preview);
+                    console.log('preview ' + status + ' ' + url);
+                    //show_fetch_images_error(status);
+                }
+            });
+        }
+    });
 
     function initgallery(data){
-        gallery.lengthTotal = data["images"].length;
+        gallery.lengthTotal = data.length;
         if (1 == gallery.lengthTotal)
             $('#controls-web').hide();
         else
             $('#controls-web').show();
-        gallery.data = new Array();
-        for(i=0; i<data["images"].length;i++){
-            getMeta(data["images"][i]);
+        gallery.data = [];
+        for(var i=0; i<data.length; i++){
+            getMeta(data[i]);
         }
+
+        //gallery.init();
     }
 
     function getdata() {
@@ -402,7 +428,7 @@ $(document).ready(function() {
     $('#tabs').tabs();
 
     var suggestion_services = [];
-    var suggestion_query;
+    var suggestion_query = '';
 
     function request_suggestion(q) {
         for(var service; service = suggestion_services.pop();)
@@ -457,8 +483,6 @@ $(document).ready(function() {
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {
-    while (image != decodeURIComponent(image))
-        image = decodeURIComponent(image);
     $('#url').val(image);
     $("#websitelinkweb").val(url);
     $('#titleweb').val(title);
@@ -484,6 +508,8 @@ var websearch = {
                 i++) {
             if (i%4 == 0)
                 row = $('<div></div>').appendTo('#search_results');
+            while (result.image != decodeURIComponent(result.image))
+                result.image = decodeURIComponent(result.image);
             var thumb = $('<img/>')
                 .attr('src', result.thumb)
                 .attr('data-src', result.image)

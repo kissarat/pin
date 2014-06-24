@@ -1,11 +1,10 @@
 $(document).ready(function() {
-    var $box, $buffer, $button, addItem, appendPin, count, getMorePosts, $loading, numPins, offset;
+    var addItem, appendPin, count, getMorePosts, numPins;
 
-    offset = 1;
+    var offset = 2;
 
-    $loading = $('#small_loading_image');
-
-    $box = $('#pin-box');
+    var $loading = $('#small_loading_image');
+    var $box = $('#pin-box');
 
     $box.masonry({
         gutter: 16,
@@ -22,13 +21,11 @@ $(document).ready(function() {
 
     //$button = $('#button-more');
 
-    $buffer = $('#pin-buf');
+    var $buffer = $('#pin-buf');
 
-    count = 0;
-
-    $buffer.find('.pin').each(function() {
-        return count++;
-    });
+    count = $buffer.find('.pin').length;
+    if (0 == count)
+        return;
 
     addItem = function(box, item) {
         return box.append(item)
@@ -62,8 +59,13 @@ $(document).ready(function() {
         });
     };
 
+    function onscroll_getMorePosts() {
+        if (((document.body.scrollHeight - innerHeight) - scrollY) < 240
+                && 'none' == $loading.css('display'))
+            getMorePosts();
+    }
+
     getMorePosts = function() {
-        offset++;
         $loading.css('display', 'block');
         return $.getJSON('', {
             offset: offset,
@@ -75,8 +77,10 @@ $(document).ready(function() {
                 //$button.prop('disabled', false);
                 for (var i in data)
                     appendPin($(data[i]));
+                offset++;
             } else {
                 //$button[0].outerHTML = 'No more items to show!';
+                $(window).unbind('scroll', onscroll_getMorePosts);
             }
         });
     };
@@ -88,11 +92,8 @@ $(document).ready(function() {
         }
     });
 */
-    $(window).scroll(function() {
-        if (((document.body.scrollHeight - innerHeight) - scrollY) < 240
-                && 'none' == $loading.css('display'))
-            getMorePosts();
-    });
+
+    $(window).scroll(onscroll_getMorePosts);
 
     //$button.prop('disabled', false);
 
