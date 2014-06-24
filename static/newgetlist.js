@@ -62,9 +62,12 @@ $(document).ready(function() {
 	        modal: true
 	        });
     function validate(){
-        return !!$("#status")
-            .html("please choose a file")
-            .val();
+        if ($("#image").val())
+            return true;
+        else {
+            $("#status").html("please choose a file");
+            return false;
+        }
     }
     var bar = $('.bar');
     var percent = $('.percent');
@@ -135,6 +138,13 @@ $(document).ready(function() {
         if (is_image_url(url))
             initgallery([url]);
         else {
+            function abort_preview(e) {
+                if (KeyCodes.ESC != e.keyCode)
+                    return;
+                request.abort();
+                request = null;
+            }
+
             var request = $.ajax({
                 url: "/preview",
                 dataType: 'json',
@@ -144,6 +154,7 @@ $(document).ready(function() {
 
                 beforeSend: function() {
                     $("#getlist-from-web").dialog("close");
+                    $(window).keyup(abort_preview);
                     $(".block-loading").show();
                 },
 
@@ -166,14 +177,10 @@ $(document).ready(function() {
                 },
 
                 complete: function(xhr, status) {
+                    $(window).unbind('keyup', abort_preview);
                     console.log('preview ' + status + ' ' + url);
                     //show_fetch_images_error(status);
                 }
-            });
-            $(window).keyup(function() {
-                $(window).unbind('keyup', arguments.callee);
-                request.abort();
-                request = null;
             });
         }
     });
@@ -421,7 +428,7 @@ $(document).ready(function() {
     $('#tabs').tabs();
 
     var suggestion_services = [];
-    var suggestion_query;
+    var suggestion_query = '';
 
     function request_suggestion(q) {
         for(var service; service = suggestion_services.pop();)
@@ -476,8 +483,6 @@ $(document).ready(function() {
 
 /* ----- Images web search ----- */
 function load_image_from_url(image, url, title) {
-    while (image != decodeURIComponent(image))
-        image = decodeURIComponent(image);
     $('#url').val(image);
     $("#websitelinkweb").val(url);
     $('#titleweb').val(title);
@@ -503,6 +508,8 @@ var websearch = {
                 i++) {
             if (i%4 == 0)
                 row = $('<div></div>').appendTo('#search_results');
+            while (result.image != decodeURIComponent(result.image))
+                result.image = decodeURIComponent(result.image);
             var thumb = $('<img/>')
                 .attr('src', result.thumb)
                 .attr('data-src', result.image)
