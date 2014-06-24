@@ -54,8 +54,8 @@ class PageRegister:
         form = self._form()
         message = web.input(msg=None).msg
         if message:
-            return template.tpl('register/reg', form, message)
-        return template.tpl('register/reg', form)
+            return template.ltpl('register/reg', form, message)
+        return template.ltpl('register/reg', form)
 
     def POST(self):
         form = self._form()
@@ -95,7 +95,7 @@ class PageRegister:
                     raise web.seeother('/after-signup')
             else:
                 msg = _(data['error_code'])
-                return template.tpl('register/reg', form, msg)
+                return template.ltpl('register/reg', form, msg)
         else:
             message = _('Please enter an username, full name, email, pasword, and language.')
             return template.ltpl('register/reg', form, message)

@@ -1,27 +1,64 @@
-﻿jQuery(function ($) {
+function parseUrl(){
+    var url = window.location.pathname;
+    // Auto open lists tab
+    if (url.search('/lists') != -1){
+        var splitted_url = url.split("/lists/");
+        if (splitted_url.length == 1){
+            return;
+        }
+        var board_name = splitted_url[1]
+        var request_url = url.replace('lists', 'list') + "?ajax=1";
+        $.get(request_url, function(data){
+            $("#list-box-wrapper").html(data);
+        });
+    }
+
+    // Auto open photos list
+    if (url.search('/photos') != -1){
+        var splitted_url = url.split("/photos/")
+        if (splitted_url.length == 1){
+            return
+        }
+        var request_url = url.replace('photos', 'ajax-album')
+        $.get(request_url, function(data){
+            $("#photos_list").html(data);
+        });
+    }
+}
+
+jQuery(function ($) {
     $(document).ready(function (){
-        $(".album_details").click(function(evnt){
-            var request_type = $(this).attr("data-id");
-            var user_id = $(this).attr("data-userid");
-            var data = {
-                "user_id": user_id,
-                "request_type": request_type
+        parseUrl();
+        $("#myTab li a").click(function(event){
+            var data_url = $(this).attr('data-url');
+            if (data_url){
+                window.location.href = $(this).attr('data-url');
+                $("body").addClass("loading");
             }
-            $.get("/ajax_album", data, function(data){
-                $("#albums_list").html(data);
+        });
+
+        $(".album_details").click(function(evnt){
+            var album_name = $(this).attr("rel")
+            var new_url = window.location.href + "/" + album_name
+            history.pushState({}, album_name, new_url);
+            var username = $(this).attr("data-username");
+            request_url = "/" + username + "/ajax-album/" + album_name
+            console.log(request_url)
+            $.get(request_url, function(data){
+
+                $("#photos_list").html(data);
 
                 $( ".link_with_loading" ).click(function() {
                     $("body").addClass("loading");
                 });
-
-                $("#photos_list").attr("onclick", "window.location.hash='#photos_list';window.location.reload(true);")
             });
         });
         $(".boardlink").click(function(event){
-
             event.preventDefault();
+            var board_name = $(this).attr("rel")
+            var new_url = window.location.href + "/" + board_name
             var link = $(this).attr("href") + "?ajax=1";
-
+            history.pushState({}, board_name, new_url);
             $.get(encodeURI(link), function(data){
                 $("#list-box-wrapper").html(data);
 
@@ -29,7 +66,7 @@
                     $("body").addClass("loading");
                 });
 
-                $("#list-box-wrapper-link").attr("onclick", "window.location.hash='#list-box-wrapper-link';window.location.reload(true);")
+                //$("#list-box-wrapper-link").attr("onclick", "window.location.hash='#list-box-wrapper-link';window.location.reload(true);")
             });
 
         });
@@ -45,6 +82,7 @@
             $("#save_and_close_existed_image").attr('href', $(this).attr('data_url'));
             $("#save_and_close_existed_image button").removeAttr('disabled');
         });
+
         $(".choose_existed_bg").click(function(evnt){
             evnt.preventDefault();
 
@@ -60,6 +98,16 @@
             evnt.preventDefault();
             $("#uploadImageModal #uploadimageform #file").click();
         });
+        $("#upload_bgimage_button").click(function(evnt){
+            console.log("Clicked")
+            evnt.preventDefault();
+            $("#uploadBackgroundImageModal #uploadimageform #file").click();
+        });
+
+        $("#uploadBackgroundImageModal #uploadimageform #file").change(function(evnt){
+            $("#uploadBackgroundImageModal #uploadimageform").submit();
+        });
+
         $("#uploadImageModal #uploadimageform #file").change(function(evnt){
             $("#uploadImageModal #uploadimageform").submit();
         });
@@ -116,12 +164,5 @@
                 });
             }
         });
-
-        /*$('.enlarge').click(function() {
-            $('#enlarged-img').attr('src', $(this).attr('data-src'));
-            $('#enlargeImage').modal('show');
-
-            return false;
-        });*/
     });
 });

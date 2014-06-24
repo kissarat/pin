@@ -62,7 +62,7 @@ class SearchPagination(object):
             return self.find_within_a_category()
         else:
             return self.find_by_user_id()
-    
+
     def find_by_pin_url(self):
         if '/' in self.pin_url:
             # is a path
@@ -78,7 +78,7 @@ class SearchPagination(object):
             return web.template.frender('t/admin/pin_search_list.html')(pins, date)
         else:
             return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-    
+
     def find_within_a_category(self):
         db = database.get_db()
         if self.category == 'uncategorized':
@@ -110,7 +110,7 @@ class SearchPagination(object):
             return web.template.frender('t/admin/pin_search_list.html')(pins, date)
         else:
             return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-    
+
     def find_by_user_id(self):
         db = database.get_db()
         if self.username:
@@ -139,7 +139,7 @@ class SearchPagination(object):
             return web.template.frender('t/admin/pin_search_list.html')(pins, date)
         else:
             return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-    
+
     def empty_results(self):
         class O(object):
             def __getattr__(self, name):
@@ -160,7 +160,7 @@ class Pin(object):
             pin = db.where(table='pins', id=pin_id)[0]
         except IndexError:
             return "Pin does not exist"
-        selected_categories = set([c.category_id for c in db.where(table='pins_categories', pin_id=pin_id)]) 
+        selected_categories = set([c.category_id for c in db.where(table='pins_categories', pin_id=pin_id)])
         tags = db.where(table='tags', pin_id=pin_id)
         categories = [c for c in db.where(table='categories', order='position desc, name')]
         size = len(categories) / 3
@@ -196,7 +196,7 @@ class Pin(object):
                                         user_id=pin.user_id,
                                         image_filename=filename)
         return web.seeother('{}'.format(pin_id))
-    
+
     @login_required
     def DELETE(self, pin_id):
         db = database.get_db()
@@ -208,7 +208,7 @@ class Pin(object):
 
 
 class MultipleDelete(object):
-    
+
     @login_required
     def POST(self):
         data = web.input(ids='')
@@ -218,4 +218,3 @@ class MultipleDelete(object):
             pin = db.where(table='pins', what='id, user_id', id=pin_id)[0]
             pin_utils.delete_pin_from_db(db, pin_id, pin.user_id)
         return 'ok'
-        

@@ -633,7 +633,7 @@ class QueryPins(BaseAPI):
 
         pins = []
         current_row = None
-        pins_counter = len(results)
+        pins_counter = 0
         owned_pins_counter = 0
         for row in results:
             if not row.id:
@@ -654,6 +654,7 @@ class QueryPins(BaseAPI):
                 tag = row.tags
                 if tag not in current_row.tags:
                     current_row.tags.append(tag)
+            pins_counter += 1
 
         data = {
             "total": pins_counter,
@@ -757,7 +758,7 @@ class PicUpload(BaseAPI):
                                 error_code="Required args are missing")
 
         album, album_created = self._get_or_create_album(user['id'], 'photos')
-        photo = self._save_in_database(file_obj, 160, album.id)
+        photo = self._save_in_database(file_obj, 300, album.id)
 
         user_to_update = web.ctx.orm.query(User)\
             .filter(User.id == user['id'])\
@@ -850,7 +851,7 @@ class PicUpload(BaseAPI):
 class BgUpload(PicUpload):
     """
     Upload profile background and save it in database
-    
+
     :link: /api/profile/userinfo/upload_bg
     """
     def POST(self):
@@ -878,7 +879,7 @@ class BgUpload(PicUpload):
         csid_from_client = request_data.get("csid_from_client")
 
         file_obj = request_data.get('file')
-        
+
         # For some reason, FileStorage object treats itself as False
         if type(file_obj) == dict:
             return api_response(data={}, status=405,
@@ -913,7 +914,7 @@ class BgUpload(PicUpload):
 class GetPictures(BaseAPI):
     """
     API method for get photos of user
-    
+
     :link: /api/profile/userinfo/get_pictures
     """
     def POST(self):
@@ -936,6 +937,12 @@ class GetPictures(BaseAPI):
         # Get data from request
         user_id = request_data.get("user_id")
         album_type = request_data.get("album_type")
+
+        # This if is a monkeypatch, which allows to map
+        # photos to any other non background slug
+        # TODO: replace this code
+        if album_type != "backgrounds":
+            album_type = "photos"
 
         csid_from_client = request_data.get('csid_from_client')
 
@@ -974,7 +981,7 @@ class GetPictures(BaseAPI):
                             break
                 else:
                     picture['liked'] = False
-                
+
                 data['photos'].append(picture)
 
         response = api_response(data=data,
@@ -988,7 +995,7 @@ class GetPictures(BaseAPI):
 class PictureRemove(BaseAPI):
     """
     Remove picture and save changes in database
-    
+
     :link: /api/profile/userinfo/remove_pic
     """
     def POST(self):
@@ -1069,14 +1076,13 @@ class PictureRemove(BaseAPI):
         for pic in album.pictures:
             if picture.id != pic.id:
                 return pic
-
         return None
 
 
 class AlbumDefaultPic(BaseAPI):
     """
     Sets picture as default album cover
-    
+
     :link: /api/profile/userinfo/album_default_picture
     """
     def POST(self):
