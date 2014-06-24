@@ -284,7 +284,7 @@ textarea, .input {
         background-color: #446688;
         border-radius: 4px; }
 
-#pin-box-wrapper>#pin-buf {background:url(../img/getlist-load.gif) no-repeat center top;}
+#pin-box-wrapper>#pin-buf {background:url(/static/img/getlist-load.gif) no-repeat center top;}
 #pin-box-wrapper>#pin-buf>div.pin {opacity:0.4;}
 #pin-box-wrapper>#pin-buf>div.pin {width:202px;float:left;margin:8px;max-height:202px;}
 #pin-box-wrapper>#pin-buf>div.pin>div {display:none;}
@@ -607,7 +607,7 @@ body.large .content .pins .pin {width:360px;}
 
 .category-disp .horz-pins {
   width: 100%;
-  padding-right: 10px;
+  /*padding-right: 10px;*/
 }
 .category-disp .categories {
   padding-left: 10px;

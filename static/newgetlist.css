@@ -76,13 +76,13 @@
     display: table-cell;
     text-align: center;
     vertical-align: middle;
-    cursor: pointer;
     border: 1px solid transparent;
     padding: 1mm;
 }
 
 #search_results > div > div:hover {
     border-color: #000000;
+    cursor: pointer;
 }
 
 #search_results img {
@@ -93,4 +93,9 @@
 #more_results {
     display: block;
     margin: 2mm auto;
+}
+
+.unavailable:hover {
+    border-color: transparent !important;
+    cursor: default !important;
 }

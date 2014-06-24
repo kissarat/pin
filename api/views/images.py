@@ -5,6 +5,7 @@ import uuid
 import datetime
 import math
 import random
+import string
 
 from mypinnings import database
 from api.views.base import BaseAPI
@@ -16,8 +17,7 @@ from mypinnings.media import store_image_from_filename
 
 db = connect_db()
 
-DIGITS_AND_LETTERS = \
-    'abcdefghijklmnopqrstuvwxwzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+DIGITS_AND_LETTERS = string.ascii_letters + string.digits
 
 
 class ImageUpload(BaseAPI):
@@ -157,7 +157,7 @@ class QueryBoardInfo(BaseAPI):
         save_api_request(request_data)
 
         username = request_data.get('username')
-        board_name = request_data.get('board_name')
+        board_name = request_data.get('board_name') + '%'
 
         csid_from_client = request_data.get("csid_from_client")
         csid_from_server = ""
@@ -172,9 +172,10 @@ class QueryBoardInfo(BaseAPI):
 
 
         # Get board by user_id and board_name
-        board = db.select('boards', where='user_id=$uid and name=$bname',
+        board = db.select('boards',
+                          where='user_id=$uid and LOWER(name) like $bname',
                           vars = {'uid': user_id,
-                                  'bname': board_name}).list()
+                                  'bname': board_name.lower()}).list()
         if len(board) == 0:
             return e_response("Impossible to find board by name and user_id")
         # Get pins by board.id
@@ -768,46 +769,36 @@ def _already_exists(id):
     return False
 
 
-class FollowOrUnfollowList(BaseAPI):
+class FollowOrUnfollowBoard(BaseAPI):
     """
     Allows to follow a given board if it was not already followed,
     Removes follow in case follow was set before.
     Works as toggle on/off
 
-    :link: /api/image/follow-list
+    :link: /api/image/follow-board
     """
     def POST(self):
         """
         :param str board_id: id of the board to follow
         :param str csid_from_client: CSID from client
-        :param str logintoken: logintoken of the user who follows the board
+        :param str user_id: id of the user who follows the board
 
         :response data: returns status:ok
-        :example usage: curl --data "csid_from_client=1&user_id=98&board_id=15" http://localhost:8080/api/image/follow-list
+        :example usage: curl --data "csid_from_client=1&user_id=98&board_id=15" http://localhost:8080/api/image/follow-board
         """
         request_data = web.input()
         csid_from_client = request_data.get('csid_from_client')
-        logintoken = request_data.get('logintoken')
-
-        user_status, user = self.authenticate_by_token(logintoken)
-        # User id contains error code
-        if not user_status:
-            return user
-
+        user_id = request_data.get('user_id')
         board_id = request_data.get('board_id')
-        is_following = db.select('boards_followers',
-                  where="follower_id=$uid and board_id=$bid",
-                  vars={'uid': user.id, 'bid': board_id})
-        # Checking if current user is already following the given board
-        if len(is_following.list()) > 0:
-            status = "unfollowed"
+        try:
+            db.insert('boards_followers', follower_id=user_id,
+                      board_id=board_id)
+            data = "Following"
+        except Exception:
             db.delete('boards_followers',
                       where="follower_id=$uid and board_id=$bid",
-                      vars={'uid': user.id, 'bid': board_id})
-        else:
-            db.insert('boards_followers', follower_id=user.id,
-                      board_id=board_id)
-            status = "followed"
-        return api_response(data={"status": status},
+                      vars={'uid': user_id, 'bid': board_id})
+            data = "Follow"
+        return api_response(data=data,
                             csid_from_client=csid_from_client,
                             csid_from_server="")

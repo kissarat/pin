@@ -63,10 +63,11 @@ $def with(categories)
 </div>
 <br>
 <br>
+<div id="pin_edit_dialog"></div>
 <script type="text/javascript">
 $$(document).ready(
 	function() {
-		$$.pagination_grid = $$("#results_table").ingrid({ 
+		$$.pagination_grid = $$("#results_table").ingrid({
 			url: '/admin/pins/search/pagination',
 			initialLoad: true,
 			height: 600,
@@ -77,6 +78,6 @@ $$(document).ready(
 			recordsPerPage: 50,
 		});
 	}
-); 
+);
 </script>
 <script src="/static/js/admin_pins.js"></script>

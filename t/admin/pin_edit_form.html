@@ -1,19 +1,15 @@
 $def with(pin, pin_categories, pin_tags, categories1, categories2, categories3)
 <h1>Edit pin</h1>
-<form method="post" enctype="multipart/form-data" role="form">
+<form method="post" enctype="multipart/form-data" role="form" id="pin_edit_form" action="/admin/pin/$pin.id">
 	<div class="form-group">
 		<a href="$pin.image_url" target="_blank"><img src="$pin.image_202_url" width="202" height="$pin.image_202_height"></a>
 	</div>
 	<div class="form-group">
-	  	<button class="btn btn-danger" id="delete_pin_button" pinpid="$pin.id">Delete this item</button>
+	  	<button class="btn btn-danger" id="delete_pin_button" pinid="$pin.id">Delete this item</button>
 	</div>
 	<div class="form-group">
 		<label for="image_url">Change image URL</label>
 		<input type="text" name="image_url" id="image_url" class="form-control"/>
-	</div>
-	<div class="form-group">
-		<label for="image_file">Change image from File</label>
-		<input type="file" name="image_file" id="image_file"/>
 	</div>
 	<div class="form-group">
 		<label for="title">Title</label>
@@ -72,4 +68,3 @@ $def with(pin, pin_categories, pin_tags, categories1, categories2, categories3)
 </form>
 <br>
 <br>
-<script src="/static/js/admin_pins.js"></script>
