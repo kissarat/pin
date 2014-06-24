@@ -10,6 +10,7 @@ import api.views.profile
 import api.views.social
 import api.views.search
 import api.views.categories
+from mypinnings.database import load_sqla
 import api.views.websearch
 from mypinnings.database import load_sqla
 
@@ -44,7 +45,7 @@ urls = (
     "/image/categorize", api.views.images.Categorize,
     "/image/query/category", api.views.images.QueryCategory,
     "/image/query/hashtags", api.views.images.QueryHashtags,
-    "/image/follow-list", api.views.images.FollowOrUnfollowList,
+    "/image/follow-board", api.views.images.FollowOrUnfollowBoard,
     "/image/query/get_by_hashtags", \
         api.views.images.QueryGetByHashtags,
 

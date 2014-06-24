@@ -1,18 +1,30 @@
 #!/usr/local/bin/python2.7
 from __future__ import division
-import BeautifulSoup
-import json
-import hashlib
-import logging
-import os
-from PIL import Image
-import re
-import random
-import requests
-import urllib
 import web
 from web import form
+import hashlib
+import random
+import urllib
+import os
+from PIL import Image
+import requests
+import re
+import json
+import subprocess
+import HTMLParser
+import logging
+import decimal
+import BeautifulSoup
+import cStringIO
+import urllib2
 
+
+from mypinnings.database import connect_db, dbget, load_sqla
+from models import Like
+
+db = connect_db()
+
+from mypinnings import auth
 from mypinnings.auth import authenticate_user_email, force_login, logged_in, \
     authenticate_user_username, login_user, username_exists, email_exists, \
     logout_user, generate_salt
@@ -29,10 +41,11 @@ from mypinnings.register import valid_email
 import mypinnings.pin
 import mypinnings.profile_settings
 import admin
+import glob
 import api_server
 from settings import SEARCH_PINS
 from mypinnings.api import api_request, convert_to_logintoken
-from mypinnings.database import connect_db, dbget, load_sqla
+
 
 db = connect_db()
 
@@ -102,8 +115,6 @@ urls = (
     '/cancelfr/(\d*)', 'PageUnfriend',
     '/acceptfr/(\d*)', 'PageAcceptFR',
     '/unfollow/(\d*)', 'PageUnfollow',
-
-    '/.*?/photos', 'PagePhotos',
     '/photos', 'PagePhotos',
     '/newalbum', 'PageNewAlbum',
     '/ajax_album', 'PageAlbumAJAX',
@@ -156,6 +167,8 @@ urls = (
     '/pwreset/(\d*)/(\d*)/(.*)/', 'mypinnings.recover_password.PasswordReset',
     '/recover_password_complete/', 'mypinnings.recover_password.RecoverPasswordComplete',
     '/getuserpins/(.*?)', 'GetUserPins',
+    '/(.*?)/ajax-album/(.*?)', 'PageAlbumAJAX',
+    '/favicon.ico', 'PageFavicon',
     '/(.*?)/list/(.*?)', 'PageList',
     '/(.*?)', 'PageProfile2',
     '/(.*?)/(.*?)', 'PageConnect2',
@@ -382,6 +395,11 @@ class PageCheckPassword:
     def GET(self):
         p = web.input(p='').p
         return pw_hash(p)
+
+
+class PageFavicon:
+    def GET(self):
+        pass
 
 
 class PageCheckEmail:
@@ -973,6 +991,14 @@ class PageProfile2:
         """
         # force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
+
+        username_and_tab = username.split("/")
+
+        username = username_and_tab[0]
+        active_tab = ''
+        if len(username_and_tab) > 1:
+            active_tab = username_and_tab[1]
+
         data = {"csid_from_client": ""}
 
         # Getting profile of a given user
@@ -1123,9 +1149,11 @@ class PageProfile2:
                 edit_profile = True
                 if get_input['editprofile']:
                     edit_profile_done = True
+
             return ltpl('profile', user, pins, offset, PIN_COUNT, hashed,
                         edit_profile, edit_profile_done, boards,
-                        categories_to_select, boards_first_pins, total, total_owned)
+                        categories_to_select, boards_first_pins, total,
+                        total_owned, active_tab)
         return ltpl('profile', user, pins, offset, PIN_COUNT, hashed)
 
 
@@ -1152,15 +1180,14 @@ class FollowList:
     def GET(self, board_id):
         force_login(sess)
         logintoken = convert_to_logintoken(sess.user_id)
-        url = "/api/image/follow-list"
+        url = "/api/image/follow-board"
         ctx = {
-            "logintoken": logintoken,
+            "user_id": sess.user_id,
             "csid_from_client": '',
             "board_id": board_id
         }
         result = api_request(url, data=ctx).get("data")
-        return result.get('status')
-
+        return result
 
 class PageAddFriend:
     def GET(self, user_id):
@@ -1350,7 +1377,6 @@ class PinLikeUnlike:
         pin = data.get("image_data_list")
         external_id = pin[0].get("external_id")
         raise web.seeother('/p/%s' % external_id)
-
 
 class PageUsers:
     def GET(self):
@@ -1562,17 +1588,16 @@ class PageAlbum:
 
 
 class PageAlbumAJAX:
-    def GET(self):
-        # force_login(sess)
+    def GET(self, username, album_type):
+
         logintoken = convert_to_logintoken(sess.user_id)
         data = {"csid_from_client": ""}
-        album_type = web.input().get("request_type")
 
         # Getting profile of a given user
         profile_url = "/api/profile/userinfo/info"
         profile_owner_context = {
-            "csid_from_client": "adfasdf",
-            "id": web.input().get("user_id"),
+            "csid_from_client": "",
+            "username": username,
             "logintoken": logintoken}
         user = api_request(profile_url, data=profile_owner_context)\
             .get("data", [])
@@ -1587,7 +1612,7 @@ class PageAlbumAJAX:
 
         if logintoken:
             photos_context['logintoken'] = logintoken
-        # import ipdb; ipdb.set_trace()
+
         photos = api_request("/api/profile/userinfo/get_pictures",
                              data=photos_context)\
             .get("data", {}).get("photos", [])
@@ -2399,6 +2424,29 @@ class PageList(object):
 
         return ltpl('list', pins)
 
+class PageList(object):
+    """
+    This class is responsible for rendering list individual page
+    """
+    def GET(self, profile_name, board_name):
+        # Getting board info
+        url = "/api/image/query-board"
+        ctx = {"csid_from_client": "", "board_name": board_name,
+               "username": profile_name}
+        board_info = api_request(url, data=ctx).get("data")
+
+        # Getting images
+        url = "/api/image/query"
+        ctx = {"csid_from_client": "",
+               "query_params": board_info["img_ids"]}
+        pins_info = api_request(url, data=ctx).get("data")
+        pins = [pin_utils.dotdict(pin)
+                for pin in pins_info.get("image_data_list")]
+        ajax = int(web.input(ajax=0).ajax)
+        if ajax:
+            return tpl('list', pins, "horzpin3")
+
+        return ltpl('list', pins)
 
 class PageSearchPeople:
     def GET(self):
@@ -2418,6 +2466,7 @@ class PageSearchPeople:
         }
 
         data = api_request("api/search/people", "POST", data)
+        users = []
         if data['status'] == 200:
             users = data['data']['users']
 

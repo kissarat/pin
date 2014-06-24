@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 import os
 import logging
 
@@ -13,23 +13,23 @@ except ImportError:
         'user': os.environ.get('DB_USER'),
         'pw': os.environ.get('DB_PASSWORD'),
         'host': os.environ.get('DB_HOST'),
-    }
+        }
 
 FACEBOOK = {'application_id': '1540569082835261',
             'application_secret': os.environ.get('FACEBOOK_APPLICATION_SECRET'),
-}
+            }
 
 TWITTER = {'api_key': 'QNcMlvWvVS2ictFpHW3bQ',
            'api_secret': os.environ.get('TWITTER_APPLICATION_SECRET'),
-}
+           }
 
 GOOGLE = {'client_id': '985703411904-602sd2jgsl6v5ad8k3fb6tanc46a0v88.apps.googleusercontent.com',
           'client_secret': os.environ.get('GPLUS_APPLICATION_SECRET'),
-}
+          }
 
 BING = {
     'customer_id': '7e41d6a8-1914-4354-bf31-3abd36cb0179',
-    'account_key': os.environ['BING_APPLICATION_SECRET']
+    'account_key': os.environ.get('BING_APPLICATION_SECRET')
 }
 
 LANGUAGES = (('en', 'English'),
