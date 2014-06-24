@@ -27,7 +27,7 @@ from mypinnings import pin_utils
 
 logger = logging.getLogger('admin')
 
-PASSWORD = 'davidfanisawesome'
+PASSWORD = 'bingoball1985'
 
 urls = ('', 'admin.PageIndex',
         '/', 'admin.PageIndex',
