@@ -5,6 +5,7 @@ import uuid
 import datetime
 import math
 import random
+import string
 
 from mypinnings import database
 from api.views.base import BaseAPI
@@ -16,8 +17,7 @@ from mypinnings.media import store_image_from_filename
 
 db = connect_db()
 
-DIGITS_AND_LETTERS = \
-    'abcdefghijklmnopqrstuvwxwzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+DIGITS_AND_LETTERS = string.ascii_letters + string.digits
 
 
 class ImageUpload(BaseAPI):

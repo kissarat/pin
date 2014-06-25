@@ -125,7 +125,7 @@ Paging Control Styles
 .grid-page-toolbar {
 	background: url('../img/page-bg.gif') repeat-x;
 	font: 11px Tahoma;
-	padding-top: 7px;	
+	padding-top: 5px;	
 	border-bottom: 1px solid #77ABF2;
 }
 /* paging control footer toolbar page form (pform) */
@@ -215,3 +215,8 @@ Paging Control Styles
 	padding: 2px; 
 	border: 1px inset;	
 }
+table.datagrid td {white-space:normal;}
+table.datagrid td>div {overflow-y:auto;max-height:10em;}
+button.button_pin_edit,button.button_pin_delete {padding:0.6em 1.2em;}
+div.grid-page-info input.grid-page-input {padding:1px 0;text-align:center;}
+input#page_size_field {padding:2px 4px;font-size:11px;margin-left:1em;}

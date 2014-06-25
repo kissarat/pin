@@ -11,7 +11,7 @@ $if pin.id:
         <a class='button small-pad' rel='nofollow' href='$pin.link'><i class='fa fa-external-link-square'></i></a>
     </div>
     <a href='/p/$pin.external_id'>
-      <img src='$pin.image_202_url' alt=''/>
+      <img src='$pin.image_url' alt=''/>
     </a>
     <div class='info'>
       $if pin.description:
@@ -35,7 +35,7 @@ $if pin.id:
           $if pin.user_pic:
             <img class='left' src='$(pin.user_pic)'/>
           $else:
-            <img class='left' src='/static/default-avatar.png'/>
+            <img class='left' src='/static/img/default-avatar.png'/>
         </a>
         <div class='right'>
           <p class='faded small'><a href='/profile/$pin.user_id'><b>$pin.user_name</b></a><br/> <a href='/category/$pin.category'><b>$pin.cat_name</b></a></p>

@@ -1,16 +1,13 @@
-﻿
 function parseUrl(){
     var url = window.location.pathname;
-
-
     // Auto open lists tab
     if (url.search('/lists') != -1){
-        var splitted_url = url.split("/lists/")
+        var splitted_url = url.split("/lists/");
         if (splitted_url.length == 1){
-            return
+            return;
         }
         var board_name = splitted_url[1]
-        var request_url = url.replace('lists', 'list') + "?ajax=1"
+        var request_url = url.replace('lists', 'list') + "?ajax=1";
         $.get(request_url, function(data){
             $("#list-box-wrapper").html(data);
         });
@@ -27,7 +24,6 @@ function parseUrl(){
             $("#photos_list").html(data);
         });
     }
-
 }
 
 jQuery(function ($) {
@@ -86,6 +82,7 @@ jQuery(function ($) {
             $("#save_and_close_existed_image").attr('href', $(this).attr('data_url'));
             $("#save_and_close_existed_image button").removeAttr('disabled');
         });
+
         $(".choose_existed_bg").click(function(evnt){
             evnt.preventDefault();
 

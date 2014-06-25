@@ -284,19 +284,33 @@ textarea, .input {
         background-color: #446688;
         border-radius: 4px; }
 
+#pin-box-wrapper>#pin-buf {background:url(/static/img/getlist-load.gif) no-repeat center top;}
+#pin-box-wrapper>#pin-buf>div.pin {opacity:0.4;}
+#pin-box-wrapper>#pin-buf>div.pin {width:202px;float:left;margin:8px;max-height:202px;}
+#pin-box-wrapper>#pin-buf>div.pin>div {display:none;}
+#pin-box-wrapper>#pin-buf>div.pin img {width:100%;} 
 .content {
   width: 1100px;
-  margin: 20px auto; }
+  margin: 20px auto;}
+body.tiny .content {width:872px;}
+body.tiny .content .pins .pin {width:202px;}
+body.small .content {width:980px;}
+body.small .content .pins .pin {width:229px;}
+body.medium .content {width:1324px;}
+body.medium .content .pins .pin {width:250px;}
+body.big .content {width:1580px;}
+body.big .content .pins .pin {width:300px;}
+body.large .content {width:1880px;}
+body.large .content .pins .pin {width:360px;}
   .content .pins {
     padding: 10px 0 10px 10px; }
     .content .pins .pin {
       background-color: white;
       display: block;
-      width: 202px;
+      width: 205px;
       margin-bottom: 20px;
       box-shadow: 0 0 5px #446688; }
-      .content .pins .pin.horz-pin {
-        width: 400px; }
+      /*.content .pins .pin.horz-pin { width: 400px; }*/
         .content .pins .pin.horz-pin .info {
           padding: 20px; }
       .content .pins .pin.horz-pin2 {
@@ -341,6 +355,8 @@ textarea, .input {
         display: block; }
       .content .pins .pin .info {
         padding: 10px; }
+      .content .pins .pin .info>p {
+        max-height:15em;overflow:auto; }
         .content .pins .pin .info .user .left {
           width: 40px;
           border: solid 1px #888888;
@@ -590,8 +606,9 @@ textarea, .input {
     font-weight: bold; }
 
 .category-disp .horz-pins {
-  width: 854px;
-  padding-right: 10px; }
+  width: 100%;
+  /*padding-right: 10px;*/
+}
 .category-disp .categories {
   padding-left: 10px;
   width: 210px; }

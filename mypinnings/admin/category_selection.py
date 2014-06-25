@@ -26,7 +26,7 @@ class PendingItems(object):
         db = database.get_db()
         pins_result = db.query('''
             select
-                tags.tags, pins.*, users.pic as user_pic,
+                tags.tags, pins.*,
                 users.username as user_username, users.name as user_name,
                 count(distinct p1) as repin_count,
                 count(distinct l1) as like_count
@@ -113,7 +113,7 @@ class ItemsToRemoveFromCategory:
         db = database.get_db()
         pins_result = db.query('''
             select
-                tags.tags, pins.*, users.pic as user_pic,
+                tags.tags, pins.*,
                 users.username as user_username, users.name as user_name,
                 count(distinct p1) as repin_count,
                 count(distinct l1) as like_count

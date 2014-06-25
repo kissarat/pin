@@ -163,7 +163,7 @@
 
 .profLeft
 {
-    width: 72%;
+    width: 792px/*72%*/;
     margin: 0px auto;
 }
 
@@ -466,7 +466,6 @@
 {
     width: 100%;
 }
-
 
 .dwImg div.centred-img {
     background-size: cover;
