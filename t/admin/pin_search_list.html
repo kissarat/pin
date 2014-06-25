@@ -4,6 +4,7 @@ $def with(pins, date)
 	$for pin in pins:
 		<tr pinid="$pin.id">
 			<td><img src="$pin.image_202_url" style="width:60px;height:auto"></td>
+			<td>$pin['image_width']x$pin['image_height']</td>
 			<td>$pin.name</td>
 			<td>$pin.description</td>
 			<td><a href="/$pin.username" target="_blank">$pin.username</a></td>
