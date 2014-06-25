@@ -4,45 +4,46 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
     data-target="#showPhotoModal$(user.bg['id'])" data-toggle="modal"
 >
 </div>
-<div class="profBackgroundsButtons">
-    <p class="userButtons"></p>
+$if user.id == sess.user_id:
+  <div class="profBackgroundsButtons">
+      <p class="userButtons"></p>
 
-    <a class='button' id="save_background" href="javascript:void(0)">Save changes</a>
-    <a class='button' id="cancel_background_move" href="javascript:void(0)">Cancel</a>
+      <a class='button' id="save_background" href="javascript:void(0)">Save changes</a>
+      <a class='button' id="cancel_background_move" href="javascript:void(0)">Cancel</a>
 
-    $if len(user.backgrounds) > 0:
-      <div class="btn-group" id="dropdown_bg">
-          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="max-width:115px;">
-              Change background
-              <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" style="margin-left:-105px;">
-              $if user.bg:
-                  <li>
-                      <a id="change_background" href="javascript:void(0)">
-                        Change background position</a>
-                  </li>
+      $if len(user.backgrounds) > 0:
+        <div class="btn-group" id="dropdown_bg">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" style="max-width:115px;">
+                Change background
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" style="margin-left:-105px;">
+                $if user.bg:
+                    <li>
+                        <a id="change_background" href="javascript:void(0)">
+                          Change background position</a>
+                    </li>
 
-              $if 'logged_in' in sess and user.id == sess.user_id:
-                  <li>
-                      <a data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#"> Upload background photo</a>
-                  </li>
-              $if len(user.backgrounds)>0:
-                  <li>
-                    <a href="javascript:void(0);" data-target="#choose_background_image" data-toggle="modal">
-                      Choose profile background from album
-                    </a>
-                  </li>
-              $if user.bg:
-                  <li>
-                      <a class="link_with_loading" href="/picture/$(user.bg['id'])/remove"> Remove current background</a>
-                  </li>
-          </ul>
-      </div>
-    $else:
-      <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#" style="    left: 660px; position: absolute;"> Upload background photo</a>
+                $if 'logged_in' in sess and user.id == sess.user_id:
+                    <li>
+                        <a data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#"> Upload background photo</a>
+                    </li>
+                $if len(user.backgrounds)>0:
+                    <li>
+                      <a href="javascript:void(0);" data-target="#choose_background_image" data-toggle="modal">
+                        Choose profile background from album
+                      </a>
+                    </li>
+                $if user.bg:
+                    <li>
+                        <a class="link_with_loading" href="/picture/$(user.bg['id'])/remove"> Remove current background</a>
+                    </li>
+            </ul>
+        </div>
+      $else:
+        <a class="button" data-target="#uploadBackgroundImageModal" data-toggle="modal" href="#" style="    left: 660px; position: absolute;"> Upload background photo</a>
 
-</div>
+  </div>
 
 <div class="profBack"
       $if user.bg:
@@ -78,31 +79,33 @@ $def with (user, hashed, edit_profile=None, edit_profile_done=None)
               <a id="profile_avatar" href='#'>
                 <div class="headingImg" style="background-image:url('/static/img/default-avatar-160.png'); width: 160px;"></div>
               </a>
-            <div id="transparent_button" data-toggle="dropdown">
-              <img src="https://fbstatic-a.akamaihd.net/rsrc.php/v2/yt/r/ErjpFSQWdpX.png">
-              <a href="javascript:void(0);">
-                Update profile image
-              </a>
-            </div>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="javascript:void(0);" id="upload_image_button">
-                  Upload new image
+
+            $if user.id == sess.user_id:
+              <div id="transparent_button" data-toggle="dropdown">
+                <img src="https://fbstatic-a.akamaihd.net/rsrc.php/v2/yt/r/ErjpFSQWdpX.png">
+                <a href="javascript:void(0);">
+                  Update profile image
                 </a>
-              </li>
-              $if len(user.photos)>0:
+              </div>
+              <ul class="dropdown-menu">
                 <li>
-                  <a href="javascript:void(0);" data-target="#choose_avatar_image" data-toggle="modal">
-                    Choose profile image from album
+                  <a href="javascript:void(0);" id="upload_image_button">
+                    Upload new image
                   </a>
                 </li>
-              $if user.pic_obj:
-                <li>
-                  <a class="link_with_loading" href="/picture/$(user.pic_obj['id'])/remove">
-                    Remove
-                  </a>
-                </li>
-            </ul>
+                $if len(user.photos)>0:
+                  <li>
+                    <a href="javascript:void(0);" data-target="#choose_avatar_image" data-toggle="modal">
+                      Choose profile image from album
+                    </a>
+                  </li>
+                $if user.pic_obj:
+                  <li>
+                    <a class="link_with_loading" href="/picture/$(user.pic_obj['id'])/remove">
+                      Remove
+                    </a>
+                  </li>
+              </ul>
         </div>
         <div class="otherPics">
           $ photos_qty = 1
