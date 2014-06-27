@@ -131,10 +131,13 @@ $(document).ready(function() {
         return false;
     }
 
-    $('#fetch-images, #fetch-images-profile').click(function(){
-        var url_input_to_fetch = $(this).parent().find(".fetch-url");
+    function fetch_images() {
+        var url_input_to_fetch = $('#url');
+        if (!url_input_to_fetch.val())
+            url_input_to_fetch = $('#url-in-profile');
 
         var url = url_input_to_fetch.val();
+        url_input_to_fetch.removeAttr('value');
         if (is_image_url(url))
             initgallery([url]);
         else {
@@ -163,7 +166,7 @@ $(document).ready(function() {
                         return show_fetch_images_error(data.error);
 //                $("#statusweb").html("please provide a valid image url");
                     if (1 != data.images.length)
-                        $("#websitelinkweb").val(url_input_to_fetch.val());
+                        $("#websitelinkweb").val(url);
                     if (!$('#titleweb').val())
                         $('#titleweb').val(data.title);
                     $("#getlist-from-web").clearForm();
@@ -183,6 +186,12 @@ $(document).ready(function() {
                 }
             });
         }
+    }
+
+    $('#fetch-images, #fetch-images-profile').click(fetch_images);
+    $('#web_getlist_form').submit(function(e) {
+        e.preventDefault();
+        fetch_images();
     });
 
     function initgallery(data){
