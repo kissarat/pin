@@ -445,8 +445,8 @@ $(document).ready(function() {
         $('#suggestions').empty();
 
         //Users name request
-        if (q.match(/^\w+$/))
-            suggestion_services.push($.getJSON('/api/search/suggest?q=' + q,
+        if (q.match(/^\w+$/) || 'last' == q)
+            suggestion_services.push($.getJSON('/api/search/suggest?q=' + ('last' != q ? q : ''),
                 function(names) {
                     for(var i in names) {
                         var name = names[i];
@@ -470,17 +470,24 @@ $(document).ready(function() {
         }));*/
     }
 
+    function last_suggestions() {
+            if (0 == $('#suggestions option').length && !$('[list=suggestions]').val())
+                request_suggestion('last');
+        }
+
     var keyup_timeout_id;
-    $('[list=suggestions]').keyup(function() {
-        var q = this.value;
-        q = $.trim(q);
-        q = q.replace(/ +/g, ' ');
-        if (!q || suggestion_query == q)
-            return;
-        suggestion_query = q;
-        clearTimeout(keyup_timeout_id);
-        keyup_timeout_id = setTimeout(request_suggestion.bind(this, q), 200);
-    });
+    $('[list=suggestions]')
+        .keyup(function() {
+            var q = this.value;
+            q = $.trim(q);
+            q = q.replace(/ +/g, ' ');
+            if (!q || suggestion_query == q)
+                return;
+            suggestion_query = q;
+            clearTimeout(keyup_timeout_id);
+            keyup_timeout_id = setTimeout(request_suggestion.bind(this, q), 200);
+        })
+        .click(last_suggestions);
 });
 
 //Google suggestions callback
