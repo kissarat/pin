@@ -137,7 +137,7 @@ $(document).ready(function() {
             url_input_to_fetch = $('#url-in-profile');
 
         var url = url_input_to_fetch.val();
-        url_input_to_fetch.removeAttr('value');
+        url_input_to_fetch.val('');
         if (is_image_url(url))
             initgallery([url]);
         else {
@@ -523,14 +523,16 @@ var websearch = {
                 .attr('src', result.thumb)
                 .attr('data-src', result.image)
                 .load(function() {
-                    if (!is_image_url(this.getAttribute('data-src')))
-                        return;
+//                    if (!is_image_url(this.getAttribute('data-src')))
+//                        return;
                     var img = new Image();
-                    img.src = this.getAttribute('data-src');
-                    var self = this;
+                    var self = $(this);
                     img.onload = function() {
-                        self.src = this.src;
+                        self.attr('src', this.src);
+                        self.unbind('load');
                     };
+                    img.src = self.attr('data-src');
+                    self.removeAttr('data-src');
                     /*img.onerror = function() {
                         self.src = '/static/img/unavailable.png';
                         $(self.parentNode)
