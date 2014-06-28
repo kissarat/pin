@@ -131,10 +131,13 @@ $(document).ready(function() {
         return false;
     }
 
-    $('#fetch-images, #fetch-images-profile').click(function(){
-        var url_input_to_fetch = $(this).parent().find(".fetch-url");
+    function fetch_images() {
+        var url_input_to_fetch = $('#url');
+        if (!url_input_to_fetch.val())
+            url_input_to_fetch = $('#url-in-profile');
 
         var url = url_input_to_fetch.val();
+        url_input_to_fetch.val('');
         if (is_image_url(url))
             initgallery([url]);
         else {
@@ -163,7 +166,7 @@ $(document).ready(function() {
                         return show_fetch_images_error(data.error);
 //                $("#statusweb").html("please provide a valid image url");
                     if (1 != data.images.length)
-                        $("#websitelinkweb").val(url_input_to_fetch.val());
+                        $("#websitelinkweb").val(url);
                     if (!$('#titleweb').val())
                         $('#titleweb').val(data.title);
                     $("#getlist-from-web").clearForm();
@@ -183,6 +186,12 @@ $(document).ready(function() {
                 }
             });
         }
+    }
+
+    $('#fetch-images, #fetch-images-profile').click(fetch_images);
+    $('#web_getlist_form').submit(function(e) {
+        e.preventDefault();
+        fetch_images();
     });
 
     function initgallery(data){
@@ -436,8 +445,8 @@ $(document).ready(function() {
         $('#suggestions').empty();
 
         //Users name request
-        if (q.match(/^\w+$/))
-            suggestion_services.push($.getJSON('/api/search/suggest?q=' + q,
+        if (q.match(/^\w+$/) || 'last' == q)
+            suggestion_services.push($.getJSON('/api/search/suggest?q=' + ('last' != q ? q : ''),
                 function(names) {
                     for(var i in names) {
                         var name = names[i];
@@ -461,17 +470,24 @@ $(document).ready(function() {
         }));*/
     }
 
+    function last_suggestions() {
+            if (0 == $('#suggestions option').length && !$('[list=suggestions]').val())
+                request_suggestion('last');
+        }
+
     var keyup_timeout_id;
-    $('[list=suggestions]').keyup(function() {
-        var q = this.value;
-        q = $.trim(q);
-        q = q.replace(/ +/g, ' ');
-        if (!q || suggestion_query == q)
-            return;
-        suggestion_query = q;
-        clearTimeout(keyup_timeout_id);
-        keyup_timeout_id = setTimeout(request_suggestion.bind(this, q), 200);
-    });
+    $('[list=suggestions]')
+        .keyup(function() {
+            var q = this.value;
+            q = $.trim(q);
+            q = q.replace(/ +/g, ' ');
+            if (!q || suggestion_query == q)
+                return;
+            suggestion_query = q;
+            clearTimeout(keyup_timeout_id);
+            keyup_timeout_id = setTimeout(request_suggestion.bind(this, q), 200);
+        })
+        .click(last_suggestions);
 });
 
 //Google suggestions callback
@@ -514,14 +530,16 @@ var websearch = {
                 .attr('src', result.thumb)
                 .attr('data-src', result.image)
                 .load(function() {
-                    if (!is_image_url(this.getAttribute('data-src')))
-                        return;
+//                    if (!is_image_url(this.getAttribute('data-src')))
+//                        return;
                     var img = new Image();
-                    img.src = this.getAttribute('data-src');
-                    var self = this;
+                    var self = $(this);
                     img.onload = function() {
-                        self.src = this.src;
+                        self.attr('src', this.src);
+                        self.unbind('load');
                     };
+                    img.src = self.attr('data-src');
+                    self.removeAttr('data-src');
                     /*img.onerror = function() {
                         self.src = '/static/img/unavailable.png';
                         $(self.parentNode)

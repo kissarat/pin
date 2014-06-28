@@ -212,10 +212,13 @@ def make_query(q):
 class SearchSuggestions(BaseAPI):
     def GET(self):
         q = web.input().q
-        response = []
+        #response = []
         if q:
             sql = 'select username, "name" from users where username ilike $q order by username asc limit 10'
             response = [[user.username, user.name] for user in db.query(sql, vars={'q': q + '%'})]
             sql = 'select string from queries where string ilike $q group by string limit 10'
             response += [query.string for query in db.query(sql, vars={'q': q + '%'})]
+        else:
+            sql = 'select string from (select string from queries order by "timestamp" desc) as t group by string limit 20'
+            response = [query.string for query in db.query(sql)]
         return json.dumps(response)

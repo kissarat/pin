@@ -1340,8 +1340,8 @@ class PagePreview:
 
             print url
             r = requests.get(url,
-                timeout=5, allow_redirects=False, verify=False, stream=False)
-            if 'image' in r.headers['content-type']:
+                timeout=5, verify=False, stream=False)
+            if 'content-type' in r.headers and 'image' in r.headers['content-type']:
                 info = {'images': [url]}
             else:
                 base_url = get_base_url(url)

@@ -4,7 +4,7 @@ from settings import BING
 from base64 import encodestring
 from base import BaseAPI
 from json import loads, dumps
-from urllib2 import urlopen, Request
+from urllib2 import urlopen, Request, quote
 
 auth = BING['customer_id'] + ':' + BING['account_key']
 auth = encodestring(auth).replace('\n', '')
@@ -26,6 +26,7 @@ class Image(BaseAPI):
             count = google_offset - offset
             if count > 8:
                 count = 8
+            query = quote(query.encode('utf8'))
             r = urlopen('http://ajax.googleapis.com/ajax/services/' +
                        'search/images?v=1.0&q=%s&rsz=%s&start=%s'
                        % (query, count, offset))
