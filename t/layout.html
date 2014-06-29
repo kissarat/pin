@@ -162,6 +162,9 @@ $def with (content, categories, boards=[], all_albums=None, user=None, acti_need
       <div class="block-loading">
         <img src="/static/img/loading_big.gif" />
       </div>
+      <div class="block-progress">
+          <input type="range" />
+      </div>
       <div id="dialog-form" style="display:none">
         <form method="post" action="/newaddpin" enctype="multipart/form-data" id="upload_form">
         <input type="file" name="image" id="image" accept="image/*" placeholder="Please choose a file"><br/>

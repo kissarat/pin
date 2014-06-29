@@ -29,7 +29,7 @@ GOOGLE = {'client_id': '985703411904-602sd2jgsl6v5ad8k3fb6tanc46a0v88.apps.googl
 
 BING = {
     'customer_id': '7e41d6a8-1914-4354-bf31-3abd36cb0179',
-    'account_key': os.environ.get('BING_APPLICATION_SECRET')
+    'account_key': os.environ.get('BING_APPLICATION_SECRET') or ''
 }
 
 LANGUAGES = (('en', 'English'),
