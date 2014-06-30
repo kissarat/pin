@@ -16,7 +16,7 @@
     width: 100%;
 }
 
-.block-loading {
+.block-loading, .block-progress {
     position: fixed;
     top: 0;
     right: 0;
@@ -29,7 +29,7 @@
     vertical-align: middle;
 }
 
-.block-loading > img {
+.block-loading > img, .block-progress > input {
     margin-top: 200px;
     max-width: 150px;
 }

@@ -167,10 +167,11 @@ $(document).ready(function() {
 //                $("#statusweb").html("please provide a valid image url");
                     if (1 != data.images.length)
                         $("#websitelinkweb").val(url);
-                    if (!$('#titleweb').val())
+                    //if (!$('#titleweb').val())
                         $('#titleweb').val(data.title);
                     $("#getlist-from-web").clearForm();
                     $(".block-loading").hide();
+                    $('#slide-imageweb').removeAttr('src');
                     $("#addpindialogformweb").dialog("open");
                     initgallery(data.images);
                 },
@@ -380,11 +381,7 @@ $(document).ready(function() {
         showitem : function(){
             var current = this.data[this.current];
             this.element.attr("src", current.url);
-            if(current.w > current.h){
-                this.element.attr("class", "img-width");
-            }else{
-                this.element.attr("class", "img-height");
-            }
+            this.element.attr("class", current.w > current.h ? "img-width" : "img-height");
             $("#image_urlweb").val(current.url);
             this.showstatus();
             this.showsize();
