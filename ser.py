@@ -999,6 +999,8 @@ class PageProfile2:
         if len(username_and_tab) > 1:
             active_tab = username_and_tab[1]
 
+
+
         data = {"csid_from_client": ""}
 
         # Getting profile of a given user
@@ -1151,10 +1153,11 @@ class PageProfile2:
                     edit_profile_done = True
 
             return ltpl('profile', user, pins, offset, PIN_COUNT, hashed,
-                        edit_profile, edit_profile_done, boards,
+                        active_tab, edit_profile, edit_profile_done, boards,
                         categories_to_select, boards_first_pins, total,
-                        total_owned, active_tab)
-        return ltpl('profile', user, pins, offset, PIN_COUNT, hashed)
+                        total_owned)
+        return ltpl('profile', user, pins, offset, PIN_COUNT, hashed,
+                    active_tab)
 
 
 class PageFollow:
