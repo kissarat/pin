@@ -1151,10 +1151,11 @@ class PageProfile2:
                     edit_profile_done = True
 
             return ltpl('profile', user, pins, offset, PIN_COUNT, hashed,
-                        edit_profile, edit_profile_done, boards,
-                        categories_to_select, boards_first_pins, total,
-                        total_owned, active_tab)
-        return ltpl('profile', user, pins, offset, PIN_COUNT, hashed)
+                        active_tab, boards, boards_first_pins, total,
+                        total_owned, edit_profile, edit_profile_done,
+                        categories_to_select)
+        return ltpl('profile', user, pins, offset, PIN_COUNT, hashed,
+                    active_tab, boards, boards_first_pins, total, total_owned)
 
 
 class PageFollow:

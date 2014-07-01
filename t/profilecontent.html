@@ -49,7 +49,7 @@ $def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards
             </a>
         </li>
         <li
-          $if active_tab=='photos-list':
+          $if active_tab=='photos':
              class="active"
           >
             <a href="" data-url="/$user.username/photos">
@@ -58,7 +58,6 @@ $def with (user, pins, hashed, edit_profile=None, edit_profile_done=None, boards
         </li>
 
     </ul>
-
     <div class="tab-content">
         $:tpl('profileinfo', user, hashed, edit_profile, edit_profile_done, active_tab)
         $:tpl('pins', pins, 'horzpin3', None, edit_profile, boards, categories_to_select, user, active_tab)
