@@ -1,15 +1,6 @@
 $def with (pin, comments, rating, embeded=False)
 <div class='pin-display'>
   <div class='display'>
-    <h1>$pin.description</h1>
-    <p class='faded'>Posted by <a href='/profile/$pin.user_id'>$pin.user_name</a>
-    $if pin.categories:
-    	in
-	    $for cat in pin.categories:
-	    	<a href='/category/$cat.slug'>$cat.name</a>
-	    	$if not loop.last:
-	    		,
-	    </p>
     <p>
       $if 'logged_in' in sess and sess.user_id == pin.user_id:
         <a class='button' href='/setprivacy/$pin.id'>
@@ -23,15 +14,29 @@ $def with (pin, comments, rating, embeded=False)
       $if pin.link:
         <a class='button' rel='nofollow' href='$pin.link'><i class='fa fa-external-link-square'></i> Source URL</a>
     </p>
+    <p class='faded'>Posted by <a href='/profile/$pin.user_id'>$pin.user_name</a>
+    $if pin.categories:
+    	in
+	    $for cat in pin.categories:
+	    	<a href='/category/$cat.slug'>$cat.name</a>
+	    	$if not loop.last:
+	    		,
+	  </p>
+	  <div class="pin_wrapper">
    	$if pin.link:
    		<a href="$pin.link" target="_blank">
    	$else:
    		<a href="/profile/$pin.user_id">
-	$if embeded:
-		<img src='$pin.image_url' alt='' style="max-height:530px;width:auto"/>
-	$else:
-		<img src='$pin.image_url' alt='' style="max-width:80%;height:auto"/>
-	</a>
+  	$if embeded:
+  		<img src='$pin.image_url' alt='' style="max-height:530px;width:auto"/>
+  	$else:
+  		<img src='$pin.image_url' alt='' style="max-width:80%;height:auto"/>
+  	</a>
+  	<h1>$pin.name</h1>
+    <p>$pin.description</p>
+    $if pin.tags:
+      <p class='faded'><i class='fa fa-tag'></i> $:(' '.join(['<a href="/search/items?h=%s">#%s</a>' % (x, x) for x in pin.tags]))</p>  	
+	  </div>
     <div class='comments'>
       $ comments = list(comments)
       <div class='clearfix'>
@@ -43,8 +48,6 @@ $def with (pin, comments, rating, embeded=False)
               <a href='/like-unlike/$pin.id'>Like</a> &middot;
             <label for='input-comment'>Comment</label> &middot;
           <span class='link' id='share'>Share</span>
-          $if pin.tags:
-            &middot; <span class='faded'><i class='fa fa-tag'></i> $:(' '.join(['<a href="/search/items?h=%s">#%s</a>' % (x, x) for x in pin.tags]))</span>
           <span class='invis' id='sharelinks'>
             $ url = 'http://mypinnings.com/p/%s' % pin.external_id
 
