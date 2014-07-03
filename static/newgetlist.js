@@ -3,7 +3,9 @@ $(document).ready(function() {
         var img = new Image();
         img.src = url;
         img.onerror = function() {
-            gallery.loadError();
+            this.src = thumbnail;
+            url = thumbnail;
+            //gallery.loadError();
         };
         img.onload = function() {
             gallery.setdata({
@@ -350,7 +352,7 @@ $(document).ready(function() {
         },
         setdata: function(data){
             this.lengthTotal--;
-            if(data.w * data.h > 200*200)
+            if(data.w * data.h > 200*200 || data.url == thumbnail)
                 this.data.push(data);
             this.show();
         },
@@ -482,11 +484,13 @@ $(document).ready(function() {
 }*/
 
 /* ----- Images web search ----- */
-function load_image_from_url(image, url, title) {
+var thumbnail;
+function load_image_from_url(image, url, title, thumb) {
     $('#url').val(image);
     $("#websitelinkweb").val(url);
     $('#titleweb').val(title);
     //$('#web_getlist_link').click();
+    thumbnail = thumb;
     $('#fetch-images').click();
 }
 
@@ -536,7 +540,9 @@ var websearch = {
                 .click(load_image_from_url.bind(this,
                     result.image,
                     result.url,
-                    decodeHTMLEntities(result.title)))
+                    decodeHTMLEntities(result.title),
+                    result.thumb
+                ))
                 .appendTo(row);
             websearch.offset++;
         }
