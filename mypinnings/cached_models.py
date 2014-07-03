@@ -13,6 +13,7 @@ def initialize(db):
 
 
 def get_categories():
+    global all_categories
     data = api_request("api/categories/get", "POST", {})
     if data['status'] == 200:
         all_categories = data['data']['categories_list']
