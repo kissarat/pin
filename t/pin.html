@@ -1,95 +1,96 @@
 $def with (pin, comments, rating, embeded=False)
 <div class='pin-display'>
-  <div class='display'>
-    <p>
-      $if 'logged_in' in sess and sess.user_id == pin.user_id:
-        <a class='button' href='/setprivacy/$pin.id'>
-          <i class='fa fa-lock'></i>
-          $(['Default', 'Private', 'Public'][pin.privacy])
-        </a>
-        <a class='button' href='/add-to-your-own-getlist/$pin.id'><i class='fa fa-thumb-tack'></i> Add to Your Getlist</a>
+    <div class='display'>
+        <p>
+            $if 'logged_in' in sess and sess.user_id == pin.user_id:
+                <a class='button' href='/setprivacy/$pin.id'>
+                    <i class='fa fa-lock'></i>
+                    $(['Default', 'Private', 'Public'][pin.privacy])
+                </a>
+            <a class='button' href='/add-to-your-own-getlist/$pin.id'><i class='fa fa-thumb-tack'></i> Add to Your Getlist</a>
 
-      $if pin.product_url:
-        <a class='button' rel='nofollow' href='$pin.product_url'><i class='fa fa-shopping-cart'></i> Buy It Here</a>
-      $if pin.link:
-        <a class='button' rel='nofollow' href='$pin.link'><i class='fa fa-external-link-square'></i> Source URL</a>
-    </p>
-    <p class='faded'>Posted by <a href='/profile/$pin.user_id'>$pin.user_name</a>
-    $if pin.categories:
-    	in
-	    $for cat in pin.categories:
-	    	<a href='/category/$cat.slug'>$cat.name</a>
-	    	$if not loop.last:
-	    		,
-	  </p>
-	  <div class="pin_wrapper">
-   	$if pin.link:
-   		<a href="$pin.link" target="_blank">
-   	$else:
-   		<a href="/profile/$pin.user_id">
-  	$if embeded:
-  		<img src='$pin.image_url' alt='' style="max-height:530px;width:auto"/>
-  	$else:
-  		<img src='$pin.image_url' alt='' style="max-width:80%;height:auto"/>
-  	</a>
-  	<h1>$pin.name</h1>
-    <p>$pin.description</p>
-    $if pin.tags:
-      <p class='faded'><i class='fa fa-tag'></i> $:(' '.join(['<a href="/search/items?h=%s">#%s</a>' % (x, x) for x in pin.tags]))</p>  	
-	  </div>
-    <div class='comments'>
-      $ comments = list(comments)
-      <div class='clearfix'>
-        <div class='links left'>
-          $if 'logged_in' in sess:
-            $if pin.liked:
-              <a href='/like-unlike/$pin.id'>Unlike</a> &middot;
+            $if pin.product_url:
+                <a class='button' rel='nofollow' href='$pin.product_url'><i class='fa fa-shopping-cart'></i> Buy It Here</a>
+            $if pin.link:
+                <a class='button' rel='nofollow' href='$pin.link'><i class='fa fa-external-link-square'></i> Source URL</a>
+        </p>
+        <p class='faded'>
+            Posted by <a href='/profile/$pin.user_id'>$pin.user_name</a>
+            $if pin.categories:
+                in
+                $for cat in pin.categories:
+                    <a href='/category/$cat.slug'>$cat.name</a>
+                    $if not loop.last:
+                        ,
+        </p>
+        <div class="pin_wrapper">
+            $if pin.link:
+                <a href="$pin.link" target="_blank">
             $else:
-              <a href='/like-unlike/$pin.id'>Like</a> &middot;
-            <label for='input-comment'>Comment</label> &middot;
-          <span class='link' id='share'>Share</span>
-          <span class='invis' id='sharelinks'>
-            $ url = 'http://mypinnings.com/p/%s' % pin.external_id
+                <a href="/profile/$pin.user_id">
+            $if embeded:
+                <img src='$pin.image_url' alt='' style="max-height:530px;width:auto"/>
+            $else:
+                <img src='$pin.image_url' alt='' style="max-width:80%;height:auto"/>
+            </a>
+            <h1>$pin.name</h1>
+            <p>$pin.description</p>
+            $if pin.tags:
+                <p class='faded'><i class='fa fa-tag'></i> $:(' '.join(['<a href="/search/items?h=%s">#%s</a>' % (x, x) for x in pin.tags]))</p>  	
+        </div>
+        <div class='comments'>
+            $ comments = list(comments)
+            <div class='clearfix'>
+                <div class='links left'>
+                    $if 'logged_in' in sess:
+                        $if pin.liked:
+                            <a href='/like-unlike/$pin.id'>Unlike</a> &middot;
+                        $else:
+                            <a href='/like-unlike/$pin.id'>Like</a> &middot;
+                        <label for='input-comment'>Comment</label> &middot;
+                    <span class='link' id='share'>Share</span>
+                    <span class='invis' id='sharelinks'>
+                        $ url = 'http://mypinnings.com/p/%s' % pin.external_id
 
-            <i class='fa fa-arrow-circle-right'></i>
-            <a href='http://www.facebook.com/sharer/sharer.php?s=100&p[url]=$url&p[title]=$pin.description'>Facebook</a> &middot;
-            <a href='http://twitter.com/home?status=$(pin.description)%20on%20MyPinnings:%20$url'>Twitter</a> &middot;
-            <a href='http://www.linkedin.com/shareArticle?mini=true&url=$url&title=$pin.description'>LinkedIn</a>
-          </span>
+                        <i class='fa fa-arrow-circle-right'></i>
+                        <a href='http://www.facebook.com/sharer/sharer.php?s=100&p[url]=$url&p[title]=$pin.description'>Facebook</a> &middot;
+                        <a href='http://twitter.com/home?status=$(pin.description)%20on%20MyPinnings:%20$url'>Twitter</a> &middot;
+                        <a href='http://www.linkedin.com/shareArticle?mini=true&url=$url&title=$pin.description'>LinkedIn</a>
+                    </span>
+                </div>
+                <div class='right'>
+                    $if pin.likes > 0:
+                        <b>$pin.likes like$('s' if pin.likes != 1 else '')</b>
+                        &nbsp;
+                    <b><i class='fa fa-thumb-tack'></i> $pin.repin_count</b>
+                    &nbsp;
+                    <b><i class='fa fa-eye'></i> $pin.views</b>
+                </div>
+            </div>
+            <hr/>
+            $for comment in comments:
+                <div class='comment'>
+                    <div><a href='/profile/$comment.user_id'>$comment.user_name</a></div>
+                    <div class='pre'>$comment.comment</div>
+                </div>
+            $if 'logged_in' in sess:
+                <form method='post' action='/p/$pin.external_id' autocomplete='off'>
+                    <p><textarea id='input-comment' name='comment' placeholder='Write a comment...'></textarea></p>
+                    <p><button>Comment</button></p>
+                </form>
         </div>
-        <div class='right'>
-          $if pin.likes > 0:
-            <b>$pin.likes like$('s' if pin.likes != 1 else '')</b>
-            &nbsp;
-          <b><i class='fa fa-thumb-tack'></i> $pin.repin_count</b>
-          &nbsp;
-          <b><i class='fa fa-eye'></i> $pin.views</b>
-        </div>
-      </div>
-      <hr/>
-      $for comment in comments:
-        <div class='comment'>
-          <div><a href='/profile/$comment.user_id'>$comment.user_name</a></div>
-          <div class='pre'>$comment.comment</div>
-        </div>
-      $if 'logged_in' in sess:
-        <form method='post' action='/p/$pin.external_id' autocomplete='off'>
-          <p><textarea id='input-comment' name='comment' placeholder='Write a comment...'></textarea></p>
-          <p><button>Comment</button></p>
-        </form>
     </div>
-  </div>
 </div>
 $if 'logged_in' in sess:
-  <script type='text/javascript'>window.pinId = $pin.id;</script>
-  <script type='text/javascript' src='/static/pin.js'></script>
+    <script type='text/javascript'>window.pinId = $pin.id;</script>
+<script type='text/javascript' src='/static/pin.js'></script>
 $if not embeded:
-	<script>
-	window.onpopstate = function(event) {
-	  var path;
-	  path = document.location.pathname;
-	  if (path.substring(0, 3) !== '/p/') {
-	    window.location.reload();
-	  }
-	};
-  	</script>
+    <script>
+    window.onpopstate = function(event) {
+        var path;
+        path = document.location.pathname;
+        if (path.substring(0, 3) !== '/p/') {
+            window.location.reload();
+        }
+    };
+    </script>

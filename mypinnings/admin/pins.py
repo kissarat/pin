@@ -32,7 +32,11 @@ class SearchCriteria(object):
         sess['search_email'] = data.email
         sess['category'] = data.category
         sess['search_reset_offset'] = True
-        return ''
+        
+        where_clause = build_where(self)
+        db = database.get_db()
+        count = db.query('select count(*) as cnt from pins where %s' % ' and '.join(where_clause))[0]
+        return count.cnt
 
 
 PAGE_SIZE = 50
@@ -51,105 +55,25 @@ class SearchPagination(object):
             self.page = int(data.page) - 1
         self.sort = data.sort
         self.sort_direction = data.dir
-        self.pin_url = sess.get('search_pin_url', None)
-        self.category = sess.get('category', False)
-        self.username = sess.get('search_username', False)
-        self.full_name = sess.get('search_name', False)
-        self.email = sess.get('search_email', False)
-        if self.pin_url:
-            return self.find_by_pin_url()
-        elif self.category:
-            return self.find_within_a_category()
-        else:
-            return self.find_by_user_id()
-
-    def find_by_pin_url(self):
-        if '/' in self.pin_url:
-            # is a path
-            external_id = self.pin_url.split('/')[-1]
-        else:
-            external_id = self.pin_url
+        
+        where_clause = build_where(self)
         db = database.get_db()
-        results = db.where(table='pins', external_id=external_id)
+        results = db.query('''select 
+                            pins.*,
+                            case when users.username is null then '---' else users.username end as username
+                        from pins 
+                            left join users on pins.user_id=users.id
+                        where {where_clause}
+                        order by {sort_ord} {sort_dir}
+                        limit {limit} offset {offset}
+                        '''.format(where_clause=' and '.join(where_clause), sort_ord=self.sort, sort_dir=self.sort_direction, limit=PAGE_SIZE, offset=(PAGE_SIZE * self.page)))
         pins = []
         for row in results:
             pins.append(row)
         if pins:
             return web.template.frender('t/admin/pin_search_list.html')(pins, date)
         else:
-            return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-
-    def find_within_a_category(self):
-        db = database.get_db()
-        if self.category == 'uncategorized':
-            results = db.select(tables=['pins', 'users'],
-                               what='pins.*, users.username',
-                               where='''pins.id not in (select pin_id from pins_categories)
-                                   and pins.user_id = users.id''',
-                               order='{} {}'.format(self.sort, self.sort_direction),
-                               vars={'catid': self.category},
-                               limit=PAGE_SIZE, offset=(PAGE_SIZE * self.page))
-        elif self.category == 'any':
-            results = db.select(tables=['pins', 'users'],
-                               what='pins.*, users.username',
-                               where=' pins.user_id = users.id',
-                               order='{} {}'.format(self.sort, self.sort_direction),
-                               limit=PAGE_SIZE, offset=(PAGE_SIZE * self.page))
-        else:
-            results = db.select(tables=['pins', 'pins_categories', 'users'],
-                               what='distinct pins.*, users.username',
-                               where='''pins.id=pins_categories.pin_id and pins_categories.category_id=$catid
-                                   and pins.user_id = users.id''',
-                               order='{} {}'.format(self.sort, self.sort_direction),
-                               vars={'catid': self.category},
-                               limit=PAGE_SIZE, offset=(PAGE_SIZE * self.page))
-        pins = []
-        for row in results:
-            pins.append(row)
-        if pins:
-            return web.template.frender('t/admin/pin_search_list.html')(pins, date)
-        else:
-            return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-
-    def find_by_user_id(self):
-        db = database.get_db()
-        if self.username:
-            results = db.select(tables='users', where='username=$username',
-                                vars={'username': self.username})
-        elif self.full_name:
-            results = db.select(tables='users',
-                                where="name like '%%{query}%%'".format(query=self.full_name),
-                                )
-        elif self.email:
-            results = db.select(tables='users', where='email=$email',
-                                vars={'email': self.emails})
-        else:
-            return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-        user_id_list = [str(row.id) for row in results]
-        if not user_id_list:
-            return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-        user_ids = ','.join(user_id_list)
-        results = db.select(tables='pins', where='user_id in ({})'.format(user_ids),
-                            limit=PAGE_SIZE, offset=(PAGE_SIZE * self.page),
-                            order='{} {}'.format(self.sort, self.sort_direction))
-        pins = []
-        for row in results:
-            pins.append(row)
-        if pins:
-            return web.template.frender('t/admin/pin_search_list.html')(pins, date)
-        else:
-            return web.template.frender('t/admin/pin_search_list.html')(self.empty_results(), date)
-
-    def empty_results(self):
-        class O(object):
-            def __getattr__(self, name):
-                if name == 'name':
-                    return 'no items'
-                elif name == 'timestamp':
-                    return 0
-                else:
-                    return ''
-        return [O(),]
+            return web.template.frender('t/admin/pin_search_list.html')([], date)
 
 
 class Pin(object):
@@ -218,3 +142,48 @@ class MultipleDelete(object):
             pin = db.where(table='pins', what='id, user_id', id=pin_id)[0]
             pin_utils.delete_pin_from_db(db, pin_id, pin.user_id)
         return 'ok'
+
+def build_where(self):
+    sess = session.get_session()
+    self.pin_url = sess.get('search_pin_url', None)
+    self.category = sess.get('category', False)
+    self.username = sess.get('search_username', False)
+    self.full_name = sess.get('search_name', False)
+    self.email = sess.get('search_email', False)
+    
+    where_clause = ['True']
+    # where_clause must have columns only from pins table referenced directly since count query uses just the pins table
+    if self.pin_url:
+        if '/' in self.pin_url:
+            # is a path
+            external_id = self.pin_url.split('/')[-1]
+        else:
+            external_id = self.pin_url
+        where_clause.append("pins.external_id='%s'" % external_id)
+    if self.category == 'uncategorized':
+        where_clause.append('pins.id not in (select pin_id from pins_categories)')
+    elif self.category and self.category != 'any':
+        where_clause.append('pins.id in (select pin_id from pins_categories where category_id=%d)' % int(self.category))
+    
+    db = database.get_db()
+    user_list = None
+    if self.username:
+        user_list = db.select(tables='users', where='username=$username',
+                            vars={'username': self.username})
+    elif self.full_name:
+        user_list = db.select(tables='users',
+                            where="name like '%%{query}%%'".format(query=self.full_name))
+    elif self.email:
+        user_list = db.select(tables='users', where='email=$email',
+                            vars={'email': self.email})
+    if user_list:
+        user_id_list = [str(row.id) for row in user_list]
+        if user_id_list:
+            where_clause.append('user_id in (%s)' % ','.join(user_id_list))
+    elif self.username or self.full_name or self.email:
+        if self.username == '---':
+            where_clause.append('user_id not in (select id from users)')
+        else:
+            where_clause.append('False')
+    
+    return where_clause
