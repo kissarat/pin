@@ -11,6 +11,7 @@ def connect_db():
     if db is not None:
         return db
     db = web.database(**settings.params)
+    db.printing = False
     return db
 
 def dbget(table, row_id):
