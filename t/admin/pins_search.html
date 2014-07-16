@@ -31,7 +31,7 @@ $def with(categories)
 		</tr>
 		<tr>
 			<th></th>
-			<td><button id="search_button">Search</button></td>
+			<td><button id="search_button">Search</button><span id="searchCount"></span></td>
 		</tr>
 	</table>
 </form>
@@ -39,6 +39,7 @@ $def with(categories)
 	<table id="results_table">
 		<thead>
 			<th>Img</th>
+			<th>Size</th>
 			<th>Title</th>
 			<th>Description</th>
 			<th>Username</th>
@@ -46,6 +47,7 @@ $def with(categories)
 			<th></th>
 		</thead>
 		<tbody>
+			<td></td>
 			<td></td>
 			<td></td>
 			<td></td>
@@ -69,7 +71,7 @@ $$(document).ready(
 	function() {
 		$$.pagination_grid = $$("#results_table").ingrid({
 			url: '/admin/pins/search/pagination',
-			initialLoad: true,
+			initialLoad: false,
 			height: 600,
 			colWidths: [60, 60, 170, 300, 100, 100, 80],
 			colSortParams: ['pins.image_url', 'pins.name', 'pins.description', 'pins.timestamp'],

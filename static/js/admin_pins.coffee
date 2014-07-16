@@ -10,9 +10,25 @@ jQuery ->
 		$.ajax
 			data: search_data,
 			url: '/admin/pins/search/set_search_criteria',
-			success: ->	
-				$.pagination_grid.g.load()
+			success:  (data, textStatus, jqXHR) ->	
+				if data>0
+					$.pagination_grid.g.load({totalRecords:data})
+					$('#searchCount').html(data + ' pins found')
+				else
+					alert('No records found for given search criteria')
 				return
+		return
+	
+	$('input#username').on 'change', (event) ->
+		$('input#name, input#email').val('')
+		return
+	
+	$('input#name').on 'change', (event) ->
+		$('input#username, input#email').val('')
+		return
+	
+	$('input#email').on 'change', (event) ->
+		$('input#name, input#username').val('')
 		return
 	
 	$('.datagrid').on 'click', '.edit-pin', (event) ->

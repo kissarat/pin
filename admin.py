@@ -239,7 +239,20 @@ class PageUser:
             group by users.id''', vars={'id': user_id})
         if not user:
             return 'user not found'
-        return template.admin.user(user[0], datetime)
+        else:
+            pics = db.query('''
+                select 
+                    p1.original_url as bg,
+                    p2.original_url as pic 
+                from users u
+                    left join pictures p1 on u.bg_id = p1.id
+                    left join pictures p2 on u.pic_id = p2.id
+                where u.id = $id''', vars={'id': user_id})
+            user = user[0]  # have to do this, else get IndexError
+            pics = pics[0]
+            user['bg'] = pics['bg']
+            user['pic'] = pics['pic']
+        return template.admin.user(user, datetime)
 
 
 class PageCloseUser:
@@ -247,6 +260,7 @@ class PageCloseUser:
         login()
         user_id = int(user_id)
         db = database.get_db()
+        # TODO : resolve circular references 
         db.delete(table='photos', where='album_id in (select id from albums where user_id=$id)', vars={'id': user_id})
         db.delete(table='albums', where='user_id=$id', vars={'id': user_id})
         db.delete(table='boards', where='user_id=$id', vars={'id': user_id})
@@ -301,7 +315,15 @@ class PageEditUser:
         login()
         user_id = int(user_id)
         db = database.get_db()
-        results = db.select('users', where='id = $id', vars={'id': user_id})
+        #results = db.select('users', where='id = $id', vars={'id': user_id})
+        results = db.query('''
+            select u.*,
+                p1.original_url as bg,
+                p2.original_url as pic
+            from users u
+                left join pictures p1 on u.bg_id=p1.id
+                left join pictures p2 on u.pic_id=p2.id
+            where u.id = $id''', vars={'id': user_id})
         for row in results:
             user = row
             break
@@ -320,6 +342,7 @@ class PageEditUser:
         del d['update']
         d['zip'] = d.get('zip', None) or None
         d['birthday'] = d.get('birthday', None) or None
+        del d['bg']
         db = database.get_db()
         db.update('users', where='id = $id', vars={'id': user_id}, **d)
         raise web.seeother('/edituser/%d' % user_id)

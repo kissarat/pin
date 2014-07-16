@@ -9,7 +9,7 @@ $def with(pin, pin_categories, pin_tags, categories1, categories2, categories3)
 	</div>
 	<div class="form-group">
 		<label for="image_url">Change image URL</label>
-		<input type="text" name="image_url" id="image_url" class="form-control"/>
+		<input type="text" name="image_url" id="image_url" value="$pin.image_url" class="form-control"/>
 	</div>
 	<div class="form-group">
 		<label for="title">Title</label>
@@ -29,7 +29,7 @@ $def with(pin, pin_categories, pin_tags, categories1, categories2, categories3)
 	</div>
 	<div class="form-group">
 		<label for="tags">Tags</label>
-		<input type="text" name="tags" id="tags" class="form-control" value="$(' '.join(['#{}'.format(t.tags) for t in pin_tags]))"/>
+		<input type="text" name="tags" id="tags" class="form-control" value="$(' '.join([u'#{}'.format(t.tags) for t in pin_tags]))"/>
 	</div>
 	<div class="form-group">
 		<label for="price">Price</label>
