@@ -1,7 +1,8 @@
 import web
 
-from api.utils import api_response, save_api_request
+from api.models.user import User
 from api.views.base import BaseAPI
+from api.utils import api_response, save_api_request, e_response
 
 from mypinnings.database import connect_db, dbget
 
@@ -48,10 +49,19 @@ class CreateNotification(BaseAPI):
         http://localhost:8080/api/notification/add
         """
         request_data = web.input()
+        required = {'user_id', 'msg', 'url'}
+        required -= set(request_data.keys())
+        if len(required) > 0:
+            return e_response(', '.join(required) + ' is required', 400)
+        if not request_data["user_id"].isdigit():
+            return e_response('user_id must be positive integer', 400)
+        user_id = int(request_data["user_id"])
+        if 0 == web.ctx.orm.query(User).filter(User.id == user_id).count():
+            return e_response('User with id %s is not found' % user_id, 404)
         csid_from_client = request_data.get('csid_from_client', "")
-        db.insert('notifs', user_id=request_data["user_id"],
-                  message=request_data["msg"],
-                  link=request_data["url"])
+        inserted = db.insert('notifs', user_id=user_id,
+                             message=request_data["msg"],
+                             link=request_data["url"])
         return api_response(data={"status": "success"},
                             csid_from_client=csid_from_client,
                             csid_from_server="")

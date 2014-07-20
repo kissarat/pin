@@ -5,8 +5,7 @@ import web
 import math
 from datetime import datetime
 
-from api.utils import api_response, save_api_request, api_response, \
-    photo_id_to_url
+from api.utils import api_response, e_response, save_api_request, photo_id_to_url
 from api.views.base import BaseAPI
 from api.views.social import share, get_comments_to_photo
 from api.entities import UserProfile
@@ -304,6 +303,8 @@ class UpdateProfileViews(BaseUserProfile):
             return api_response(data={}, status=405,
                                 error_code="Required args are missing")
 
+        data = {}
+        error_code = ''
         # Checking if user has a valid logintoken
         status, response_or_user = self.authenticate_by_token(
             request_data.pop('logintoken'))
@@ -311,14 +312,21 @@ class UpdateProfileViews(BaseUserProfile):
         if not status:
             return response_or_user
 
-        db.update('users', where='user = $username',
+        updated = db.update('users', where='username = $username',
                   vars={'username': profile},
                   views=web.SQLLiteral('views + 1'))
+        if 0 == updated:
+            status = 404
+            error_code = 'User %s not found' % profile
+        else:
+            data["status"] = "success"
 
         csid_from_client = request_data.pop('csid_from_client')
         csid_from_server = ""
 
-        return api_response(data={"status": "success"},
+        return api_response(data=data,
+                            status=status,
+                            error_code=error_code,
                             csid_from_client=csid_from_client,
                             csid_from_server=csid_from_server)
 
@@ -489,14 +497,9 @@ class ChangePassword(BaseAPI):
 
             user = db.select('users', {'id': response_or_user["id"]},
                              where='id=$id')[0]
-            new_client_token = user.get('logintoken')
-            csid_from_server = user.get('seriesid')
-            csid_from_client = request_data.get("csid_from_client")
-            data = {
-                "client_token": new_client_token,
-            }
-            response = api_response(data, csid_from_client,
-                                    csid_from_server=csid_from_server)
+            response = api_response(client_token=user.get('logintoken'),
+                                    csid_from_client=request_data.get("csid_from_client"),
+                                    csid_from_server=user.get('seriesid'))
         else:
             data = {}
             user = db.select('users', {'id': response_or_user["id"]},
@@ -1006,11 +1009,6 @@ class PictureRemove(BaseAPI):
         :response data: no extra rsponse
         :to test: curl --data "csid_from_client=1&picture_id=5&logintoken=XXXXXXX" http://localhost:8080/api/profile/userinfo/remove_pic
         """
-        data = {}
-        status = 200
-        csid_from_server = None
-        error_code = ""
-
         request_data = web.input()
         logintoken = request_data.get('logintoken')
         picture_id = request_data.get('picture_id')
@@ -1019,19 +1017,13 @@ class PictureRemove(BaseAPI):
         # User id contains error code
         if not user_status:
             return user
+        if not (picture_id and picture_id.isdigit()):
+            return e_response('picture_id is required', 400)
 
-        csid_from_server = user['seriesid']
-        csid_from_client = request_data.get("csid_from_client")
-
-        self._delete_picture(user['id'], picture_id)
-
-        response = api_response(data=data,
-                                status=status,
-                                error_code=error_code,
-                                csid_from_client=csid_from_client,
-                                csid_from_server=csid_from_server)
-
-        return response
+        if not self._delete_picture(user['id'], picture_id):
+            return e_response('Picture with id %s not found' % picture_id, 404)
+        return api_response(csid_from_client=request_data.get("csid_from_client"),
+                            csid_from_server=user['seriesid'])
 
     def _delete_picture(self, user_id, picture_id):
         user_to_update = web.ctx.orm.query(User)\
@@ -1071,6 +1063,8 @@ class PictureRemove(BaseAPI):
 
                 web.ctx.orm.delete(picture)
                 web.ctx.orm.commit()
+            return True
+        return False
 
     def _get_next_picture(self, album, picture):
         for pic in album.pictures:
@@ -1106,11 +1100,14 @@ class AlbumDefaultPic(BaseAPI):
         # User id contains error code
         if not user_status:
             return user
+        if not (picture_id and picture_id.isdigit()):
+            return e_response('picture_id is required', 400)
 
         csid_from_server = user['seriesid']
         csid_from_client = request_data.get("csid_from_client")
 
-        self._set_picture(user['id'], picture_id)
+        if not self._set_picture(user['id'], picture_id):
+            return e_response('Picture with id %s not found' % picture_id, 404)
 
         response = api_response(data=data,
                                 status=status,
@@ -1137,3 +1134,5 @@ class AlbumDefaultPic(BaseAPI):
             if album.user_id == user.id:
                 album.cover = picture
                 web.ctx.orm.commit()
+            return True
+        return False

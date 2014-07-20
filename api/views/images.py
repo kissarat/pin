@@ -9,8 +9,7 @@ import string
 
 from mypinnings import database
 from api.views.base import BaseAPI
-from api.utils import api_response, save_api_request, photo_id_to_url
-from api.utils import e_response
+from api.utils import api_response, save_api_request, e_response
 from mypinnings.database import connect_db
 from mypinnings.conf import settings
 from mypinnings.media import store_image_from_filename
@@ -157,14 +156,18 @@ class QueryBoardInfo(BaseAPI):
         save_api_request(request_data)
 
         username = request_data.get('username')
-        board_name = request_data.get('board_name') + '%'
+        if not username:
+            return e_response('username is required', 400)
+        board_name = request_data.get('board_name')
+        if not board_name:
+            return e_response('board_name is required', 400)
 
         csid_from_client = request_data.get("csid_from_client")
         csid_from_server = ""
 
         # Get user_id from username
         user = db.select('users', where='username=$username',
-                            vars={'username': username}).list()
+                         vars={'username': username}).list()
 
         if len(user) == 0:
             return e_response("Given user does not exist")
@@ -174,18 +177,19 @@ class QueryBoardInfo(BaseAPI):
         # Get board by user_id and board_name
         board = db.select('boards',
                           where='user_id=$uid and LOWER(name) like $bname',
-                          vars = {'uid': user_id,
-                                  'bname': board_name.lower()}).list()
+                          vars={'uid': user_id,
+                                'bname': board_name.lower() + '%'}).list()
         if len(board) == 0:
-            return e_response("Impossible to find board by name and user_id")
+            return e_response("Impossible to find board %s for user %s" % (board_name, username), 404)
         # Get pins by board.id
         image_ids = db.select('pins', where='board_id=$bid',
                               vars={'bid': board[0]['id']},
                               what='id')
-        response = {}
-        response['img_ids'] = [img["id"] for img in image_ids.list()]
-        response['board'] = board
-        return api_response(data=response, csid_from_server=csid_from_server,
+        return api_response(data={
+                            'img_ids': [img["id"] for img in image_ids.list()],
+                            'board': board
+                            },
+                            csid_from_server=csid_from_server,
                             csid_from_client=csid_from_client)
 
 
@@ -210,19 +214,22 @@ class ImageQuery(BaseAPI):
         csid_from_client = request_data.get("csid_from_client")
         csid_from_server = ""
 
-        query_type = request_data.get("query_type")
+        #query_type = request_data.get("query_type")
         query_params = map(str, request_data.get("query_params"))
         image_data_list = []
         if len(query_params) > 0:
             image_data_list = self.query_image(query_params)
+            status = 200
+            error_code = ''
+        else:
+            status = 400
+            error_code = 'Empty query_params'
 
-        data = {
-            "image_data_list": image_data_list,
-        }
-        response = api_response(data,
-                                csid_from_client=csid_from_client,
-                                csid_from_server=csid_from_server)
-        return response
+        return api_response({"image_data_list": image_data_list},
+                            status=status,
+                            error_code=error_code,
+                            csid_from_client=csid_from_client,
+                            csid_from_server=csid_from_server)
 
     def query_image(self, query_params):
         image_data_list = []
@@ -679,20 +686,12 @@ class QueryGetByHashtags(BaseAPI):
         csid_from_server = ""
 
         if not hashtag:
-            status = 400
-            error_code = "Invalid input data"
-        else:
-            data = self.get_range(hashtag,
-                                  page,
-                                  items_per_page,
-                                  not_private)
-
-        response = api_response(data=data,
-                                status=status,
-                                error_code=error_code,
-                                csid_from_client=csid_from_client,
-                                csid_from_server=csid_from_server)
-        return response
+            return e_response('hashtag is required', 400)
+        return api_response(self.get_range(hashtag, page, items_per_page, not_private),
+                            status=status,
+                            error_code=error_code,
+                            csid_from_client=csid_from_client,
+                            csid_from_server=csid_from_server)
 
     def get_range(self, hashtag, page, items_per_page, not_private):
         data = {}

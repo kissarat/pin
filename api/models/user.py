@@ -8,6 +8,7 @@ from sqlalchemy.sql.expression import text
 from album import Album
 from picture import Picture
 
+
 class User(Base, Serializer):
     __tablename__ = 'users'
     __table_args__ = {'extend_existing':True}

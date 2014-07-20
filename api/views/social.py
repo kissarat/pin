@@ -1,7 +1,8 @@
 import web
 import os
+from api.models.user import User
 
-from api.utils import api_response, save_api_request
+from api.utils import api_response, save_api_request, e_response
 from api.entities import UserProfile
 
 from api.views.base import BaseAPI
@@ -12,6 +13,9 @@ import requests
 
 from api.models.picture_comment import PictureComment
 from api.models.picture_like import PictureLike
+from api.models.picture import Picture
+
+from sqlalchemy.exc import IntegrityError
 
 db = connect_db()
 
@@ -233,17 +237,21 @@ class QueryFollows(BaseAPI):
         :response data: list of users
         """
         data = web.input()
-        uid = data.get("user_id")
+        user_id = data.get("user_id")
         logintoken = data.get("logintoken", "")
         status, response_or_user = self.authenticate_by_token(logintoken)
 
         # Login was not successful
         if not status:
             return response_or_user
-        if query_type == "followed-by":
-            follows = UserProfile.query_followed_by(uid, response_or_user.id)
+        if not user_id:
+            return e_response('user_id is required', 400)
+        if 0 == web.ctx.orm.query(User).filter(User.id == user_id).count():
+            return e_response('User with id %s is not found' % user_id, 404)
+        if "followed-by" == query_type:
+            follows = UserProfile.query_followed_by(user_id, response_or_user.id)
         else:
-            follows = UserProfile.query_following(uid, response_or_user.id)
+            follows = UserProfile.query_following(user_id, response_or_user.id)
         csid_from_client = data.pop('csid_from_client')
         return api_response(data=follows, csid_from_client=csid_from_client,
                             csid_from_server="")
@@ -555,13 +563,18 @@ class AddCommentToPicture(BaseAPI):
         from_user_id = user['id']
 
         if status == 200:
-            comment = PictureComment(picture_id, from_user_id, comment)
+            try:
+                comment = PictureComment(picture_id, from_user_id, comment)
 
-            web.ctx.orm.add(comment)
-            web.ctx.orm.commit()
+                web.ctx.orm.add(comment)
+                web.ctx.orm.commit()
 
-            if comment.id:
-                data['comment'] = comment.to_serializable_dict()
+                if comment.id:
+                    data['comment'] = comment.to_serializable_dict()
+            except IntegrityError as ex:
+                web.ctx.orm.rollback()
+                status = 502
+                error_code = ex.message
 
         response = api_response(data=data,
                                 status=status,
@@ -606,43 +619,55 @@ class LikeDislikePicture(BaseAPI):
             status = 400
             error_code = "picture_id cannot be empty"
 
+        # pictures = web.ctx.orm.query(Picture).filter(
+        #     Picture.id == picture_id).all()
+        # if 0 == len(pictures):
+        #     status = 404
+        #     error_code = "Picture with id %s not found" % picture_id
+
         # User id contains error code
         if not user_status:
             return user
 
         csid_from_server = user['seriesid']
         user_id = user['id']
+        likes = []
 
         if status == 200:
-            if not action or action == "like":
-                likes = web.ctx.orm.query(PictureLike).filter(
-                    PictureLike.picture_id == picture_id,
-                    PictureLike.user_id == user_id
-                ).all()
+            try:
+                if not action or action == "like":
+                    likes = web.ctx.orm.query(PictureLike).filter(
+                        PictureLike.picture_id == picture_id,
+                        PictureLike.user_id == user_id
+                    ).all()
 
-                if len(likes) == 0:
-                    like = PictureLike(picture_id, user_id)
+                    if len(likes) == 0:
+                        like = PictureLike(picture_id, user_id)
 
-                    web.ctx.orm.add(like)
+                        web.ctx.orm.add(like)
+                        web.ctx.orm.commit()
+
+                        data['action'] = 'like'
+                else:
+                    likes = web.ctx.orm.query(PictureLike).filter(
+                        PictureLike.picture_id == picture_id,
+                        PictureLike.user_id == user_id
+                    ).all()
+
+                    for like in likes:
+                        web.ctx.orm.delete(like)
+
                     web.ctx.orm.commit()
 
-                    data['action'] = 'like'
-            else:
+                    data['action'] = 'dislike'
+
                 likes = web.ctx.orm.query(PictureLike).filter(
-                    PictureLike.picture_id == picture_id,
-                    PictureLike.user_id == user_id
+                    PictureLike.picture_id == picture_id
                 ).all()
-
-                for like in likes:
-                    web.ctx.orm.delete(like)
-                
-                web.ctx.orm.commit()
-
-                data['action'] = 'dislike'
-
-            likes = web.ctx.orm.query(PictureLike).filter(
-                PictureLike.picture_id == picture_id
-            ).all()
+            except IntegrityError as ex:
+                web.ctx.orm.rollback()
+                status = 502
+                error_code = ex.message
 
             data['likes'] = \
                 [like.to_serializable_dict() for like in likes]
@@ -763,11 +788,12 @@ def get_comments_to_photo(photo_id):
 #                                 csid_from_server=csid_from_server)
 #         return response
 
+
 class LikeOrUnlikePin(BaseAPI):
     """
     Adds like to a certain pin.
 
-    :link: /api/social/pin/like
+    :link: /api/social/pin/like-unlike
     """
     def POST(self):
         """
@@ -790,11 +816,14 @@ class LikeOrUnlikePin(BaseAPI):
 
         pin_id = request_data.get('pin_id')
         if not pin_id:
-            error_code = "Pin id can't be empty"
+            error_code = "pin_id can't be empty"
             return api_response(data={},
                                 error_code=error_code,
                                 csid_from_client=csid_from_client,
                                 csid_from_server=csid_from_server)
+        if 0 == db.query('select count(*) as num from pins where id=$id',
+                         vars={'id': pin_id})[0].num:
+            return e_response('Pin with id=%s nof found' % pin_id, 404)
         try:
             db.insert('likes', user_id=user_or_response["id"], pin_id=pin_id)
         except Exception:
