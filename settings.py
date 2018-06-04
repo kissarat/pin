@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import logging
 
 try:
     import local_settings

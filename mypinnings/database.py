@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 
 db = None
 
+
 def connect_db():
     global db
     if db is not None:
@@ -14,14 +15,17 @@ def connect_db():
     db.printing = False
     return db
 
+
 def dbget(table, row_id):
     global db
     rows = db.select(table, where='id = $id', vars={'id': row_id})
     return rows[0] if rows else None
 
+
 def get_db():
     global db
     return db
+
 
 def create_db_connection_string():
     params = {'user': settings.params.get('user'),
@@ -30,8 +34,6 @@ def create_db_connection_string():
        'dbn': settings.params.get('dbn'),
        'db': settings.params.get('db')}
     return "%(dbn)s://%(user)s:%(pwd)s@%(host)s/%(db)s" % params
-
-
 
 
 def load_sqla(handler):

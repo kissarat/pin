@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import web
-import logging
 
 import api.views.base
 import api.views.notifications
@@ -10,20 +9,23 @@ import api.views.profile
 import api.views.social
 import api.views.search
 import api.views.categories
-from mypinnings.database import load_sqla
 import api.views.websearch
+from api.utils import e_response
 from mypinnings.database import load_sqla
+
 
 class redirect:
     """
     Find and redirect to existed controller with '/' or without it
     """
+
     def GET(self, path):
         web.seeother('/' + path)
 
+
 urls = (
-    "/(.*)/", 'redirect', # Handle urls with slash and without it
-    "/query/notification", api.views.notifications.Notification, # API handler for notifications
+    "/(.*)/", 'redirect',  # Handle urls with slash and without it
+    "/query/notification", api.views.notifications.Notification,  # API handler for notifications
     "/notification/add", api.views.notifications.CreateNotification,
     "/notification/(?P<notification_id>\d+)", api.views.notifications.GetNotification,
 
@@ -34,7 +36,7 @@ urls = (
     "/signup/register", api.views.signup.Register,
 
     # API to user signup: confirmation user email
-    "/signup/confirmuser", api.views.signup.Confirmuser,
+    "/signup/confirmuser", api.views.signup.ConfirmUser,
     "/signup/resend_activation", api.views.signup.ResendActivation,
 
     # API to upload images
@@ -46,8 +48,7 @@ urls = (
     "/image/query/category", api.views.images.QueryCategory,
     "/image/query/hashtags", api.views.images.QueryHashtags,
     "/image/follow-board", api.views.images.FollowOrUnfollowBoard,
-    "/image/query/get_by_hashtags", \
-        api.views.images.QueryGetByHashtags,
+    "/image/query/get_by_hashtags", api.views.images.QueryGetByHashtags,
 
     # API to user profile: manage user products
     "/profile/mgl", api.views.profile.ManageGetList,
@@ -72,20 +73,11 @@ urls = (
     "/social/poup", api.views.social.PostingOnUserPage,
     "/social/query/(followed-by|following)", api.views.social.QueryFollows,
     "/social/message", api.views.social.SocialMessage,
-    "/social/message_to_conversation", \
-        api.views.social.SocialMessageToConversation,
-    "/social/query/messages", \
-        api.views.social.SocialQueryMessages,
-    "/social/query/conversations", \
-        api.views.social.SocialQueryConversations,
-    "/social/picture/add_comment", \
-        api.views.social.AddCommentToPicture,
-    "/social/picture/like_dislike", \
-        api.views.social.LikeDislikePicture,
-    # "/social/photo/get_comments", \
-    #     api.views.social.GetCommentsToPhoto,
-    # "/social/photo/get_likes", \
-    #     api.views.social.GetLikesToPhoto,
+    "/social/message_to_conversation", api.views.social.SocialMessageToConversation,
+    "/social/query/messages", api.views.social.SocialQueryMessages,
+    "/social/query/conversations", api.views.social.SocialQueryConversations,
+    "/social/picture/add_comment", api.views.social.AddCommentToPicture,
+    "/social/picture/like_dislike", api.views.social.LikeDislikePicture,
     "/social/pin/like-unlike", api.views.social.LikeOrUnlikePin,
 
     # API for search: items and users
@@ -98,10 +90,30 @@ urls = (
 
     # API for Web search: images
     "/websearch/images", api.views.websearch.Image
-    )
+)
 web.config.debug = True
+
+
+def check_global_params(handler):
+    req = web.input(
+        project_id='1.0',
+        format_type='JSON',
+        os_type='web')
+    if '1.0' != req.get('project_id'):
+        return e_response('project_id must be 1.0', 400)
+    if 'JSON' != req.get('format_type'):
+        return e_response('Server supports JSON format_type only', 400)
+    if req.get('os_type') not in ['web', 'ios', 'android', 'other']:
+        return e_response('os_type can be web|ios|android|other only', 400)
+    # try:
+    return handler()
+    # except Exception as ex:
+    #     return e_response('Unhandled exception! ' + ex.message)
+
+
 api_app = web.application(urls, globals(), autoreload=True)
 api_app.add_processor(load_sqla)
+api_app.add_processor(check_global_params)
 
-if __name__ == "__main__":
+if '__main__' == __name__:
     api_app.run()

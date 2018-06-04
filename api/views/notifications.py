@@ -2,40 +2,21 @@ import web
 
 from api.models.user import User
 from api.views.base import BaseAPI
-from api.utils import api_response, save_api_request, e_response
+from api.utils import api_response, save_api_request, e_response, authenticate
 
 from mypinnings.database import connect_db, dbget
 
-db = connect_db()
-
 
 class Notification(BaseAPI):
+    @authenticate
     def POST(self):
         """
         Return list of user notifications sorted by timestamp
         depeds on user logintoken
         """
-        request_data = web.input()
-        save_api_request(request_data)
-
-        logintoken = request_data.get('logintoken')
-        csid_from_client = request_data.get('csid_from_client')
-        user_status, user = self.authenticate_by_token(logintoken)
-
-        # User id contains error code
-        if not user_status:
-            return user
-
-        csid_from_server = user['seriesid']
-
-        notification_list = db.select('notifs', {"user_id": user['id']},
-            where='user_id=$user_id', order="timestamp DESC")
-        data = notification_list.list()
-
-        response = api_response(data=data,
-                                csid_from_client=csid_from_client,
-                                csid_from_server=csid_from_server)
-        return response
+        self.data = self.notifications
+        self.notifications = {}
+        return self.respond()
 
 
 class CreateNotification(BaseAPI):
@@ -48,28 +29,28 @@ class CreateNotification(BaseAPI):
         curl --data "csid_from_client=11&user_id=78&msg=message&url=some_url" \
         http://localhost:8080/api/notification/add
         """
-        request_data = web.input()
+        params = web.input()
         required = {'user_id', 'msg', 'url'}
-        required -= set(request_data.keys())
+        required -= set(params.keys())
         if len(required) > 0:
             return e_response(', '.join(required) + ' is required', 400)
-        if not request_data["user_id"].isdigit():
+        if not params["user_id"].isdigit():
             return e_response('user_id must be positive integer', 400)
-        user_id = int(request_data["user_id"])
+        user_id = int(params["user_id"])
         if 0 == web.ctx.orm.query(User).filter(User.id == user_id).count():
             return e_response('User with id %s is not found' % user_id, 404)
-        csid_from_client = request_data.get('csid_from_client', "")
-        inserted = db.insert('notifs', user_id=user_id,
-                             message=request_data["msg"],
-                             link=request_data["url"])
-        return api_response(data={"status": "success"},
-                            csid_from_client=csid_from_client,
-                            csid_from_server="")
+        try:
+            self.db.insert('notifs', user_id=user_id, message=params["msg"], link=params["url"])
+        except Exception as ex:
+            return e_response(ex.message)
+        return self.respond()
+
 
 class GetNotification(BaseAPI):
     """
     Allows to get individual notifications
     """
+    @authenticate
     def POST(self, notification_id):
         """ Method responsible for retuning individual notifications
 
@@ -78,28 +59,12 @@ class GetNotification(BaseAPI):
         :to_test: curl --data "csid_from_client=1&logintoken=zs4jxj0yM2"\
         http://localhost:8080/api/notification/177
         """
-        request_data = web.input()
-        save_api_request(request_data)
-
-        logintoken = request_data.get('logintoken')
-        csid_from_client = request_data.get('csid_from_client')
-        user_status, user = self.authenticate_by_token(logintoken)
-
-        # User id contains error code
-        if not user_status:
-            return api_response(data={}, status=405,
-                                error_code="User was not found")
-
-        csid_from_server = user['seriesid']
-        notif = dbget('notifs', notification_id)
+        self.data = dbget('notifs', notification_id)
 
         # Do not allow to read notification related to other users
-        if int(notif.user_id) != int(user.id):
-            return api_response(data={}, status=405,
-                                error_code="Access denied")
+        if self.data.user_id != self._user.id:
+            return e_response('User can access to his own notifications only', 403)
 
         # Remove notification which was already reviewed
-        db.delete('notifs', where='id = $id', vars={'id': notification_id})
-        return api_response(data=notif,
-                            csid_from_client=csid_from_client,
-                            csid_from_server=csid_from_server)
+        self.db.delete('notifs', where='id = $id', vars={'id': notification_id})
+        return self.respond()

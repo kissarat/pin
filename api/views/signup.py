@@ -1,16 +1,17 @@
 import web
 import random
+from sqlalchemy import update
+from api.models.user import User
 
-from api.utils import api_response, save_api_request
+from api.utils import api_response, save_api_request, e_response, authenticate
 from api.views.base import BaseAPI
 
-import mypinnings
 from mypinnings.database import connect_db
-from mypinnings.auth import authenticate_user_email, \
-    authenticate_user_username, login_user
+from mypinnings.auth import login_user
 from mypinnings.register import add_default_lists, send_activation_email
 from mypinnings import auth
 from mypinnings import session
+from ser import sess
 
 
 db = connect_db()
@@ -23,66 +24,33 @@ class Auth(BaseAPI):
         """
         request_data = web.input()
         save_api_request(request_data)
-        if not self.is_valid():
-            return self.not_enough_data()
         email = request_data.get("email")
+        if not email:
+            return e_response('username or email is required', 400)
         password = request_data.get("password")
-        user_id = self.is_authenticated(email, password)
-        if not user_id:
+        if not password:
+            return e_response('password is required', 400)
+        user = self.authenticate(email, password)
+        if not user:
             return self.access_denied("Login or password wrong")
-        user = self.get_user(user_id)
-        from ser import sess
-        login_user(sess, user_id)
-        data = {
-            "user_id": user.get("id"),
-            "email": user.get("email"),
-            "username": user.get("username")
-        }
-        response = api_response(
-            data,
-            csid_from_client=request_data.get("csid_from_client"),
-            csid_from_server=user.get('seriesid'),
-            client_token=user.get('logintoken')
-        )
-        return response
+        login_user(sess, user.get('id'))
+        self.data["user_id"] = user.get("id")
+        self.data["email"] = user.get("email")
+        self.data["username"] = user.get("username")
+        return self.respond()
 
-    def get_user(self, user_id):
-        """
-            Get user record by user_id
-        """
-        users = db.select('users', {"id": user_id}, where="id=$id")
-        if len(users) > 0:
-            return users.list()[0]
-        return False
-
-    def is_authenticated(self, email, password):
-        """
-            Check if user is is_authenticated
-        """
-        user_id = authenticate_user_email(email, password)
-        if not user_id:
-            user_id = authenticate_user_username(email, password)
-        return user_id
-
-    def is_valid(self):
-        """
-            Check it request parameters are valid
-        """
-        data = web.input()
-        email = data.get('email')
-        password = data.get('password')
-        if not email or not password:
-            return False
-        return True
-
-    def not_enough_data(self):
-        """
-            Response if not enough data in request
-        """
-        data = {}
-        status = 405
-        error_code = "Not enough parameters"
-        return api_response(data=data, status=status, error_code=error_code)
+    @staticmethod
+    def authenticate(username, password):
+        user = web.ctx.orm.query(User)\
+            .filter(User.username == username or User.email == username)\
+            .first()
+        if not user:
+            return
+        pw_hash = str(hash(password))
+        pw_salt = user['pw_salt']
+        pw_hash = str(hash(pw_hash + pw_salt))
+        if pw_hash == user['pw_hash']:
+            return user
 
 
 class Register(BaseAPI):
@@ -187,58 +155,30 @@ class Register(BaseAPI):
         return True, error_code
 
 
-class Confirmuser(BaseAPI):
+class ConfirmUser(BaseAPI):
     """Confirmation of user email
 
     Response:
         status = 200 or error_code
     """
+    @authenticate
     def POST(self):
         """
         Compare given activation code with existed.
         If they are identical - activate new user
         """
-        status_error = 200
-        error_code = ""
-        data = {}
+        hashed_activation = web.input().get("hashed_activation")
+        activation = self.user.get('activation')
+        if not hashed_activation:
+            return e_response("Not found hashed_activation field in request", 400)
+        if hash(str(activation)) != int(hashed_activation):
+            return e_response("Wrong activation code given from user", 403)
 
-        request_data = web.input()
-        save_api_request(request_data)
-        login_token = request_data.get("logintoken")
-        hashed_activation = request_data.get("hashed_activation")
-        csid_from_client = request_data.get('csid_from_client')
+        update(User).where(User.id == self.user['id']).values(activation=0)
+        # db.update('users', activation=0,
+        #           vars={'id': self.user["id"]}, where="id=$id")
 
-        status, response_or_user = self.authenticate_by_token(login_token)
-        if not status:
-            return response_or_user
-
-        user = db.select('users',
-                         {'id': response_or_user['id']},
-                         where='id=$id')[0]
-        csid_from_server = user.get('seriesid')
-        activation = user.get('activation')
-        hashed = hash(str(activation))
-
-        if hashed_activation:
-            if hashed != int(hashed_activation):
-                status_error = 405
-                error_code = "wrong activation code given from user"
-        else:
-            status_error = 405
-            error_code = "Not found hashed_activation field in request"
-
-        if status_error == 200:
-            db.update('users', activation=0,
-                      vars={'id': response_or_user["id"]}, where="id=$id")
-
-        response = api_response(
-            data,
-            status=status_error,
-            error_code=error_code,
-            csid_from_client=csid_from_client,
-            csid_from_server=csid_from_server,)
-
-        return response
+        return self.respond()
 
 
 class ResendActivation(BaseAPI):
